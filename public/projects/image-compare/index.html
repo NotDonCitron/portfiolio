@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bildvergleich Tool | Kevin Hintermaier</title>
+    <meta name="description"
+        content="Vergleiche zwei Bilder nebeneinander, mit Schieberegler-Overlay oder Differenz-Ansicht. Ein leistungsstarkes Bildvergleichs-Tool.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <a href="../../" class="back-link">← Zurück zum Portfolio</a>
+            <h1>🔍 Bildvergleich Tool</h1>
+            <p class="subtitle">Lade zwei Bilder hoch und vergleiche sie visuell</p>
+        </header>
+
+        <!-- Info Box für Nicht-Techniker -->
+        <section class="info-box">
+            <h2>ℹ️ Was macht dieses Projekt?</h2>
+            <p>Dieses Tool ermöglicht es, <strong>zwei Bilder miteinander zu vergleichen</strong> und Unterschiede
+                automatisch zu erkennen.
+                Es wird zum Beispiel in der Qualitätssicherung, beim Testen von Webseiten oder beim Vergleichen von
+                Dokumenten eingesetzt.</p>
+
+            <h3>🎯 Demonstrierte Fähigkeiten:</h3>
+            <ul class="skills-list">
+                <li><strong>Frontend-Entwicklung:</strong> HTML, CSS, JavaScript – die Benutzeroberfläche, die Sie
+                    gerade sehen</li>
+                <li><strong>Backend-Entwicklung:</strong> Python mit Flask – der Server, der die Bildanalyse durchführt
+                </li>
+                <li><strong>Bildverarbeitung:</strong> OpenCV – eine professionelle Bibliothek für Computer Vision und
+                    künstliche Intelligenz</li>
+                <li><strong>API-Design:</strong> Kommunikation zwischen Frontend und Backend über REST-Schnittstellen
+                </li>
+            </ul>
+
+            <p class="info-note">👆 <em>Probieren Sie es aus: Laden Sie zwei ähnliche Bilder hoch und klicken Sie auf
+                    "OpenCV KI" um die KI-gestützte Analyse zu sehen!</em></p>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <div class="example-controls">
+                <select id="example-select" class="example-select" onchange="loadExampleScenario(this.value)">
+                    <option value="" disabled selected>✨ Beispiel-Szenario laden...</option>
+                    <option value="fishing">🎣 Angelszene (Template Match)</option>
+                    <option value="pcb">🔌 Platine (Template Match)</option>
+                    <option value="doc">📄 Dokument (Diff/SSIM)</option>
+                </select>
+            </div>
+
+            <div class="upload-container">
+                <div class="upload-zone" id="upload-zone-1" data-slot="1">
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <p class="upload-text">Bild 1 (Quelle/Suchbereich)</p>
+                        <p class="upload-hint">oder klicken zum Auswählen</p>
+                    </div>
+                    <img class="preview-image" id="preview-1" alt="Bild 1 Vorschau">
+                    <button class="clear-btn" id="clear-1" title="Bild entfernen">✕</button>
+                    <input type="file" id="file-input-1" accept="image/*" hidden>
+                </div>
+
+                <div class="vs-badge">VS</div>
+
+                <div class="upload-zone" id="upload-zone-2" data-slot="2">
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <p class="upload-text">Bild 2 (Template/Objekt)</p>
+                        <p class="upload-hint">oder klicken zum Auswählen</p>
+                    </div>
+                    <img class="preview-image" id="preview-2" alt="Bild 2 Vorschau">
+                    <button class="clear-btn" id="clear-2" title="Bild entfernen">✕</button>
+                    <input type="file" id="file-input-2" accept="image/*" hidden>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mode Selection -->
+        <section class="mode-section" id="mode-section">
+            <h2>Vergleichsmodus</h2>
+            <div class="mode-buttons">
+                <button class="mode-btn active" data-mode="side-by-side">
+                    <span class="mode-icon">◫</span>
+                    <span>Nebeneinander</span>
+                </button>
+                <button class="mode-btn" data-mode="slider">
+                    <span class="mode-icon">↔</span>
+                    <span>Schieberegler</span>
+                </button>
+                <button class="mode-btn" data-mode="diff">
+                    <span class="mode-icon">△</span>
+                    <span>Differenz</span>
+                </button>
+                <button class="mode-btn opencv-btn" data-mode="opencv">
+                    <span class="mode-icon">🐍</span>
+                    <span>OpenCV KI</span>
+                </button>
+                <button class="mode-btn template-btn" data-mode="template">
+                    <span class="mode-icon">🎯</span>
+                    <span>Template Match</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Comparison View -->
+        <section class="comparison-section" id="comparison-section">
+            <!-- Side by Side View -->
+            <div class="view-container active" id="side-by-side-view">
+                <div class="side-by-side">
+                    <div class="side-image">
+                        <span class="image-label">Bild 1</span>
+                        <img id="compare-img-1" alt="Bild 1">
+                    </div>
+                    <div class="side-image">
+                        <span class="image-label">Bild 2</span>
+                        <img id="compare-img-2" alt="Bild 2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slider View -->
+            <div class="view-container" id="slider-view">
+                <div class="slider-container">
+                    <div class="slider-image-wrapper">
+                        <img id="slider-img-1" class="slider-img" alt="Bild 1">
+                        <div class="slider-overlay" id="slider-overlay">
+                            <img id="slider-img-2" class="slider-img" alt="Bild 2">
+                        </div>
+                        <div class="slider-handle" id="slider-handle">
+                            <div class="handle-line"></div>
+                            <div class="handle-grip">⬌</div>
+                            <div class="handle-line"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diff View -->
+            <div class="view-container" id="diff-view">
+                <div class="diff-controls">
+                    <label>
+                        <span>Empfindlichkeit:</span>
+                        <input type="range" id="diff-threshold" min="0" max="100" value="30">
+                        <span id="diff-threshold-value">30</span>
+                    </label>
+                    <label>
+                        <span>Markierungsfarbe:</span>
+                        <input type="color" id="diff-color" value="#ff0000">
+                    </label>
+                </div>
+                <div class="diff-canvas-wrapper">
+                    <canvas id="diff-canvas"></canvas>
+                </div>
+                <div class="diff-stats" id="diff-stats">
+                    <span>Unterschied: <strong id="diff-percentage">0%</strong></span>
+                    <span>Geänderte Pixel: <strong id="diff-pixels">0</strong></span>
+                </div>
+            </div>
+
+            <!-- OpenCV Analysis View -->
+            <div class="view-container" id="opencv-view">
+                <div class="opencv-status" id="opencv-status">
+                    <div class="status-indicator offline"></div>
+                    <span>Backend: <strong id="backend-status">Prüfe...</strong></span>
+                    <button class="action-btn small" id="analyze-btn" disabled>
+                        🔬 OpenCV Analyse starten
+                    </button>
+                </div>
+
+                <div class="opencv-loading" id="opencv-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Analysiere mit OpenCV...</p>
+                </div>
+
+                <div class="opencv-results" id="opencv-results" style="display: none;">
+                    <!-- SSIM Result -->
+                    <div class="result-card">
+                        <h3>📊 Strukturelle Ähnlichkeit (SSIM)</h3>
+                        <div class="result-score">
+                            <span class="score-value" id="ssim-score">0.00</span>
+                            <span class="score-label" id="ssim-label">Berechne...</span>
+                        </div>
+                        <p class="result-desc">Misst wahrgenommene Bildqualität und strukturelle Informationen. Wert von
+                            -1 bis 1.</p>
+                        <div class="result-image">
+                            <img id="ssim-diff-img" alt="SSIM Differenz-Heatmap">
+                        </div>
+                    </div>
+
+                    <!-- Feature Matching Result -->
+                    <div class="result-card">
+                        <h3>🎯 ORB Merkmalserkennung</h3>
+                        <div class="result-stats" id="feature-stats">
+                            <div class="stat">
+                                <span class="stat-value" id="features-img1">0</span>
+                                <span class="stat-label">Merkmale Bild 1</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="features-img2">0</span>
+                                <span class="stat-label">Merkmale Bild 2</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="features-matches">0</span>
+                                <span class="stat-label">Übereinstimmungen</span>
+                            </div>
+                        </div>
+                        <p class="result-desc">ORB (Oriented FAST and Rotated BRIEF) erkennt und vergleicht
+                            Schlüsselpunkte zwischen Bildern.</p>
+                        <div class="result-image">
+                            <img id="feature-match-img" alt="Merkmalserkennung Visualisierung">
+                        </div>
+                    </div>
+
+                    <!-- Edge Detection Result -->
+                    <div class="result-card">
+                        <h3>🔲 Canny Kantenerkennung</h3>
+                        <div class="result-score">
+                            <span class="score-value" id="edge-similarity">0%</span>
+                            <span class="score-label">Kanten-Ähnlichkeit</span>
+                        </div>
+                        <p class="result-desc">Vergleicht strukturelle Kanten. Grün = nur Bild 1, Rot = nur Bild 2, Weiß
+                            = Beide.</p>
+                        <div class="result-image">
+                            <img id="edge-diff-img" alt="Kantenerkennung Vergleich">
+                        </div>
+                    </div>
+
+                    <!-- Histogram Result -->
+                    <div class="result-card">
+                        <h3>📈 Histogramm-Analyse</h3>
+                        <div class="result-stats">
+                            <div class="stat">
+                                <span class="stat-value" id="hist-correlation">0.00</span>
+                                <span class="stat-label">Korrelation</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="hist-bhattacharyya">0.00</span>
+                                <span class="stat-label">Bhattacharyya</span>
+                            </div>
+                        </div>
+                        <p class="result-desc">Vergleicht Farbverteilung mit HSV-Histogrammen. Korrelation: 1 =
+                            identisch. Bhattacharyya: 0 = identisch.</p>
+                    </div>
+
+                    <!-- Pixel Diff Heatmap -->
+                    <div class="result-card">
+                        <h3>🔥 Pixel-Differenz Heatmap</h3>
+                        <div class="result-stats">
+                            <div class="stat">
+                                <span class="stat-value" id="pixel-diff-percent">0%</span>
+                                <span class="stat-label">Geändert</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="pixel-diff-count">0</span>
+                                <span class="stat-label">Pixel</span>
+                            </div>
+                        </div>
+                        <div class="result-image">
+                            <img id="pixel-heatmap-img" alt="Pixel-Differenz Heatmap">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Matching View -->
+            <div class="view-container" id="template-view">
+                <div class="opencv-status">
+                    <button class="action-btn small" id="run-template-btn">
+                        🎯 Template Suche starten
+                    </button>
+                </div>
+
+                <div class="opencv-loading" id="template-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Suche Template...</p>
+                </div>
+
+                <div class="opencv-results single-result" id="template-results" style="display: none;">
+                    <div class="result-card full-width">
+                        <h3>🎯 Gefundenes Objekt</h3>
+                        <div class="result-score">
+                            <span class="score-value" id="template-confidence">0%</span>
+                            <span class="score-label">Übereinstimmung</span>
+                        </div>
+                        <p class="result-desc">Das Template wurde im Bild gesucht. Position und Konfidenz werden
+                            angezeigt.</p>
+                        <div class="result-image large">
+                            <img id="template-result-img" alt="Template Matching Ergebnis">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button class="action-btn" id="download-btn">
+                    <span>⬇</span> Ergebnis herunterladen
+                </button>
+                <button class="action-btn secondary" id="swap-btn">
+                    <span>⇄</span> Bilder tauschen
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Erstellt mit ❤️ von Kevin Hintermaier</p>
+            <p><a href="https://github.com/yourusername/image-compare" target="_blank">Auf GitHub ansehen</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

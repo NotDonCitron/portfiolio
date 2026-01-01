@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/* THEME ENGINE: 5 Universes */
+
+/* THEME ENGINE: Explicit Body Selectors to prevent White Screen */
+
+/* CYBERPUNK (Default) */
+body[data-theme='cyberpunk'] {
+  --bg-primary: #09090b;
+  --bg-card: rgba(24, 24, 27, 0.6);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --accent-color: #10b981;
+  --text-primary: #e4e4e7;
+  --text-secondary: #a1a1aa;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --border-radius: 24px;
+  --border-width: 1px;
+  --shadow: none;
+  
+  background-color: #09090b !important; /* Force Dark */
+  color: #e4e4e7;
+}
+
+/* CORPORATE */
+body[data-theme='corporate'] {
+  --bg-primary: #ffffff;
+  --bg-card: #f4f4f5;
+  --border-color: #e4e4e7;
+  --accent-color: #2563eb;
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --font-body: 'Arial', sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --border-radius: 0px;
+  --border-width: 1px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  background-color: #ffffff !important;
+  color: #18181b;
+}
+
+/* RETRO */
+body[data-theme='retro'] {
+  --bg-primary: #008080;
+  --bg-card: #c0c0c0;
+  --border-color: #808080;
+  --accent-color: #000080;
+  --text-primary: #000000;
+  --text-secondary: #404040;
+  --font-body: 'MS Sans Serif', sans-serif;
+  --font-mono: 'Courier', monospace;
+  --border-radius: 0px;
+  --border-width: 2px;
+  --shadow: 2px 2px 0px #000000;
+
+  background-color: #008080 !important;
+  color: #000000;
+}
+
+/* GAMER */
+body[data-theme='gamer'] {
+  --bg-primary: #000000;
+  --bg-card: #121212;
+  --border-color: #ef4444;
+  --accent-color: #ef4444;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --font-body: 'Bruno Ace SC', cursive;
+  --font-mono: 'Consolas', monospace;
+  --border-radius: 4px;
+  --border-width: 2px;
+  --shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+
+  background-color: #000000 !important;
+  color: #ffffff;
+}
+
+/* ZEN */
+body[data-theme='zen'] {
+  --bg-primary: #eceff4;
+  --bg-card: #ffffff;
+  --border-color: transparent;
+  --accent-color: #88c0d0;
+  --text-primary: #2e3440;
+  --text-secondary: #4c566a;
+  --font-body: 'Quicksand', sans-serif;
+  --font-mono: 'Inconsolata', monospace;
+  --border-radius: 32px;
+  --border-width: 0px;
+  --shadow: 0 10px 30px rgba(0,0,0,0.05);
+
+  background-color: #eceff4 !important;
+  color: #2e3440;
+}
+
+/* Fallback for safety */
+body {
+  background-color: #09090b;
+  color: #e4e4e7;
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Noise Visibility Control */
+body[data-theme='cyberpunk'] .noise-bg {
+  opacity: 0.03;
+  display: block;
+}
+body[data-theme='corporate'] .noise-bg,
+body[data-theme='retro'] .noise-bg,
+body[data-theme='zen'] .noise-bg {
+  display: none;
+}
+
+/* Base Card Class using Variables */
+.bento-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.bento-card:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+/* Win95 Specific Overrides */
+[data-theme='retro'] .bento-card {
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  box-shadow: 1px 1px 0px #000000;
+}
+[data-theme='retro'] .bento-card:hover {
+  transform: none;
+}
+
+/* Terminal Styles */
+.terminal-text {
+  font-family: var(--font-mono);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+/* Gradient Text for Impact - Theme Aware */
+.gradient-text-hero {
+  background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme='retro'] .gradient-text-hero {
+   background: none;
+   -webkit-text-fill-color: var(--text-primary);
+}
+[data-theme='gamer'] .gradient-text-hero {
+   background: linear-gradient(to right, #ff0000, #ff8800);
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   text-shadow: 0 0 10px rgba(255,0,0,0.5);
+}
+

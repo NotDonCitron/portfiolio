@@ -1,0 +1,983 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
+import {
+   FaLinux, FaPython, FaDocker, FaGitAlt, FaTerminal,
+   FaNetworkWired, FaCheckCircle, FaEnvelope, FaGithub, FaServer, FaRocket, FaPlay,
+   FaCloud, FaShieldAlt, FaHdd, FaWifi, FaAws, FaBrain, FaRobot,
+   FaGhost, FaBriefcase, FaSave, FaGamepad, FaLeaf, FaPalette, FaGlobeAmericas, FaLock, FaWindows
+} from 'react-icons/fa';
+import {
+   SiTypescript, SiReact, SiTailwindcss, SiGnubash, SiPihole, SiProxmox,
+   SiAnsible, SiTerraform, SiNginx, SiGrafana, SiPrometheus, SiWireguard,
+   SiOpenai, SiPytorch, SiNumpy, SiOpencv, SiKubernetes
+} from 'react-icons/si';
+import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
+import './index.css';
+
+// --- MacOS Dock Component ---
+
+function DockIcon({ mouseX, icon: Icon, label, onClick }: { mouseX: MotionValue, icon: any, label: string, onClick: () => void }) {
+   const ref = useRef<HTMLDivElement>(null);
+
+   const distance = useTransform(mouseX, (val) => {
+      const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
+      return val - bounds.x - bounds.width / 2;
+   });
+
+   const widthSync = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
+   const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
+
+   return (
+      <motion.div
+         ref={ref}
+         style={{ width }}
+         className="aspect-square w-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center relative group cursor-pointer hover:border-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 backdrop-blur-md"
+         onClick={onClick}
+      >
+         <Icon className="text-[var(--text-primary)] w-5 h-5 group-hover:text-[var(--accent-color)] transition-colors" />
+         <span className="absolute -top-10 px-2 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-color)] text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            {label}
+         </span>
+      </motion.div>
+   );
+}
+
+const Dock = () => {
+   const mouseX = useMotionValue(Infinity);
+
+   const scrollTo = (id: string) => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+   };
+
+   return (
+      <motion.div
+         onMouseMove={(e) => mouseX.set(e.pageX)}
+         onMouseLeave={() => mouseX.set(Infinity)}
+         className="fixed bottom-4 left-1/2 -translate-x-1/2 h-16 px-4 pb-3 flex items-end gap-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)]/80 backdrop-blur-xl z-50 hidden md:flex"
+      >
+         <DockIcon mouseX={mouseX} icon={FaTerminal} label="Hero" onClick={() => scrollTo('hero')} />
+         <DockIcon mouseX={mouseX} icon={FaRocket} label="Timeline" onClick={() => scrollTo('timeline')} />
+         <DockIcon mouseX={mouseX} icon={FaServer} label="Projects" onClick={() => scrollTo('projects')} />
+         <DockIcon mouseX={mouseX} icon={FaShieldAlt} label="Global Ops" onClick={() => scrollTo('ops')} />
+         <DockIcon mouseX={mouseX} icon={FaEnvelope} label="Contact" onClick={() => scrollTo('contact')} />
+      </motion.div>
+   );
+};
+
+// --- Threat Map Component ---
+
+const ThreatMap = () => {
+   // Simple grid based map approximation
+   const [pings, setPings] = useState<{ x: number, y: number, id: number }[]>([]);
+
+   useEffect(() => {
+      const interval = setInterval(() => {
+         const x = Math.random() * 100;
+         const y = Math.random() * 100;
+         const id = Date.now();
+         setPings(prev => [...prev, { x, y, id }].slice(-5));
+      }, 800);
+      return () => clearInterval(interval);
+   }, []);
+
+   return (
+      <div className="w-full h-full relative overflow-hidden opacity-50 hover:opacity-100 transition-opacity duration-500">
+         {/* Grid Lines */}
+         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+
+         {/* Central Hub (Germany approx) */}
+         <div className="absolute top-[30%] left-[50%] w-4 h-4 bg-[var(--accent-color)] rounded-full animate-ping z-10 shadow-[0_0_20px_var(--accent-color)]"></div>
+         <div className="absolute top-[30%] left-[50%] w-2 h-2 bg-white rounded-full z-20"></div>
+
+         {/* Random Pings & Arcs */}
+         {pings.map(p => (
+            <React.Fragment key={p.id}>
+               {/* Attack Source Ping */}
+               <div
+                  className="absolute w-2 h-2 bg-[var(--accent-color)] rounded-full animate-ping"
+                  style={{ left: `${p.x}%`, top: `${p.y}%` }}
+               />
+
+               {/* Svg Arc Line */}
+               <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                  <motion.path
+                     initial={{ pathLength: 0, opacity: 0 }}
+                     animate={{ pathLength: 1, opacity: [0, 1, 0] }}
+                     transition={{ duration: 1.5, ease: "easeInOut" }}
+                     d={`M ${p.x * 10} ${p.y * 5} Q 50 30 50 30`}
+                     stroke="var(--accent-color)"
+                     strokeWidth="1"
+                     fill="none"
+                  />
+                  <line
+                     x1={`${p.x}%`} y1={`${p.y}%`}
+                     x2="50%" y2="30%"
+                     stroke="url(#grad1)"
+                     strokeWidth="0.5"
+                     className="vector-line"
+                  />
+                  <defs>
+                     <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style={{ stopColor: 'var(--accent-color)', stopOpacity: 0 }} />
+                        <stop offset="100%" style={{ stopColor: 'var(--accent-color)', stopOpacity: 0.5 }} />
+                     </linearGradient>
+                  </defs>
+               </svg>
+            </React.Fragment>
+         ))}
+
+         {/* Stats Overlay */}
+         <div className="absolute top-4 left-4 p-4 rounded-lg bg-[var(--bg-card)] border border-[var(--border-color)] text-[10px] font-mono backdrop-blur-md">
+            <div className="text-[var(--text-secondary)]">THREAT LEVEL</div>
+            <div className="text-xl text-[var(--accent-color)] font-bold animate-pulse">ACTIVE</div>
+            <div className="mt-2 text-[var(--text-secondary)]">EVENTS: {pings.length + 12}</div>
+            <div className="text-[var(--text-secondary)]">GLOBAL LATENCY: 24ms</div>
+         </div>
+      </div>
+   );
+};
+
+// --- Theme Switcher ---
+
+const themes = [
+   { id: 'cyberpunk', name: 'Cyberpunk', icon: FaGhost, color: 'text-green-500' },
+   { id: 'corporate', name: 'Corporate', icon: FaBriefcase, color: 'text-blue-600' },
+   { id: 'retro', name: 'Windows 95', icon: FaSave, color: 'text-gray-400' },
+   { id: 'gamer', name: 'RGB Gamer', icon: FaGamepad, color: 'text-red-500' },
+   { id: 'zen', name: 'Zen Mode', icon: FaLeaf, color: 'text-teal-400' },
+] as const;
+
+const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => void }) => {
+   const [isOpen, setIsOpen] = useState(false);
+
+   return (
+      <div className="fixed  top-4 right-4 z-50 flex flex-col items-end gap-2">
+         <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-3 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] transition-all shadow-xl"
+         >
+            <FaPalette />
+         </button>
+
+         {isOpen && (
+            <motion.div
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               className="flex flex-col gap-2 bg-[var(--bg-card)] p-2 rounded-xl border border-[var(--border-color)] backdrop-blur-xl"
+            >
+               {themes.map(t => (
+                  <button
+                     key={t.id}
+                     onClick={() => { set(t.id); setIsOpen(false); }}
+                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:bg-white/5 ${current === t.id ? 'bg-white/10' : ''}`}
+                  >
+                     <t.icon className={t.color} />
+                     <span className="text-xs font-bold text-[var(--text-primary)]">{t.name}</span>
+                  </button>
+               ))}
+            </motion.div>
+         )}
+      </div>
+   );
+};
+
+// --- Enterprise Projects ---
+
+const ProjectCard = ({ title, role, desc, tech, children }: { title: string, role: string, desc: string, tech: string[], children?: React.ReactNode }) => (
+   <motion.div
+      whileHover={{ y: -5 }}
+      className="bento-card p-6 flex flex-col h-full bg-[var(--bg-card)]"
+   >
+      <div className="flex justify-between items-start mb-4">
+         <div>
+            <h3 className="text-xl font-bold text-[var(--text-primary)]">{title}</h3>
+            <span className="text-xs font-mono text-[var(--accent-color)] px-2 py-1 rounded bg-[var(--accent-color)]/10 border border-[var(--accent-color)]/20 mt-1 inline-block">
+               {role}
+            </span>
+         </div>
+         <div className="flex gap-1">
+            {tech.map(t => (
+               <span key={t} className="w-2 h-2 rounded-full bg-[var(--text-secondary)]" title={t}></span>
+            ))}
+         </div>
+      </div>
+      <p className="text-sm text-[var(--text-secondary)] mb-6 leading-relaxed flex-1">
+         {desc}
+      </p>
+      {children}
+   </motion.div>
+);
+
+const MockK8sCluster = () => {
+   const [nodes, setNodes] = useState(Array(12).fill('active'));
+
+   useEffect(() => {
+      const interval = setInterval(() => {
+         // Randomly crash and recover nodes
+         setNodes(prev => prev.map(() => Math.random() > 0.9 ? 'recovering' : (Math.random() > 0.1 ? 'active' : 'error')));
+      }, 2000);
+      return () => clearInterval(interval);
+   }, []);
+
+   return (
+      <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)]">
+         <div className="flex items-center justify-between mb-2 text-xs text-[var(--text-secondary)] font-mono">
+            <span>Cluster Status: <span className="text-[var(--accent-color)]">HEALTHY</span></span>
+            <span>v1.28.2</span>
+         </div>
+         <div className="grid grid-cols-4 gap-2">
+            {nodes.map((status, i) => (
+               <motion.div
+                  key={i}
+                  animate={{
+                     backgroundColor: status === 'active' ? 'var(--accent-color)' : (status === 'error' ? '#ef4444' : '#eab308'),
+                     opacity: status === 'active' ? 0.5 : 1
+                  }}
+                  className="h-8 rounded w-full"
+               />
+            ))}
+         </div>
+         <div className="mt-2 text-[10px] text-[var(--text-secondary)] flex gap-4">
+            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--accent-color)] opacity-50"></div> Ready</span>
+            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> CrashLoopBackOff</span>
+            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-yellow-500"></div> Pending</span>
+         </div>
+      </div>
+   );
+}
+
+const MockFirewall = () => {
+   const [attacks, setAttacks] = useState<{ ip: string, country: string }[]>([]);
+
+   useEffect(() => {
+      const interval = setInterval(() => {
+         const newAttack = {
+            ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+            country: ['CN', 'RU', 'BR', 'US', 'DE'][Math.floor(Math.random() * 5)]
+         };
+         setAttacks(prev => [newAttack, ...prev].slice(0, 5));
+      }, 1500);
+      return () => clearInterval(interval);
+   }, []);
+
+   return (
+      <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] font-mono text-xs overflow-hidden h-[150px] relative">
+         <div className="absolute top-0 left-0 w-full p-2 bg-[var(--accent-color)]/10 border-b border-[var(--accent-color)]/20 text-[var(--accent-color)] font-bold flex justify-between">
+            <span>AI THREAT GUARD</span>
+            <FaShieldAlt className="animate-pulse" />
+         </div>
+         <div className="mt-8 space-y-1">
+            {attacks.map((a, i) => (
+               <div key={i} className="flex justify-between animate-in slide-in-from-right fade-in duration-300">
+                  <span className="text-[var(--accent-color)]">BLOCKED &gt; {a.ip}</span>
+                  <span className="text-[var(--text-secondary)]">[{a.country}]</span>
+               </div>
+            ))}
+         </div>
+      </div>
+   );
+}
+
+// --- Components ---
+
+const BentoItem = ({ children, className, delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) => (
+   <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, delay }}
+      whileHover={{ scale: 1.02 }}
+      className={`bento-card p-6 flex flex-col justify-between ${className}`}
+   >
+      {children}
+   </motion.div>
+);
+
+const Terminal = () => {
+   const [history, setHistory] = useState<{ cmd: string, output: React.ReactNode }[]>([
+      { cmd: 'init', output: 'System initialisiert. Willkommen.' },
+      { cmd: 'hilfe', output: 'Verfügbare Befehle: hilfe, werbinich, skills, kontakt, clear' }
+   ]);
+   const [input, setInput] = useState('');
+   const bottomRef = React.useRef<HTMLDivElement>(null);
+
+   useEffect(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+   }, [history]);
+
+   const handleCommand = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!input.trim()) return;
+
+      const cmd = input.toLowerCase().trim();
+      let output: React.ReactNode = '';
+
+      switch (cmd) {
+         case 'help':
+         case 'hilfe':
+            output = 'Befehle: hilfe, werbinich, skills, cv, projekte, github, kontakt, clear';
+            break;
+         case 'whoami':
+         case 'werbinich':
+            output = 'Pascal Hintermaier • Mannheim • Aspiring IT-Systeminformatiker';
+            break;
+         case 'skills':
+         case 'fertigkeiten':
+            output = (
+               <div className="space-y-2 mt-2">
+                  <div>
+                     <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider">Systeme & Core</span>
+                     <div className="grid grid-cols-2 gap-1 text-zinc-300">
+                        <span><span className="text-green-400">✓</span> Linux (RHEL/Debian)</span>
+                        <span><span className="text-green-400">✓</span> Bash Scripting</span>
+                        <span><span className="text-green-400">✓</span> Netzwerk (TCP/IP)</span>
+                     </div>
+                  </div>
+                  <div>
+                     <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider">DevOps & Cloud</span>
+                     <div className="grid grid-cols-2 gap-1 text-zinc-300">
+                        <span><span className="text-blue-400">✓</span> Docker & Compose</span>
+                        <span><span className="text-blue-400">✓</span> Ansible (Lerne ich)</span>
+                        <span><span className="text-blue-400">✓</span> Nginx / Traefik</span>
+                        <span><span className="text-blue-400">✓</span> AWS Basics</span>
+                     </div>
+                  </div>
+                  <div>
+                     <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider">AI & Automation</span>
+                     <div className="grid grid-cols-2 gap-1 text-zinc-300">
+                        <span><span className="text-purple-400">✓</span> Python / RAG</span>
+                        <span><span className="text-purple-400">✓</span> Workflows</span>
+                        <span><span className="text-purple-400">✓</span> Image Recog.</span>
+                     </div>
+                  </div>
+               </div>
+            );
+            break;
+         case 'uptime':
+            output = 'Systemlaufzeit: [Siehe Monitor Tile]';
+            break;
+         case 'contact':
+         case 'kontakt':
+            output = 'Öffne Mail-Client... (mailto:hintermaierpascal0@gmail.com)';
+            window.location.href = 'mailto:hintermaierpascal0@gmail.com';
+            break;
+         case 'cv':
+         case 'lebenslauf':
+            output = (
+               <div className="space-y-1">
+                  <div className="text-emerald-400 font-bold">Pascal Hintermaier</div>
+                  <div>📍 Mannheim • 📞 0173 2114133</div>
+                  <div className="text-zinc-500 mt-2">Werdegang:</div>
+                  <div>2017-2023: Gastro (Bar-Chef bei Fluidum UG)</div>
+                  <div>2023-heute: IT-Transition (Linux, Python, AI)</div>
+                  <div className="text-zinc-500 mt-2">Stärken: Stressresistenz, Problemlösung</div>
+               </div>
+            );
+            break;
+         case 'projekte':
+         case 'projects':
+            output = (
+               <div className="space-y-1">
+                  <div className="text-emerald-400">🚀 Aktive Projekte:</div>
+                  <div>• Home-Lab (Proxmox, Docker, Pi-hole)</div>
+                  <div>• Ice Fishing Bot (Python, OpenCV)</div>
+                  <div>• Portfolio Website (React, Tailwind)</div>
+                  <div className="text-zinc-500 mt-1">Tippe 'github' für mehr...</div>
+               </div>
+            );
+            break;
+         case 'github':
+            output = 'Öffne GitHub... (github.com/pascal-hintermaier)';
+            window.open('https://github.com', '_blank');
+            break;
+         case 'clear':
+            setHistory([]);
+            setInput('');
+            return;
+         case 'sudo rm -rf /':
+            output = <span className="text-red-500 font-bold">ZUGRIFF VERWEIGERT: Netter Versuch.</span>;
+            break;
+         default:
+            output = <span className="text-red-400">Befehl nicht gefunden: {cmd}. Tippe 'hilfe' für Befehle.</span>;
+      }
+
+      setHistory([...history, { cmd, output }]);
+      setInput('');
+   };
+
+   return (
+      <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 font-mono text-xs md:text-sm h-full flex flex-col shadow-2xl relative overflow-hidden group" onClick={() => document.getElementById('terminal-input')?.focus()}>
+         <div className="absolute top-0 left-0 w-full h-1 bg-green-500/20 group-hover:bg-green-500/50 transition-colors"></div>
+         <div className="flex gap-2 mb-4 border-b border-zinc-800 pb-2">
+            <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+            <span className="ml-auto text-zinc-600 text-xs">pascal@linux:~ (deutsch)</span>
+         </div>
+         <div className="flex-1 overflow-y-auto space-y-2 text-zinc-400 scrollbar-hide">
+            {history.map((entry, i) => (
+               <div key={i}>
+                  <div className="flex items-center gap-2 text-zinc-500">
+                     <span className="text-green-500">➜</span>
+                     <span className="text-blue-400">~</span>
+                     <span>{entry.cmd}</span>
+                  </div>
+                  <div className="pl-4 mt-1 text-zinc-300">{entry.output}</div>
+               </div>
+            ))}
+            <form onSubmit={handleCommand} className="flex items-center gap-2">
+               <span className="text-green-500">➜</span>
+               <span className="text-blue-400">~</span>
+               <input
+                  id="terminal-input"
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  className="bg-transparent border-none outline-none text-zinc-200 w-full"
+                  autoFocus
+                  autoComplete="off"
+                  placeholder="Befehl eingeben..."
+               />
+            </form>
+            <div ref={bottomRef} />
+         </div>
+      </div>
+   );
+};
+
+const SysMonitor = () => {
+   const [data, setData] = useState<{ cpu: number, ram: number }[]>([]);
+   const [uptime, setUptime] = useState<string>('');
+
+   useEffect(() => {
+      // Calculate uptime since 07.12.1998
+      const birthDate = new Date('1998-12-07');
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - birthDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const years = Math.floor(diffDays / 365);
+      const remainingDays = diffDays % 365;
+      setUptime(`${years}J ${remainingDays}T`);
+
+      const interval = setInterval(() => {
+         setData(prev => {
+            const newPoint = {
+               cpu: 40 + Math.random() * 30,
+               ram: 60 + Math.random() * 10
+            };
+            const newData = [...prev, newPoint];
+            if (newData.length > 20) newData.shift();
+            return newData;
+         });
+      }, 1000);
+      return () => clearInterval(interval);
+   }, []);
+
+   return (
+      <div className="h-full flex flex-col">
+         <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+               <FaServer className="text-zinc-500" />
+               <h3 className="font-bold text-zinc-300">SysMonitor</h3>
+            </div>
+            <span className="text-xs text-green-400 flex items-center gap-1">
+               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+               LIVE
+            </span>
+         </div>
+         <div className="flex-1 w-full min-h-[100px] relative">
+            <ResponsiveContainer width="100%" height="100%">
+               <LineChart data={data}>
+                  <YAxis domain={[0, 100]} hide />
+                  <Line type="monotone" dataKey="cpu" stroke="#22c55e" strokeWidth={2} dot={false} isAnimationActive={false} />
+                  <Line type="monotone" dataKey="ram" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
+               </LineChart>
+            </ResponsiveContainer>
+            <div className="absolute top-2 left-2 text-[10px] text-zinc-500 space-y-1">
+               <div className="flex items-center gap-1"><div className="w-2 h-0.5 bg-green-500"></div>CPU</div>
+               <div className="flex items-center gap-1"><div className="w-2 h-0.5 bg-blue-500"></div>RAM</div>
+            </div>
+         </div>
+         <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-zinc-400">
+            <div className="bg-zinc-900/50 p-2 rounded cursor-help" title="Geboren: 07.12.1998">Lebenszeit: {uptime}</div>
+            <div className="bg-zinc-900/50 p-2 rounded">Last: 0.45</div>
+         </div>
+      </div>
+   );
+}
+
+const DeploySimulator = () => {
+   const [status, setStatus] = useState<'idle' | 'running' | 'success'>('idle');
+   const [logs, setLogs] = useState<string[]>([]);
+
+   const runDeploy = () => {
+      if (status === 'running') return;
+      setStatus('running');
+      setLogs(['> Initialisiere Deployment...']);
+
+      const steps = [
+         { msg: '> Baue Docker Image...', delay: 800 },
+         { msg: '> Trainiere KI-Modell (Dummy)...', delay: 1800 },
+         { msg: '> Optimiere RAG Vektoren...', delay: 2800 },
+         { msg: '> Verbinde zu Production...', delay: 3500 },
+         { msg: '> Neustart der Services...', delay: 4200 },
+         { msg: '> Deployment ERFOLGREICH v4.3.0', delay: 5000, done: true }
+      ];
+
+      steps.forEach(({ msg, delay, done }) => {
+         setTimeout(() => {
+            setLogs(prev => [...prev, msg]);
+            if (done) setStatus('success');
+         }, delay);
+      });
+   };
+
+   return (
+      <div className="h-full flex flex-col">
+         <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+               <FaRocket className="text-zinc-500" />
+               <h3 className="font-bold text-zinc-300">AutoDeploy</h3>
+            </div>
+            {status === 'idle' && (
+               <button onClick={runDeploy} className="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-full flex items-center gap-1 transition-colors">
+                  <FaPlay size={10} /> Start
+               </button>
+            )}
+            {status === 'running' && <span className="text-xs text-yellow-500 animate-pulse">Läuft...</span>}
+            {status === 'success' && <div className="text-xs text-green-500 font-bold">Fertig!</div>}
+         </div>
+
+         <div className="flex-1 bg-black/40 rounded-lg p-3 font-mono text-[10px] text-zinc-400 overflow-y-auto font-medium leading-relaxed border border-zinc-800/50">
+            {status === 'idle' ? (
+               <div className="h-full flex items-center justify-center opacity-50 text-center">
+                  Bereit zum Deploy<br />Production Build
+               </div>
+            ) : (
+               <div className="space-y-1">
+                  {logs.map((log, i) => (
+                     <div key={i} className={i === logs.length - 1 && status === 'success' ? 'text-green-400' : ''}>{log}</div>
+                  ))}
+                  {status === 'running' && <div className="animate-pulse">_</div>}
+               </div>
+            )}
+         </div>
+      </div>
+   );
+}
+
+const TechIcon = ({ icon: Icon, name, color, desc }: { icon: any, name: string, color?: string, desc?: string }) => (
+   <div className="flex flex-col items-center gap-2 group relative">
+      <div className={`p-3 bg-zinc-800/50 rounded-xl group-hover:bg-zinc-700/50 transition-colors ${color ? color : ''}`}>
+         <Icon className={`text-2xl text-zinc-300 group-hover:text-white transition-colors`} />
+      </div>
+      <span className="text-xs text-zinc-500 group-hover:text-zinc-300 transition-colors">{name}</span>
+      {desc && (
+         <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 bg-zinc-800 border border-zinc-700 rounded text-[10px] text-zinc-300 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+            {desc}
+         </div>
+      )}
+   </div>
+);
+
+const HomeLab = () => {
+   return (
+      <div className="h-full flex flex-col relative overflow-hidden">
+         <div className="flex items-center gap-2 mb-4 z-10">
+            <FaNetworkWired className="text-zinc-500" />
+            <h3 className="font-bold text-zinc-300">Home Lab</h3>
+         </div>
+
+         <div className="flex-1 flex items-center justify-between px-2 relative z-10">
+            {/* Internet */}
+            <div className="flex flex-col items-center gap-2">
+               <div className="p-3 bg-blue-500/10 rounded-full text-blue-400">
+                  <FaCloud size={24} />
+               </div>
+               <span className="text-[10px] text-zinc-500">WAN</span>
+            </div>
+
+            {/* Connection Line 1 */}
+            <div className="flex-1 h-[2px] bg-zinc-800 mx-2 relative overflow-hidden">
+               <motion.div
+                  animate={{ x: [-100, 100] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                  className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"
+               />
+            </div>
+
+            {/* Gateway/Firewall */}
+            <div className="flex flex-col items-center gap-2">
+               <div className="p-3 bg-red-500/10 rounded-full text-red-400">
+                  <FaShieldAlt size={20} />
+               </div>
+               <span className="text-[10px] text-zinc-500">OPNsense</span>
+            </div>
+
+            {/* Connection Line 2 */}
+            <div className="flex-1 h-[2px] bg-zinc-800 mx-2 relative overflow-hidden">
+               <motion.div
+                  animate={{ x: [-100, 100] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "linear", delay: 0.5 }}
+                  className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-green-500/50 to-transparent"
+               />
+            </div>
+
+            {/* Services Stack */}
+            <div className="flex flex-col gap-2">
+               <div className="flex items-center gap-2 bg-zinc-900/80 p-1.5 rounded border border-zinc-800 text-[10px] text-zinc-400">
+                  <SiPihole className="text-red-400" /> DNS (Pi-hole)
+               </div>
+               <div className="flex items-center gap-2 bg-zinc-900/80 p-1.5 rounded border border-zinc-800 text-[10px] text-zinc-400">
+                  <FaBrain className="text-purple-400" /> Local LLM
+               </div>
+               <div className="flex items-center gap-2 bg-zinc-900/80 p-1.5 rounded border border-zinc-800 text-[10px] text-zinc-400">
+                  <FaHdd className="text-blue-400" /> TrueNAS
+               </div>
+            </div>
+         </div>
+
+         {/* Background decoration */}
+         <div className="absolute -right-10 -bottom-10 opacity-5 pointer-events-none">
+            <FaWifi size={150} />
+         </div>
+      </div>
+   )
+}
+
+const TimelineItem = ({ year, title, desc, side, children }: { year: string, title: string, desc: string, side: 'left' | 'right', children?: React.ReactNode }) => (
+   <motion.div
+      initial={{ opacity: 0, x: side === 'left' ? -50 : 50 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      className={`relative md:w-1/2 mb-8 ${side === 'left' ? 'md:ml-auto md:pr-12 md:text-right' : 'md:mr-auto md:pl-12 md:text-left'}`}
+   >
+      <div className={`absolute top-0 ${side === 'left' ? '-left-3 md:-left-3' : '-left-3 md:-right-3'} w-6 h-6 rounded-full bg-green-500 border-4 border-zinc-950 z-10 hidden md:block`}></div>
+      <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl backdrop-blur-sm hover:border-zinc-700 transition-colors">
+         <span className="text-green-400 font-mono text-sm mb-2 block">{year}</span>
+         <h3 className="text-xl font-bold text-zinc-100 mb-2">{title}</h3>
+         <p className="text-zinc-400 text-sm leading-relaxed mb-4">{desc}</p>
+         {children}
+      </div>
+   </motion.div>
+);
+
+const BarManagerShowcase = () => (
+   <div className="mt-4 text-left font-mono text-xs bg-zinc-950 p-3 rounded-lg border border-zinc-800 relative overflow-hidden">
+      <div className="flex justify-between text-zinc-600 mb-2 border-b border-zinc-800 pb-1">
+         <span>bar_inventory.py</span>
+         <span>v0.1 (2019)</span>
+      </div>
+      <div className="text-green-500/80">
+         <p>def mix_cocktail(ingredients):</p>
+         <p className="pl-4">if inventory.check(ingredients):</p>
+         <p className="pl-8">dispense(ingredients)</p>
+         <p className="pl-8">log_usage()</p>
+         <p className="pl-4">else:</p>
+         <p className="pl-8">print("Zu wenig Bestände!")</p>
+      </div>
+      <div className="mt-3 pt-2 border-t border-zinc-800/50 text-zinc-500 italic">
+         "Mein erstes Python-Skript. Ich wollte nicht mehr von Hand zählen."
+      </div>
+   </div>
+);
+
+const Timeline = () => (
+   <div className="max-w-4xl mx-auto relative px-4 py-20">
+      <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-zinc-800 -ml-[1px]"></div>
+      <div className="flex flex-col gap-12 pl-8 md:pl-0">
+         <TimelineItem
+            side="right"
+            year="2015 - 2017"
+            title="Erste Schritte"
+            desc="Hauptschulabschluss an der Waldpark-Schule Heidelberg. Verschiedene Jobs in Verkauf und Lieferservice - lernte Eigenständigkeit und Kundenorientierung."
+         />
+         <TimelineItem
+            side="left"
+            year="2017 - 2020"
+            title="Gastro-Einstieg"
+            desc="Bar-Mitarbeiter in Mannheims Jungbusch: Taproom, Beilerei, Nelson Café. Hier entdeckte ich meine Leidenschaft für Cocktails und Gastfreundschaft."
+         >
+            <div className="flex gap-2 mt-2 flex-wrap">
+               <span className="px-2 py-1 bg-amber-500/20 text-amber-400 text-[10px] rounded border border-amber-500/30">Barista</span>
+               <span className="px-2 py-1 bg-amber-500/20 text-amber-400 text-[10px] rounded border border-amber-500/30">Bar-Service</span>
+            </div>
+         </TimelineItem>
+         <TimelineItem
+            side="right"
+            year="2021 - 2022"
+            title="Dachgarten engelhorn"
+            desc="Bar-Mitarbeiter & Service im Premium-Restaurant. Kreierte den 'Mary-Gin' Cocktail - steht noch heute auf der Barkarte."
+         />
+         <TimelineItem
+            side="left"
+            year="2022 - 2023"
+            title="Bar-Chef bei Fluidum UG"
+            desc="Personalverantwortung für bis zu 8 Mitarbeiter. Cocktail-Kreation, Logistik, Einkauf, HACCP-Umsetzung und Bar-Schulungen für das Team."
+         >
+            <BarManagerShowcase />
+         </TimelineItem>
+         <TimelineItem
+            side="right"
+            year="2023 - HEUTE"
+            title="Wechsel in die IT"
+            desc="Vorbereitung auf IT-Systeminformatik. Linux mastered (Pop!_OS), Home-Lab aufgebaut, Docker & Automation gelernt. Bereit für den Neustart."
+         >
+            <div className="flex gap-2 mt-2 flex-wrap">
+               <span className="px-2 py-1 bg-green-500/20 text-green-400 text-[10px] rounded border border-green-500/30">Linux</span>
+               <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-[10px] rounded border border-blue-500/30">Docker</span>
+               <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-[10px] rounded border border-purple-500/30">Python</span>
+            </div>
+         </TimelineItem>
+         <TimelineItem
+            side="left"
+            year="ZUKUNFT"
+            title="IT & Automation"
+            desc="Mein Ziel: IT-Systeminformatik kombiniert mit AI-Automation. RAG-Systeme, Computer Vision und autonome Workflows - die Zukunft wartet."
+         >
+            <div className="flex gap-2 mt-2 flex-wrap">
+               <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-[10px] rounded border border-purple-500/30">RAG GenAI</span>
+               <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-[10px] rounded border border-blue-500/30">Computer Vision</span>
+               <span className="px-2 py-1 bg-green-500/20 text-green-400 text-[10px] rounded border border-green-500/30">Home-Lab</span>
+            </div>
+         </TimelineItem>
+      </div>
+   </div>
+);
+
+// --- Main App ---
+
+function App() {
+   const [theme, setTheme] = useState('cyberpunk');
+
+   useEffect(() => {
+      document.body.setAttribute('data-theme', theme);
+   }, [theme]);
+
+   return (
+      <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
+         <div className="noise-bg"></div>
+         <ThemeSwitcher current={theme} set={setTheme} />
+         <Dock />
+
+         {/* SECTION 1: HERO CONTROL CENTER */}
+         <section id="hero" className="min-h-screen p-4 md:p-8 flex items-center justify-center relative">
+            <div className="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
+
+               {/* 1. Hero */}
+               <BentoItem className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-zinc-900 to-zinc-950">
+                  <div>
+                     <div className="flex items-center gap-2 mb-4">
+                        <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20 flex items-center gap-1">
+                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                           Offen für Chancen
+                        </span>
+                     </div>
+                     <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-2 gradient-text-hero">
+                        Daten in Intelligenz verwandeln.
+                     </h1>
+                     <h2 className="text-xl md:text-2xl font-semibold text-[var(--accent-color)] mb-4">
+                        Pascal Hintermaier • AI & Automation
+                     </h2>
+                     <p className="text-zinc-400 text-base leading-relaxed max-w-md mb-6">
+                        Von der Bar zur Konsole: 6 Jahre Gastro-Management, jetzt Linux, Python & AI.
+                        Stressresistent, problemlösungsorientiert, bereit für die IT.
+                     </p>
+                     <div className="flex gap-3 flex-wrap">
+                        <button
+                           onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
+                           className="px-5 py-2.5 bg-[var(--accent-color)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                        >
+                           Projekte ansehen
+                        </button>
+                        <button
+                           onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                           className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--text-primary)] font-medium rounded-lg hover:border-[var(--accent-color)] transition-colors"
+                        >
+                           Kontakt
+                        </button>
+                     </div>
+                  </div>
+               </BentoItem>
+
+               {/* 2. Tech Stack */}
+               <BentoItem className="md:col-span-2 md:row-span-2" delay={0.2}>
+                  <div className="flex flex-col h-full">
+                     <div className="flex items-center justify-between mb-4">
+                        <div>
+                           <h3 className="text-xl font-bold text-white mb-1">Tech Stack</h3>
+                           <p className="text-zinc-500 text-sm">Meine Werkzeuge: Ops, Dev & AI</p>
+                        </div>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* OPS */}
+                        <div className="space-y-3">
+                           <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Infrastructure & Ops</h4>
+                           <div className="flex flex-wrap gap-4">
+                              <TechIcon icon={FaWindows} name="Windows" desc="15+ Jahre Erfahrung" />
+                              <TechIcon icon={FaLinux} name="Linux" desc="Pop!_OS, Debian" />
+                              <TechIcon icon={FaDocker} name="Docker" desc="Container & Compose" />
+                              <TechIcon icon={FaNetworkWired} name="Netzwerk" desc="TCP/IP, Pi-hole" />
+                           </div>
+                        </div>
+
+                        {/* AI & DATA */}
+                        <div className="space-y-3">
+                           <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">AI & Automation</h4>
+                           <div className="flex flex-wrap gap-4">
+                              <TechIcon icon={FaPython} name="Python" color="text-yellow-400" desc="OpenCV, Automation Scripts" />
+                              <TechIcon icon={SiOpenai} name="RAG / LLM" color="text-green-400" desc="Gemini, lokale Modelle" />
+                              <TechIcon icon={FaBrain} name="Auto-Workflow" color="text-purple-400" desc="Task Automation" />
+                           </div>
+                        </div>
+
+                        {/* DEV */}
+                        <div className="space-y-3">
+                           <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Web Dev</h4>
+                           <div className="flex flex-wrap gap-4">
+                              <TechIcon icon={SiReact} name="React" desc="Komponenten-basierte UIs" />
+                              <TechIcon icon={SiTypescript} name="TypeScript" desc="Typsichere JS-Entwicklung" />
+                              <TechIcon icon={SiTailwindcss} name="Tailwind" desc="Utility-First CSS" />
+                              <TechIcon icon={FaGitAlt} name="Git" desc="Versionskontrolle & GitHub" />
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </BentoItem>
+            </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1, y: [0, 10, 0] }}
+               transition={{ delay: 2, duration: 2, repeat: Infinity }}
+               className="absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-500 flex flex-col items-center gap-2"
+            >
+               <span className="text-[10px] uppercase tracking-widest">Scrollen zum Entdecken</span>
+               <div className="w-px h-8 bg-gradient-to-b from-zinc-500 to-transparent"></div>
+            </motion.div>
+         </section>
+
+         {/* SECTION 2: THE JOURNEY */}
+         <section id="timeline" className="min-h-screen py-24 bg-zinc-950 relative border-t border-zinc-900/50">
+            <div className="text-center mb-16 px-4">
+               <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Der Werdegang</h2>
+               <p className="text-zinc-500 max-w-lg mx-auto">
+                  Kein gerader Weg, sondern eine Entwicklung aus Neugier und Problemlösung.
+               </p>
+            </div>
+            <Timeline />
+         </section>
+
+         {/* SECTION 2.5: BIG SCALE OPERATIONS */}
+         <section id="projects" className="min-h-screen py-24 px-4 bg-[var(--bg-primary)]/50 relative border-t border-[var(--border-color)]">
+            <div className="max-w-6xl mx-auto">
+               <div className="mb-12">
+                  <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">Enterprise Projects</h2>
+                  <p className="text-[var(--text-secondary)] max-w-lg">
+                     Simulationen von Hochverfügbarkeits-Systemen & Security Automation.
+                  </p>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* FEATURED: IMAGE COMPARE TOOL */}
+                  <ProjectCard
+                     title="AI Bildvergleich"
+                     role="Fullstack & AI"
+                     desc="Vergleich von Bildern mit Python, OpenCV & KI. Pixel-Diff, SSIM und Feature Matching."
+                     tech={['Python', 'OpenCV', 'React']}
+                  >
+                     <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex flex-col items-center justify-center h-[150px] relative overflow-hidden group">
+                        <SiOpencv className="text-6xl text-[var(--accent-color)]/20 group-hover:text-[var(--accent-color)] transition-colors duration-500" />
+                        <a
+                           href="./projects/image-compare/index.html"
+                           target="_blank"
+                           className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                        >
+                           <span className="px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg font-bold text-sm transform scale-90 group-hover:scale-100 transition-transform">
+                              Starten 🚀
+                           </span>
+                        </a>
+                     </div>
+                  </ProjectCard>
+                  {/* PROJECT 1: K8S */}
+                  <ProjectCard
+                     title="K8s Auto-Healer"
+                     role="Platform Engineering"
+                     desc="Ein Kubernetes-Operator, der Crashes erkennt und Pods automatisch neu verteilt. Reduzierte Downtime um 99%."
+                     tech={['Go', 'K8s', 'Docker']}
+                  >
+                     <MockK8sCluster />
+                  </ProjectCard>
+
+                  {/* PROJECT 2: AI FIREWALL */}
+                  <ProjectCard
+                     title="Sentient Firewall"
+                     role="Security Ops"
+                     desc="Machine Learning Modell, das DDOS-Muster in Echtzeit erkennt und IP-Regeln dynamisch in die iptables injiziert."
+                     tech={['Python', 'Pytorch', 'Linux']}
+                  >
+                     <MockFirewall />
+                  </ProjectCard>
+
+                  {/* PROJECT 3: CDN */}
+                  <ProjectCard
+                     title="Global CDN Manager"
+                     role="Network Architect"
+                     desc="Verteilung von statischen Assets über 5 Kontinente. Smart Routing basierend auf Client-Latenz."
+                     tech={['Rust', 'WASM', 'Nginx']}
+                  >
+                     <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex items-center justify-center h-[150px] relative overflow-hidden group">
+                        <FaGlobeAmericas className="text-6xl text-[var(--text-secondary)]/20 group-hover:text-[var(--accent-color)]/20 transition-colors duration-700" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                           <div className="text-center">
+                              <div className="text-2xl font-bold text-[var(--text-primary)]">500TB+</div>
+                              <div className="text-[10px] text-[var(--text-secondary)]">Traffic / Month</div>
+                           </div>
+                        </div>
+                     </div>
+                  </ProjectCard>
+               </div>
+            </div>
+         </section>
+
+         {/* SECTION 3: THREAT MAP */}
+         <section id="ops" className="h-[80vh] bg-[var(--bg-primary)] relative border-t border-[var(--border-color)] overflow-hidden">
+            <ThreatMap />
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-center pointer-events-none">
+               <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-2 shadow-black drop-shadow-lg">Globale Operationen</h2>
+               <p className="text-[var(--text-secondary)] bg-[var(--bg-card)]/50 backdrop-blur px-4 py-1 rounded-full">
+                  Live Cyber-Security Monitoring Dashboard
+               </p>
+            </div>
+         </section>
+
+         {/* FOOTER */}
+         <footer id="contact" className="py-16 text-center border-t border-zinc-900 mb-20">
+            <div className="max-w-4xl mx-auto px-4">
+               <p className="text-zinc-400 text-sm mb-4">© 2025 Pascal Hintermaier • Mannheim</p>
+               <div className="flex justify-center gap-6 text-zinc-500 text-xs">
+                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-color)] transition-colors">
+                     GitHub
+                  </a>
+                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-color)] transition-colors">
+                     LinkedIn
+                  </a>
+                  <span className="text-zinc-700">|</span>
+                  <a href="#impressum" className="hover:text-[var(--accent-color)] transition-colors">
+                     Impressum
+                  </a>
+                  <a href="#datenschutz" className="hover:text-[var(--accent-color)] transition-colors">
+                     Datenschutz
+                  </a>
+               </div>
+               <p className="text-zinc-600 text-xs mt-4">Built with React, Tailwind & ☕</p>
+            </div>
+         </footer>
+      </div>
+   );
+}
+
+export default App;
