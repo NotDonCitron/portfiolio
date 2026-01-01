@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lighthouse Test - Portfolio</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .card {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+    .url {
+      background: #e8f5e9;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+      word-break: break-all;
+    }
+    .step {
+      background: white;
+      border-left: 4px solid #3498db;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    .step-number {
+      font-weight: bold;
+      color: #3498db;
+      font-size: 1.2em;
+    }
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .tool {
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+    }
+    .tool a {
+      display: block;
+      color: #3498db;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .tool a:hover {
+      text-decoration: underline;
+    }
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🧪 Lighthouse Performance Test</h1>
+    
+    <h2>Portfolio URL zum Testen:</h2>
+    <div class="url">http://localhost:5173/</div>
+    
+    <h2>Anleitung - 3 Möglichkeiten:</h2>
+    
+    <div class="tools">
+      <div class="tool">
+        <strong>PageSpeed Insights</strong><br>
+        <a href="https://pagespeed.web.dev/" target="_blank" rel="noopener">
+          🔗 pagespeed.web.dev öffnen
+        </a>
+      </div>
+      
+      <div class="tool">
+        <strong>GTmetrix</strong><br>
+        <a href="https://gtmetrix.com/" target="_blank" rel="noopener">
+          🔗 gtmetrix.com öffnen
+        </a>
+      </div>
+      
+      <div class="tool">
+        <strong>WebPageTest</strong><br>
+        <a href="https://www.webpagetest.org/" target="_blank" rel="noopener">
+          🔗 webpagetest.org öffnen
+        </a>
+      </div>
+    </div>
+    
+    <div class="step">
+      <span class="step-number">1.</span>
+      Öffne eines der Tools oben
+    </div>
+    
+    <div class="step">
+      <span class="step-number">2.</span>
+      Kopiere diese URL: <code>http://localhost:5173/</code>
+    </div>
+    
+    <div class="step">
+      <span class="step-number">3.</span>
+      Füge die URL in das Tool ein und klicke "Analyze" oder "Test"
+    </div>
+    
+    <div class="step">
+      <span class="step-number">4.</span>
+      Warte 30-60 Sekunden auf das Ergebnis
+    </div>
+    
+    <div class="step">
+      <span class="step-number">5.</span>
+      Notiere dir folgende Werte auf:
+      <ul>
+        <li><strong>Performance Score:</strong> (0-100)</li>
+        <li><strong>First Contentful Paint (FCP):</strong> in Sekunden</li>
+        <li><strong>Largest Contentful Paint (LCP):</strong> in Sekunden</li>
+        <li><strong>Time to Interactive (TTI):</strong> in Sekunden</li>
+      </ul>
+    </div>
+    
+    <div class="note">
+      <strong>⚠️ Wichtig:</strong> 
+      Diese Tools funktionieren nur mit http://localhost:5173/ wenn dein Computer 
+      öffentlich erreichbar ist. Falls nicht, musst du die Seite im normalen 
+      Browser öffnen und die DevTools (F12) nutzen.
+    </div>
+    
+    <div class="step">
+      <span class="step-number">Alternative: Chrome DevTools</span>
+      <ol>
+        <li>Öffne <a href="http://localhost:5173/" target="_blank">http://localhost:5173/</a></li>
+        <li>Drücke <strong>F12</strong> (oder Strg+Umsch+I)</li>
+        <li>Klicke auf den Tab <strong>"Lighthouse"</strong> (oder "Mehr Tools" → "Lighthouse")</li>
+        <li>Klicke <strong>"Analyze page load"</strong></li>
+        <li>Warte auf das Ergebnis</li>
+      </ol>
+    </div>
+    
+    <div class="card" style="background: #e8f4fd; margin-top: 30px;">
+      <h2 style="color: #1a5276;">📊 Erwartete Ergebnisse (nach Phase 2)</h2>
+      <ul>
+        <li>Performance Score: <strong>85-95/100</strong> (besser als vorher)</li>
+        <li>First Contentful Paint: <strong>&lt; 1.8s</strong></li>
+        <li>Initial Load: <strong>252KB</strong> (38% weniger als vorher)</li>
+        <li>Bessere Caching durch Code Splitting</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
