@@ -16,7 +16,7 @@ export default defineConfig({
       clientFiles: ['./src/main.tsx', './src/App.tsx', './src/index.css'],
     },
     fs: {
-      cachedChecks: true,
+      strict: false,
     },
   }
 })

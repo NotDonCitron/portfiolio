@@ -9,6 +9,7 @@ import {
 import {
    SiTypescript, SiReact, SiTailwindcss, SiOpencv, SiOpenai
 } from 'react-icons/si';
+import AIChat from './components/AIChat';
 // Recharts removed
 
 import './index.css';
@@ -524,20 +525,25 @@ const Timeline = () => (
 // --- Main App ---
 
 function App() {
-   const [theme, setTheme] = useState('cyberpunk');
+   const [theme, setTheme] = useState(() => {
+      const savedTheme = localStorage.getItem('portfolio-theme');
+      return savedTheme || 'cyberpunk';
+   });
    const { scrollYProgress } = useScroll();
    const scaleX = useScrollSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.1 });
 
    useEffect(() => {
       document.body.setAttribute('data-theme', theme);
+      localStorage.setItem('portfolio-theme', theme);
    }, [theme]);
 
    return (
-      <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
-         <motion.div className="scroll-progress" style={{ scaleX }} />
-         <div className="noise-bg"></div>
-         <ThemeSwitcher current={theme} set={setTheme} />
-         <Dock />
+       <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
+          <motion.div className="scroll-progress" style={{ scaleX }} />
+          <div className="noise-bg"></div>
+          <ThemeSwitcher current={theme} set={setTheme} />
+          <AIChat />
+          <Dock />
 
          {/* SECTION 1: HERO CONTROL CENTER */}
          <section id="hero" className="min-h-screen p-4 md:p-8 flex items-center justify-center relative">

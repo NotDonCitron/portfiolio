@@ -1,10 +1,18 @@
 import React from 'react';
+import './AIChat.css';
+
+interface Message {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
 
 const AIChat = () => {
-  const [messages, setMessages] = React.useState([]);
+  const [messages, setMessages] = React.useState<Message[]>([]);
   const [input, setInput] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const messagesEndRef = React.useRef(null);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -13,7 +21,7 @@ const AIChat = () => {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now(),
       role: 'user',
       content: input,
@@ -25,35 +33,27 @@ const AIChat = () => {
     setIsLoading(true);
 
     try {
-      const hfToken = import.meta.env.VITE_HF_API_TOKEN;
-      const model = import.meta.env.VITE_HF_CHAT_MODEL || 'HuggingFaceTB/SmolLM3-3B';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-      if (!hfToken) {
-        alert('HF API Token fehlt! Bitte VITE_HF_API_TOKEN in .env konfigurieren.');
-        setIsLoading(false);
-        return;
-      }
-
-      const response = await fetch('https://api-inference.huggingface.co/models/' + model, {
+      const response = await fetch(apiUrl + '/api/chat', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer ' + hfToken,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: input,
-          parameters: {
-            max_new_tokens: 200,
-            temperature: 0.7,
-            do_sample: true
-          }
+          message: input
         })
       });
 
-      const data = await response.json();
-      const assistantText = data.generated_text;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'API error');
+      }
 
-      const assistantMessage = {
+      const data = await response.json();
+      const assistantText = data.response;
+
+      const assistantMessage: Message = {
         id: Date.now() + 1,
         role: 'assistant',
         content: assistantText,
@@ -97,7 +97,7 @@ const AIChat = () => {
         <div className="suggested-questions">
           <div className="questions-list">
             {suggestedQuestions.map((q, i) => (
-              <button key={i} onClick={() => setInput(q); sendMessage();} className="question-button">
+              <button key={i} onClick={() => { setInput(q); sendMessage(); }} className="question-button">
             {q}
           </button>
             ))}
