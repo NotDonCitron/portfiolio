@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, MotionValue, useScroll, useSpring as useScrollSpring } from 'framer-motion';
 import {
    FaEnvelope,
@@ -9,8 +9,8 @@ import {
 import {
    SiTypescript, SiReact, SiTailwindcss, SiOpencv, SiOpenai
 } from 'react-icons/si';
-import AIChat from './components/AIChat';
-// Recharts removed
+
+const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
 
 import './index.css';
 
@@ -542,7 +542,9 @@ function App() {
           <motion.div className="scroll-progress" style={{ scaleX }} />
           <div className="noise-bg"></div>
           <ThemeSwitcher current={theme} set={setTheme} />
-          <AIChat />
+          <Suspense fallback={<div className="fixed bottom-20 right-4 w-[50px] h-[50px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse"></div>}>
+            <AIChat />
+          </Suspense>
           <Dock />
 
          {/* SECTION 1: HERO CONTROL CENTER */}

@@ -18,5 +18,20 @@ export default defineConfig({
     fs: {
       strict: false,
     },
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'framer-motion'],
+          'icons': ['react-icons/fa', 'react-icons/si'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+    cssCodeSplit: true,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'framer-motion', 'react-icons/fa', 'react-icons/si'],
+  },
 })
