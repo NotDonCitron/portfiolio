@@ -53,6 +53,8 @@
                     <option value="" disabled selected>✨ Beispiel-Szenario laden...</option>
                     <option value="fishing">🎣 Angelszene (Template Match)</option>
                     <option value="pcb">🔌 Platine (Template Match)</option>
+                    <option value="security">📹 Security CCTV (Object Detect)</option>
+                    <option value="ui">💻 UI Testing (Button Detect)</option>
                     <option value="doc">📄 Dokument (Diff/SSIM)</option>
                 </select>
             </div>
@@ -290,6 +292,42 @@
                         <div class="result-score">
                             <span class="score-value" id="template-confidence">0%</span>
                             <span class="score-label">Übereinstimmung</span>
+                        </div>
+
+                        <!-- Confidence Bar -->
+                        <div class="confidence-bar-container">
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidence-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="confidence-labels">
+                                <span>0%</span>
+                                <span>50%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <div class="use-cases-section">
+                            <h4>🌍 Reale Anwendungsfälle</h4>
+                            <div class="use-cases-grid">
+                                <div class="use-case-item">
+                                    <span class="uc-icon">🏭</span>
+                                    <span><strong>Qualitätskontrolle:</strong> Prüfung von Platinen auf fehlende
+                                        Bauteile.</span>
+                                </div>
+                                <div class="use-case-item">
+                                    <span class="uc-icon">🏥</span>
+                                    <span><strong>Medizin:</strong> Vergleich von Röntgenbildern im Zeitverlauf.</span>
+                                </div>
+                                <div class="use-case-item">
+                                    <span class="uc-icon">📹</span>
+                                    <span><strong>Sicherheit:</strong> Erkennung von zurückgelassenen Objekten.</span>
+                                </div>
+                                <div class="use-case-item">
+                                    <span class="uc-icon">💻</span>
+                                    <span><strong>UI Testing:</strong> Automatisierte Erkennung von
+                                        Layout-Fehlern.</span>
+                                </div>
+                            </div>
                         </div>
                         <p class="result-desc">Das Template wurde im Bild gesucht. Position und Konfidenz werden
                             angezeigt.</p>

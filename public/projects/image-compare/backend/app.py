@@ -254,9 +254,18 @@ def template_matching(source_img, template_img):
     th, tw = gray_template.shape
     
     if th > sh or tw > sw:
-        # Template is larger than source, try swapping or error
-        # For this API, we return an error state
-        return None, None, "Template is larger than source image"
+        # Check if swapping allows a match (i.e. if the "template" is actually the scene)
+        if sh <= th and sw <= tw:
+            print(f"DEBUG: Swapping images. Treating image2 as Source ({tw}x{th}) and image1 as Template ({sw}x{sh})")
+            source_img, template_img = template_img, source_img
+            # Swap grayscale versions too
+            gray_source, gray_template = gray_template, gray_source
+            # Update dimensions
+            sh, sw = th, tw
+            th, tw = gray_template.shape
+        else:
+            print(f"DEBUG: Size mismatch! Source: {sw}x{sh}, Template: {tw}x{th}")
+            return None, None, f"Template ({tw}x{th}) is larger than source image ({sw}x{sh})"
         
     # Match template
     # TM_CCOEFF_NORMED returns 1 for perfect match, -1 for inverse

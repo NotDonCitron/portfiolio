@@ -28,3 +28,15 @@ venv/
 __pycache__/
 *.pyc
 **/tempobook/**
+
+# ========================================
+# 🔐 SECURITY: Environment Variables
+# ========================================
+.env
+.env.local
+.env.production
+.env.development
+*.env
+
+# Hugging Face Tokens (double protection)
+

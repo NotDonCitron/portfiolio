@@ -989,3 +989,74 @@ body::before {
         gap: 1rem;
     }
 }
+/* Confidence Bar */
+.confidence-bar-container {
+    margin: 1.5rem 0;
+    width: 100%;
+    max-width: 400px;
+}
+
+.confidence-bar {
+    height: 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.confidence-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    width: 0%;
+    transition: width 1s ease-out, background 0.3s ease;
+    border-radius: 6px;
+}
+
+.confidence-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Use Cases Section */
+.use-cases-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.use-cases-section h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.use-case-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    transition: var(--transition-fast);
+}
+
+.use-case-item:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-tertiary);
+}
+
+.uc-icon {
+    font-size: 1.2rem;
+}

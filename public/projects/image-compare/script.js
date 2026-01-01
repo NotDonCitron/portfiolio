@@ -561,122 +561,120 @@ function setupEventListeners() {
     if (elements.runTemplateBtn) {
         elements.runTemplateBtn.addEventListener('click', runTemplateMatching);
     }
-
-    // ========================================
-    // OpenCV Backend Integration
-    // ========================================
-    async function checkBackendStatus() {
-        try {
-            const response = await fetch(`${API_BASE}/health`, {
-                method: 'GET',
-                timeout: 3000
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                state.backendOnline = true;
-                elements.backendStatus.textContent = `Online (OpenCV ${data.opencv_version})`;
-                elements.statusIndicator.classList.add('online');
-                elements.statusIndicator.classList.remove('offline');
-                elements.analyzeBtn.disabled = false;
-            } else {
-                throw new Error('Backend not responding');
-            }
-        } catch (error) {
-            state.backendOnline = false;
-            elements.backendStatus.textContent = 'Offline - Backend starten mit: python backend/app.py';
-            elements.statusIndicator.classList.remove('online');
-            elements.statusIndicator.classList.add('offline');
-            elements.analyzeBtn.disabled = true;
-        }
-    }
-
-    async function runOpenCVAnalysis() {
-        if (!state.image1 || !state.image2) {
-            alert('Bitte laden Sie zuerst beide Bilder hoch!');
-            return;
-        }
-
-        if (!state.backendOnline) {
-            alert('Backend ist offline. Starten Sie es mit: python backend/app.py');
-            return;
-        }
-
-        // Show loading state
-        elements.opencvLoading.style.display = 'flex';
-        elements.opencvResults.style.display = 'none';
-        elements.analyzeBtn.disabled = true;
-        elements.analyzeBtn.textContent = '⏳ Analysiere...';
-
-        try {
-            const response = await fetch(`${API_BASE}/compare`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    image1: state.image1.src,
-                    image2: state.image2.src
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Analysis failed');
-            }
-
-            const data = await response.json();
-
-            if (data.success) {
-                state.opencvResults = data.results;
-                displayOpenCVResults(data.results);
-            } else {
-                throw new Error(data.error || 'Unknown error');
-            }
-
-        } catch (error) {
-            console.error('OpenCV Analysis error:', error);
-            alert(`Analyse fehlgeschlagen: ${error.message}`);
-        } finally {
-            elements.opencvLoading.style.display = 'none';
-            elements.analyzeBtn.disabled = false;
-            elements.analyzeBtn.textContent = '🔬 OpenCV Analyse starten';
-        }
-    }
-
-    function displayOpenCVResults(results) {
-        // Show results container
-        elements.opencvResults.style.display = 'grid';
-
-        // SSIM Results
-        const ssimScore = results.ssim.score.toFixed(4);
-        elements.ssimScore.textContent = ssimScore;
-        elements.ssimLabel.textContent = results.ssim.interpretation;
-        elements.ssimDiffImg.src = `data:image/png;base64,${results.ssim.diff_image}`;
-
-        // Feature Matching Results
-        if (results.features.stats) {
-            elements.featuresImg1.textContent = results.features.stats.image1_keypoints;
-            elements.featuresImg2.textContent = results.features.stats.image2_keypoints;
-            elements.featuresMatches.textContent = results.features.stats.total_matches;
-        }
-        elements.featureMatchImg.src = `data:image/png;base64,${results.features.visualization}`;
-
-        // Edge Detection Results
-        const edgeSim = (results.edges.similarity * 100).toFixed(1);
-        elements.edgeSimilarity.textContent = `${edgeSim}%`;
-        elements.edgeDiffImg.src = `data:image/png;base64,${results.edges.diff_image}`;
-
-        // Histogram Results
-        elements.histCorrelation.textContent = results.histogram.correlation.toFixed(4);
-        elements.histBhattacharyya.textContent = results.histogram.bhattacharyya.toFixed(4);
-
-        // Pixel Difference Results
-        elements.pixelDiffPercent.textContent = `${results.pixel_diff.difference_percentage.toFixed(2)}%`;
-        elements.pixelDiffCount.textContent = results.pixel_diff.changed_pixels.toLocaleString();
-        elements.pixelHeatmapImg.src = `data:image/png;base64,${results.pixel_diff.heatmap}`;
-    }
-
 }
+
+// ========================================
+// OpenCV Backend Integration
+// ========================================
+async function checkBackendStatus() {
+    try {
+        const response = await fetch(`${API_BASE}/health`, {
+            method: 'GET',
+            timeout: 3000
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            state.backendOnline = true;
+            elements.backendStatus.textContent = `Online (OpenCV ${data.opencv_version})`;
+            elements.statusIndicator.classList.add('online');
+            elements.statusIndicator.classList.remove('offline');
+            elements.analyzeBtn.disabled = false;
+        } else {
+            throw new Error('Backend not responding');
+        }
+    } catch (error) {
+        state.backendOnline = false;
+        elements.backendStatus.textContent = 'Offline - Backend starten mit: python backend/app.py';
+        elements.statusIndicator.classList.remove('online');
+        elements.statusIndicator.classList.add('offline');
+        elements.analyzeBtn.disabled = true;
+    }
+}
+
+async function runOpenCVAnalysis() {
+    if (!state.image1 || !state.image2) {
+        alert('Bitte laden Sie zuerst beide Bilder hoch!');
+        return;
+    }
+
+    if (!state.backendOnline) {
+        alert('Backend ist offline. Starten Sie es mit: python backend/app.py');
+        return;
+    }
+
+    // Show loading state
+    elements.opencvLoading.style.display = 'flex';
+    elements.opencvResults.style.display = 'none';
+    elements.analyzeBtn.disabled = true;
+    elements.analyzeBtn.textContent = '⏳ Analysiere...';
+
+    try {
+        const response = await fetch(`${API_BASE}/compare`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                image1: state.image1.src,
+                image2: state.image2.src
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Analysis failed');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            state.opencvResults = data.results;
+            displayOpenCVResults(data.results);
+        } else {
+            throw new Error(data.error || 'Unknown error');
+        }
+
+    } catch (error) {
+        console.error('OpenCV Analysis error:', error);
+        alert(`Analyse fehlgeschlagen: ${error.message}`);
+    } finally {
+        elements.opencvLoading.style.display = 'none';
+        elements.analyzeBtn.disabled = false;
+        elements.analyzeBtn.textContent = '🔬 OpenCV Analyse starten';
+    }
+}
+
+function displayOpenCVResults(results) {
+    // Show results container
+    elements.opencvResults.style.display = 'grid';
+
+    // SSIM Results
+    const ssimScore = results.ssim.score.toFixed(4);
+    elements.ssimScore.textContent = ssimScore;
+    elements.ssimLabel.textContent = results.ssim.interpretation;
+    elements.ssimDiffImg.src = `data:image/png;base64,${results.ssim.diff_image}`;
+
+    // Feature Matching Results
+    if (results.features.stats) {
+        elements.featuresImg1.textContent = results.features.stats.image1_keypoints;
+        elements.featuresImg2.textContent = results.features.stats.image2_keypoints;
+        elements.featuresMatches.textContent = results.features.stats.total_matches;
+    }
+    elements.featureMatchImg.src = `data:image/png;base64,${results.features.visualization}`;
+
+    // Edge Detection Results
+    const edgeSim = (results.edges.similarity * 100).toFixed(1);
+    elements.edgeSimilarity.textContent = `${edgeSim}%`;
+    elements.edgeDiffImg.src = `data:image/png;base64,${results.edges.diff_image}`;
+
+    // Histogram Results
+    elements.histCorrelation.textContent = results.histogram.correlation.toFixed(4);
+    elements.histBhattacharyya.textContent = results.histogram.bhattacharyya.toFixed(4);
+
+    // Pixel Difference Results
+    elements.pixelDiffPercent.textContent = `${results.pixel_diff.difference_percentage.toFixed(2)}%`;
+    elements.pixelDiffCount.textContent = results.pixel_diff.changed_pixels.toLocaleString();
+    elements.pixelHeatmapImg.src = `data:image/png;base64,${results.pixel_diff.heatmap}`;
 }
 
 async function runTemplateMatching() {
@@ -708,8 +706,27 @@ async function runTemplateMatching() {
 
         if (data.success) {
             // Update UI
-            elements.templateConfidence.textContent = `${(data.results.match.confidence * 100).toFixed(1)}%`;
+            const confidence = data.results.match.confidence;
+            const percentage = (confidence * 100).toFixed(1);
+
+            elements.templateConfidence.textContent = `${percentage}%`;
             elements.templateResultImg.src = `data:image/png;base64,${data.results.visualization}`;
+
+            // Update Confidence Bar
+            const barFill = document.getElementById('confidence-fill');
+            if (barFill) {
+                // Determine color
+                let color = '#ef4444'; // Red (< 50%)
+                if (confidence >= 0.8) {
+                    color = '#10b981'; // Green (>= 80%)
+                } else if (confidence >= 0.5) {
+                    color = '#eab308'; // Yellow (>= 50%)
+                }
+
+                barFill.style.width = `${percentage}%`;
+                barFill.style.backgroundColor = color;
+            }
+
             elements.templateResults.style.display = 'block';
         } else {
             alert('Fehler: ' + data.error);
@@ -729,6 +746,8 @@ window.loadExampleScenario = async (scenario) => {
     const assets = {
         'fishing': ['example-fishing-scene.png', 'example-fishing-template.png', 'template'],
         'pcb': ['example-pcb-1.png', 'example-pcb-2.png', 'template'],
+        'security': ['example-security-source.png', 'example-security-template.png', 'template'],
+        'ui': ['example-ui-source.png', 'example-ui-template.png', 'template'],
         'doc': ['example-doc-1.png', 'example-doc-2.png', 'diff']
     };
 
