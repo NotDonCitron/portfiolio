@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, MotionValue, useScroll, useSpring as useScrollSpring } from 'framer-motion';
 import {
    FaLinux, FaPython, FaDocker, FaGitAlt, FaTerminal,
    FaNetworkWired, FaCheckCircle, FaEnvelope, FaGithub, FaServer, FaRocket, FaPlay,
@@ -149,64 +149,139 @@ const themes = [
 
 const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => void }) => {
    const [isOpen, setIsOpen] = useState(false);
+   const [particles, setParticles] = useState<{ x: number, y: number, id: number, color: string }[]>([]);
+
+   const createParticles = () => {
+      const colors = ['#10b981', '#0ea5e9', '#ec4899', '#f59e0b', '#8b5cf6'];
+      const newParticles = Array.from({ length: 20 }, (_, i) => ({
+         x: Math.random() * 100,
+         y: Math.random() * 100,
+         id: Date.now() + i,
+         color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      setParticles(newParticles);
+      setTimeout(() => setParticles([]), 2000);
+   };
+
+   const handleThemeChange = (themeId: string) => {
+      set(themeId);
+      setIsOpen(false);
+      createParticles();
+   };
 
    return (
-      <div className="fixed  top-4 right-4 z-50 flex flex-col items-end gap-2">
-         <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-3 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] transition-all shadow-xl"
-         >
-            <FaPalette />
-         </button>
-
-         {isOpen && (
-            <motion.div
-               initial={{ opacity: 0, x: 20 }}
-               animate={{ opacity: 1, x: 0 }}
-               className="flex flex-col gap-2 bg-[var(--bg-card)] p-2 rounded-xl border border-[var(--border-color)] backdrop-blur-xl"
-            >
-               {themes.map(t => (
-                  <button
-                     key={t.id}
-                     onClick={() => { set(t.id); setIsOpen(false); }}
-                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:bg-white/5 ${current === t.id ? 'bg-white/10' : ''}`}
-                  >
-                     <t.icon className={t.color} />
-                     <span className="text-xs font-bold text-[var(--text-primary)]">{t.name}</span>
-                  </button>
+      <>
+         {particles.length > 0 && (
+            <div className="particle-container">
+               {particles.map(p => (
+                  <motion.div
+                     key={p.id}
+                     initial={{ opacity: 1, scale: 0, x: `${p.x}vw`, y: `${p.y}vh` }}
+                     animate={{ 
+                        opacity: 0, 
+                        scale: 2,
+                        x: `${p.x + (Math.random() - 0.5) * 20}vw`,
+                        y: `${p.y + (Math.random() - 0.5) * 20}vh`
+                     }}
+                     transition={{ duration: 1.5, ease: "easeOut" }}
+                     className="absolute w-3 h-3 rounded-full"
+                     style={{ backgroundColor: p.color, boxShadow: `0 0 10px ${p.color}` }}
+                  />
                ))}
-            </motion.div>
+            </div>
          )}
-      </div>
+         <div className="fixed  top-4 right-4 z-50 flex flex-col items-end gap-2">
+            <motion.button
+               whileHover={{ scale: 1.1, rotate: 180 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={() => setIsOpen(!isOpen)}
+               className="p-3 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] transition-all shadow-xl relative overflow-hidden group"
+            >
+               <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-[var(--accent-color)] to-transparent opacity-0 group-hover:opacity-20"
+                  animate={{ x: ['-100%', '100%'] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+               />
+               <FaPalette className="relative z-10" />
+            </motion.button>
+
+            {isOpen && (
+               <motion.div
+                  initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                  className="flex flex-col gap-2 bg-[var(--bg-card)] p-2 rounded-xl border border-[var(--border-color)] backdrop-blur-xl"
+               >
+                  {themes.map(t => (
+                     <motion.button
+                        key={t.id}
+                        whileHover={{ scale: 1.05, x: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleThemeChange(t.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:bg-white/5 ${current === t.id ? 'bg-white/10 border border-[var(--accent-color)]' : ''}`}
+                     >
+                        <t.icon className={t.color} />
+                        <span className="text-xs font-bold text-[var(--text-primary)]">{t.name}</span>
+                     </motion.button>
+                  ))}
+               </motion.div>
+            )}
+         </div>
+      </>
    );
 };
 
 // --- Enterprise Projects ---
 
-const ProjectCard = ({ title, role, desc, tech, children }: { title: string, role: string, desc: string, tech: string[], children?: React.ReactNode }) => (
-   <motion.div
-      whileHover={{ y: -5 }}
-      className="bento-card p-6 flex flex-col h-full bg-[var(--bg-card)]"
-   >
-      <div className="flex justify-between items-start mb-4">
-         <div>
-            <h3 className="text-xl font-bold text-[var(--text-primary)]">{title}</h3>
-            <span className="text-xs font-mono text-[var(--accent-color)] px-2 py-1 rounded bg-[var(--accent-color)]/10 border border-[var(--accent-color)]/20 mt-1 inline-block">
-               {role}
-            </span>
+const ProjectCard = ({ title, role, desc, tech, children }: { title: string, role: string, desc: string, tech: string[], children?: React.ReactNode }) => {
+   const [isHovered, setIsHovered] = useState(false);
+
+   return (
+      <motion.div
+         onHoverStart={() => setIsHovered(true)}
+         onHoverEnd={() => setIsHovered(false)}
+         whileHover={{ y: -5 }}
+         className="bento-card p-6 flex flex-col h-full bg-[var(--bg-card)] relative overflow-hidden group"
+      >
+         <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-[var(--accent-color)]/0 to-[var(--accent-color)]/10 opacity-0 group-hover:opacity-100 transition-opacity"
+            initial={{ x: '-100%', y: '-100%' }}
+            animate={isHovered ? { x: '0%', y: '0%' } : { x: '-100%', y: '-100%' }}
+            transition={{ duration: 0.5 }}
+         />
+         <div className="relative z-10">
+            <div className="flex justify-between items-start mb-4">
+               <div>
+                  <motion.h3 
+                     className="text-xl font-bold text-[var(--text-primary)]"
+                     animate={isHovered ? { x: 5 } : { x: 0 }}
+                  >
+                     {title}
+                  </motion.h3>
+                  <span className="text-xs font-mono text-[var(--accent-color)] px-2 py-1 rounded bg-[var(--accent-color)]/10 border border-[var(--accent-color)]/20 mt-1 inline-block">
+                     {role}
+                  </span>
+               </div>
+               <div className="flex gap-1">
+                  {tech.map((t, i) => (
+                     <motion.span 
+                        key={t} 
+                        className="w-2 h-2 rounded-full bg-[var(--text-secondary)]" 
+                        title={t}
+                        animate={isHovered ? { scale: [1, 1.5, 1] } : { scale: 1 }}
+                        transition={{ delay: i * 0.1, duration: 0.3 }}
+                     />
+                  ))}
+               </div>
+            </div>
+            <p className="text-sm text-[var(--text-secondary)] mb-6 leading-relaxed flex-1">
+               {desc}
+            </p>
+            {children}
          </div>
-         <div className="flex gap-1">
-            {tech.map(t => (
-               <span key={t} className="w-2 h-2 rounded-full bg-[var(--text-secondary)]" title={t}></span>
-            ))}
-         </div>
-      </div>
-      <p className="text-sm text-[var(--text-secondary)] mb-6 leading-relaxed flex-1">
-         {desc}
-      </p>
-      {children}
-   </motion.div>
-);
+      </motion.div>
+   );
+};
 
 const MockK8sCluster = () => {
    const [nodes, setNodes] = useState(Array(12).fill('active'));
@@ -566,18 +641,35 @@ const DeploySimulator = () => {
    );
 }
 
-const TechIcon = ({ icon: Icon, name, color, desc }: { icon: any, name: string, color?: string, desc?: string }) => (
-   <div className="flex flex-col items-center gap-2 group relative">
-      <div className={`p-3 bg-zinc-800/50 rounded-xl group-hover:bg-zinc-700/50 transition-colors ${color ? color : ''}`}>
-         <Icon className={`text-2xl text-zinc-300 group-hover:text-white transition-colors`} />
-      </div>
+const TechIcon = ({ icon: Icon, name, color, desc, delay = 0 }: { icon: any, name: string, color?: string, desc?: string, delay?: number }) => (
+   <motion.div 
+      className="flex flex-col items-center gap-2 group relative tech-icon-float"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.5 }}
+      style={{ animationDelay: `${delay}s` }}
+   >
+      <motion.div 
+         className={`p-3 bg-zinc-800/50 rounded-xl group-hover:bg-zinc-700/50 transition-colors relative ${color ? color : ''}`}
+         whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+         transition={{ duration: 0.3 }}
+      >
+         <motion.div
+            className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--accent-color)]/0 to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100"
+            initial={false}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+         />
+         <Icon className={`text-2xl text-zinc-300 group-hover:text-white transition-colors relative z-10`} />
+      </motion.div>
       <span className="text-xs text-zinc-500 group-hover:text-zinc-300 transition-colors">{name}</span>
       {desc && (
          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 bg-zinc-800 border border-zinc-700 rounded text-[10px] text-zinc-300 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
             {desc}
          </div>
       )}
-   </div>
+   </motion.div>
 );
 
 const HomeLab = () => {
@@ -645,21 +737,29 @@ const HomeLab = () => {
    )
 }
 
-const TimelineItem = ({ year, title, desc, side, children }: { year: string, title: string, desc: string, side: 'left' | 'right', children?: React.ReactNode }) => (
+const TimelineItem = ({ year, title, desc, side, children, index = 0 }: { year: string, title: string, desc: string, side: 'left' | 'right', children?: React.ReactNode, index?: number }) => (
    <motion.div
       initial={{ opacity: 0, x: side === 'left' ? -50 : 50 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.6, delay: index * 0.15 }}
       className={`relative md:w-1/2 mb-8 ${side === 'left' ? 'md:ml-auto md:pr-12 md:text-right' : 'md:mr-auto md:pl-12 md:text-left'}`}
    >
-      <div className={`absolute top-0 ${side === 'left' ? '-left-3 md:-left-3' : '-left-3 md:-right-3'} w-6 h-6 rounded-full bg-green-500 border-4 border-zinc-950 z-10 hidden md:block`}></div>
-      <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl backdrop-blur-sm hover:border-zinc-700 transition-colors">
+      <motion.div 
+         className={`absolute top-0 ${side === 'left' ? '-left-3 md:-left-3' : '-left-3 md:-right-3'} w-6 h-6 rounded-full bg-green-500 border-4 border-zinc-950 z-10 hidden md:block`}
+         initial={{ scale: 0 }}
+         whileInView={{ scale: 1 }}
+         transition={{ delay: index * 0.15 + 0.3, type: "spring" }}
+      />
+      <motion.div 
+         className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl backdrop-blur-sm hover:border-zinc-700 transition-colors"
+         whileHover={{ scale: 1.02, boxShadow: "0 0 20px var(--accent-color)" }}
+      >
          <span className="text-green-400 font-mono text-sm mb-2 block">{year}</span>
          <h3 className="text-xl font-bold text-zinc-100 mb-2">{title}</h3>
          <p className="text-zinc-400 text-sm leading-relaxed mb-4">{desc}</p>
          {children}
-      </div>
+      </motion.div>
    </motion.div>
 );
 
@@ -688,12 +788,14 @@ const Timeline = () => (
       <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-zinc-800 -ml-[1px]"></div>
       <div className="flex flex-col gap-12 pl-8 md:pl-0">
          <TimelineItem
+            index={0}
             side="right"
             year="2015 - 2017"
             title="Erste Schritte"
             desc="Hauptschulabschluss an der Waldpark-Schule Heidelberg. Verschiedene Jobs in Verkauf und Lieferservice - lernte Eigenständigkeit und Kundenorientierung."
          />
          <TimelineItem
+            index={1}
             side="left"
             year="2017 - 2020"
             title="Gastro-Einstieg"
@@ -705,12 +807,14 @@ const Timeline = () => (
             </div>
          </TimelineItem>
          <TimelineItem
+            index={2}
             side="right"
             year="2021 - 2022"
             title="Dachgarten engelhorn"
             desc="Bar-Mitarbeiter & Service im Premium-Restaurant. Kreierte den 'Mary-Gin' Cocktail - steht noch heute auf der Barkarte."
          />
          <TimelineItem
+            index={3}
             side="left"
             year="2022 - 2023"
             title="Bar-Chef bei Fluidum UG"
@@ -719,6 +823,7 @@ const Timeline = () => (
             <BarManagerShowcase />
          </TimelineItem>
          <TimelineItem
+            index={4}
             side="right"
             year="2023 - HEUTE"
             title="Wechsel in die IT"
@@ -731,6 +836,7 @@ const Timeline = () => (
             </div>
          </TimelineItem>
          <TimelineItem
+            index={5}
             side="left"
             year="ZUKUNFT"
             title="IT & Automation"
@@ -750,6 +856,8 @@ const Timeline = () => (
 
 function App() {
    const [theme, setTheme] = useState('cyberpunk');
+   const { scrollYProgress } = useScroll();
+   const scaleX = useScrollSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.1 });
 
    useEffect(() => {
       document.body.setAttribute('data-theme', theme);
@@ -757,6 +865,7 @@ function App() {
 
    return (
       <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
+         <motion.div className="scroll-progress" style={{ scaleX }} />
          <div className="noise-bg"></div>
          <ThemeSwitcher current={theme} set={setTheme} />
          <Dock />
