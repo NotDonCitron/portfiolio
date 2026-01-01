@@ -18,18 +18,19 @@ const AIChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const sendMessage = async (overrideMessage?: string) => {
+    const textToSend = overrideMessage || input;
+    if (!textToSend.trim()) return;
 
     const userMessage: Message = {
       id: Date.now(),
       role: 'user',
-      content: input,
+      content: textToSend,
       timestamp: new Date(),
     };
 
-    setMessages([...messages, userMessage]);
-    setInput('');
+    setMessages(prev => [...prev, userMessage]);
+    if (!overrideMessage) setInput('');
     setIsLoading(true);
 
     try {
@@ -41,7 +42,7 @@ const AIChat = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          message: input
+          message: textToSend
         })
       });
 
@@ -60,7 +61,7 @@ const AIChat = () => {
         timestamp: new Date(),
       };
 
-      setMessages([...messages, assistantMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat Error:', error);
       alert('Fehler bei der Verbindung. Bitte versuche es erneut.');
@@ -97,28 +98,28 @@ const AIChat = () => {
         <div className="suggested-questions">
           <div className="questions-list">
             {suggestedQuestions.map((q, i) => (
-              <button key={i} onClick={() => { setInput(q); sendMessage(); }} className="question-button">
-            {q}
-          </button>
+              <button key={i} onClick={() => sendMessage(q)} className="question-button">
+                {q}
+              </button>
             ))}
+          </div>
+        </div>
+
+        <div className="input-wrapper">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            placeholder="Stelle eine Frage..."
+            className="chat-input"
+            disabled={isLoading}
+          />
+          <button onClick={() => sendMessage()} disabled={!input.trim() || isLoading} className="send-button">
+            {isLoading ? '...' : 'Senden'}
+          </button>
         </div>
       </div>
-
-      <div className="input-wrapper">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-          placeholder="Stelle eine Frage..."
-          className="chat-input"
-          disabled={isLoading}
-        />
-        <button onClick={sendMessage} disabled={!input.trim() || isLoading} className="send-button">
-          {isLoading ? '...' : 'Senden'}
-        </button>
-      </div>
-    </div>
     </div >
   );
 };

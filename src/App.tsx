@@ -12,6 +12,8 @@ import {
 
 const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
 
+import { AmtGPTPreview, AmtGPTModal } from './components/AmtGPT';
+
 import './index.css';
 
 // --- MacOS Dock Component ---
@@ -28,18 +30,21 @@ function DockIcon({ mouseX, icon: Icon, label, onClick }: { mouseX: MotionValue,
    const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
    return (
-      <motion.div
-         ref={ref}
-         style={{ width }}
-         className="aspect-square w-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center relative group cursor-pointer hover:border-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 backdrop-blur-md"
-         onClick={onClick}
-      >
-         <Icon className="text-[var(--text-primary)] w-5 h-5 group-hover:text-[var(--accent-color)] transition-colors" />
-         <span className="absolute -top-10 px-2 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-color)] text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            {label}
-         </span>
-      </motion.div>
-   );
+       <motion.div
+          ref={ref}
+          style={{ width }}
+          className="aspect-square w-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center relative group cursor-pointer hover:border-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 backdrop-blur-md"
+          onClick={onClick}
+          role="button"
+          aria-label={label}
+          tabIndex={0}
+       >
+          <Icon className="text-[var(--text-primary)] w-5 h-5 group-hover:text-[var(--accent-color)] transition-colors" />
+          <span className="absolute -top-10 px-2 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-color)] text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+             {label}
+          </span>
+       </motion.div>
+    );
 }
 
 const Dock = () => {
@@ -191,12 +196,14 @@ const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => 
             </div>
          )}
          <div className="fixed  top-4 right-4 z-50 flex flex-col items-end gap-2">
-            <motion.button
-               whileHover={{ scale: 1.1, rotate: 180 }}
-               whileTap={{ scale: 0.95 }}
-               onClick={() => setIsOpen(!isOpen)}
-               className="p-3 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] transition-all shadow-xl relative overflow-hidden group"
-            >
+             <motion.button
+                whileHover={{ scale: 1.1, rotate: 180 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Theme auswählen"
+                aria-expanded={isOpen}
+                className="p-3 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] transition-all shadow-xl relative overflow-hidden group"
+             >
                <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-[var(--accent-color)] to-transparent opacity-0 group-hover:opacity-20"
                   animate={{ x: ['-100%', '100%'] }}
@@ -529,6 +536,7 @@ function App() {
       const savedTheme = localStorage.getItem('portfolio-theme');
       return savedTheme || 'cyberpunk';
    });
+   const [isAmtGPTOpen, setIsAmtGPTOpen] = useState(false);
    const { scrollYProgress } = useScroll();
    const scaleX = useScrollSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.1 });
 
@@ -537,18 +545,25 @@ function App() {
       localStorage.setItem('portfolio-theme', theme);
    }, [theme]);
 
-   return (
-       <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
-          <motion.div className="scroll-progress" style={{ scaleX }} />
+    return (
+        <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
+           <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[var(--bg-card)] focus:border-2 focus:border-[var(--accent-color)] focus:text-[var(--text-primary)] focus:font-bold"
+           >
+              Zum Hauptinhalt springen
+           </a>
+           <motion.div className="scroll-progress" style={{ scaleX }} />
           <div className="noise-bg"></div>
           <ThemeSwitcher current={theme} set={setTheme} />
           <Suspense fallback={<div className="fixed bottom-20 right-4 w-[50px] h-[50px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse"></div>}>
             <AIChat />
           </Suspense>
-          <Dock />
+           <Dock />
 
-         {/* SECTION 1: HERO CONTROL CENTER */}
-         <section id="hero" className="min-h-screen p-4 md:p-8 flex items-center justify-center relative">
+          <main id="main-content">
+          {/* SECTION 1: HERO CONTROL CENTER */}
+          <section id="hero" className="min-h-screen p-4 md:p-8 flex items-center justify-center relative">
             <div className="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
 
                {/* 1. Hero */}
@@ -718,16 +733,26 @@ function App() {
                      <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex items-center justify-center h-[150px] relative overflow-hidden group">
                         <FaGlobeAmericas className="text-6xl text-[var(--text-secondary)]/20 group-hover:text-[var(--accent-color)]/20 transition-colors duration-700" />
                         <div className="absolute inset-0 flex items-center justify-center">
-                           <div className="text-center">
-                              <div className="text-2xl font-bold text-[var(--text-primary)]">500TB+</div>
-                              <div className="text-[10px] text-[var(--text-secondary)]">Traffic / Month</div>
-                           </div>
-                        </div>
-                     </div>
-                  </ProjectCard>
-               </div>
-            </div>
-         </section>
+                             <div className="text-center">
+                                <div className="text-2xl font-bold text-[var(--text-primary)]">500TB+</div>
+                                <div className="text-[10px] text-[var(--text-secondary)]">Traffic / Month</div>
+                             </div>
+                          </div>
+                       </div>
+                    </ProjectCard>
+  
+                    {/* Amt-GPT Project */}
+                    <ProjectCard
+                       title="Amt-GPT"
+                       role="UX Research & Satire"
+                       desc="Satirischer Chatbot der Bundesagentur für Arbeit. Visualisiert 'Administrative Burden' und Technical Debt durch passiv-aggressive Antworten basierend auf echten Systemfehlern."
+                       tech={['React', 'TypeScript', 'UX Research', 'Satire']}
+                    >
+                       <AmtGPTPreview onClick={() => setIsAmtGPTOpen(true)} />
+                    </ProjectCard>
+                 </div>
+              </div>
+           </section>
 
          {/* SECTION 3: THREAT MAP */}
          <section id="ops" className="h-[80vh] bg-[var(--bg-primary)] relative border-t border-[var(--border-color)] overflow-hidden">
@@ -738,10 +763,11 @@ function App() {
                   Live Cyber-Security Monitoring Dashboard
                </p>
             </div>
-         </section>
+          </section>
+          </main>
 
-         {/* FOOTER */}
-         <footer id="contact" className="py-16 text-center border-t border-zinc-900 mb-20">
+          {/* FOOTER */}
+          <footer id="contact" className="py-16 text-center border-t border-zinc-900 mb-20">
             <div className="max-w-4xl mx-auto px-4">
                <p className="text-zinc-400 text-sm mb-4">© 2025 Pascal Hintermaier • Mannheim</p>
                <div className="flex justify-center gap-6 text-zinc-500 text-xs">
@@ -762,6 +788,12 @@ function App() {
                <p className="text-zinc-600 text-xs mt-4">Built with React, Tailwind & ☕</p>
             </div>
          </footer>
+
+         {/* Amt-GPT Modal */}
+         <AmtGPTModal
+            isOpen={isAmtGPTOpen}
+            onClose={() => setIsAmtGPTOpen(false)}
+         />
       </div>
    );
 }

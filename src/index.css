@@ -30,24 +30,24 @@ body[data-theme='cyberpunk'] {
   color: #e4e4e7;
 }
 
-/* CORPORATE */
-body[data-theme='corporate'] {
-  --bg-primary: #ffffff;
-  --bg-card: #f4f4f5;
-  --border-color: #e4e4e7;
-  --accent-color: #2563eb;
-  --accent-secondary: #7c3aed;
-  --text-primary: #18181b;
-  --text-secondary: #52525b;
-  --font-body: 'Arial', sans-serif;
-  --font-mono: 'Courier New', monospace;
-  --border-radius: 0px;
-  --border-width: 1px;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+ /* CORPORATE */
+ body[data-theme='corporate'] {
+   --bg-primary: #ffffff;
+   --bg-card: #f4f4f5;
+   --border-color: #e4e4e7;
+   --accent-color: #2563eb;
+   --accent-secondary: #7c3aed;
+   --text-primary: #18181b;
+   --text-secondary: #404040;
+   --font-body: 'Arial', sans-serif;
+   --font-mono: 'Courier New', monospace;
+   --border-radius: 0px;
+   --border-width: 1px;
+   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-  background-color: #ffffff !important;
-  color: #18181b;
-}
+   background-color: #ffffff !important;
+   color: #18181b;
+ }
 
 /* RETRO */
 body[data-theme='retro'] {
@@ -88,24 +88,24 @@ body[data-theme='gamer'] {
   color: #ffffff;
 }
 
-/* ZEN */
-body[data-theme='zen'] {
-  --bg-primary: #eceff4;
-  --bg-card: #ffffff;
-  --border-color: transparent;
-  --accent-color: #88c0d0;
-  --accent-secondary: #5e81ac;
-  --text-primary: #2e3440;
-  --text-secondary: #4c566a;
-  --font-body: 'Quicksand', sans-serif;
-  --font-mono: 'Inconsolata', monospace;
-  --border-radius: 32px;
-  --border-width: 0px;
-  --shadow: 0 10px 30px rgba(0,0,0,0.05);
+ /* ZEN */
+ body[data-theme='zen'] {
+   --bg-primary: #eceff4;
+   --bg-card: #ffffff;
+   --border-color: transparent;
+   --accent-color: #88c0d0;
+   --accent-secondary: #5e81ac;
+   --text-primary: #2e3440;
+   --text-secondary: #3b4252;
+   --font-body: 'Quicksand', sans-serif;
+   --font-mono: 'Inconsolata', monospace;
+   --border-radius: 32px;
+   --border-width: 0px;
+   --shadow: 0 10px 30px rgba(0,0,0,0.05);
 
-  background-color: #eceff4 !important;
-  color: #2e3440;
-}
+   background-color: #eceff4 !important;
+   color: #2e3440;
+ }
 
 /* Fallback for safety */
 body {
@@ -245,12 +245,59 @@ body[data-theme='zen'] .noise-bg {
   box-shadow: 0 0 20px var(--accent-color);
 }
 
-/* Particle Effect Container */
-.particle-container {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
+ /* Particle Effect Container */
+ .particle-container {
+   position: fixed;
+   inset: 0;
+   pointer-events: none;
+   overflow: hidden;
+   z-index: 0;
+ }
+
+/* Visible Focus Indicators */
+*:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3);
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .tech-icon-float {
+    animation: none;
+  }
+
+  .particle-container {
+    display: none;
+  }
+}
+
 
