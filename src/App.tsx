@@ -9,6 +9,7 @@ import {
 import { SiGithub } from 'react-icons/si';
 
 import { Routes, Route, Link } from 'react-router-dom';
+import { VibeKanbanWebCompanion } from 'vibe-kanban-web-companion';
 const FluidumDashboard = lazy(() => import('./pages/FluidumDashboard'));
 
 const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
@@ -17,12 +18,6 @@ const HACCPScanner = lazy(() => import('./components/HACCPScanner'));
 const InventoryTwin = lazy(() => import('./components/InventoryTwin'));
 
 import './index.css';
-
-interface BeforeInstallPromptEvent extends Event {
-   readonly platforms: string[];
-   prompt(): Promise<void>;
-   readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
 
 // --- MacOS Dock Component ---
 
@@ -598,8 +593,6 @@ function App() {
       const savedTheme = localStorage.getItem('portfolio-theme');
       return savedTheme || 'cyberpunk';
    });
-   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-   const [showInstall, setShowInstall] = useState(false);
    const [showStartup, setShowStartup] = useState(() => {
       // Only show startup animation once per session
       const hasSeenStartup = sessionStorage.getItem('portfolio-startup-seen');
@@ -612,30 +605,10 @@ function App() {
    useEffect(() => {
       const handleOpenHaccp = () => setShowHACCP(true);
       window.addEventListener('open-haccp', handleOpenHaccp);
-      return () => window.removeEventListener('open-haccp', handleOpenHaccp);
-   }, []);
-
-   useEffect(() => {
-      const handler = (e: Event) => {
-         e.preventDefault();
-         setDeferredPrompt(e as BeforeInstallPromptEvent);
-         setShowInstall(true);
-      };
-      window.addEventListener('beforeinstallprompt', handler);
-      return () => window.removeEventListener('beforeinstallprompt', handler);
-   }, []);
-
-   const handleInstall = async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-         setDeferredPrompt(null);
-         setShowInstall(false);
-      }
-   };
-
-   const handleStartupComplete = () => {
+            return () => window.removeEventListener('open-haccp', handleOpenHaccp);
+         }, []);
+      
+         const handleStartupComplete = () => {
       setShowStartup(false);
       sessionStorage.setItem('portfolio-startup-seen', 'true');
    };
@@ -657,7 +630,9 @@ function App() {
 
 
    return (
-      <Routes>
+      <>
+         {import.meta.env.DEV && <VibeKanbanWebCompanion />}
+         <Routes>
          <Route path="/" element={
             <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
                <motion.div className="scroll-progress" style={{ scaleX }} />
@@ -958,6 +933,7 @@ function App() {
             </Suspense>
          } />
       </Routes>
+      </>
    );
 }
 

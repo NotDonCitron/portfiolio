@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FaChartLine, FaExclamationTriangle, FaTruckLoading, FaMicrochip, FaDatabase } from 'react-icons/fa';
+import { FaChartLine, FaExclamationTriangle, FaMicrochip, FaDatabase } from 'react-icons/fa';
 
 interface InventoryItem {
     id: number;
