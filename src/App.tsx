@@ -240,8 +240,43 @@ const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => 
 
 // --- Enterprise Projects ---
 
-const ProjectCard = ({ title, role, desc, tech, children }: { title: string, role: string, desc: string, tech: string[], children?: React.ReactNode }) => {
+// Project badge types for clarity
+type ProjectBadge = 'live' | 'demo' | 'concept' | 'research';
+
+const badgeStyles: Record<ProjectBadge, { bg: string, text: string, border: string, label: string, icon: string }> = {
+   live: {
+      bg: 'bg-emerald-500/20',
+      text: 'text-emerald-400',
+      border: 'border-emerald-500/30',
+      label: 'Live Demo',
+      icon: '🚀'
+   },
+   demo: {
+      bg: 'bg-blue-500/20',
+      text: 'text-blue-400',
+      border: 'border-blue-500/30',
+      label: 'Demo',
+      icon: '🎮'
+   },
+   concept: {
+      bg: 'bg-amber-500/20',
+      text: 'text-amber-400',
+      border: 'border-amber-500/30',
+      label: 'Konzept',
+      icon: '📐'
+   },
+   research: {
+      bg: 'bg-purple-500/20',
+      text: 'text-purple-400',
+      border: 'border-purple-500/30',
+      label: 'UX Research',
+      icon: '🔬'
+   }
+};
+
+const ProjectCard = ({ title, role, desc, tech, badge, children }: { title: string, role: string, desc: string, tech: string[], badge?: ProjectBadge, children?: React.ReactNode }) => {
    const [isHovered, setIsHovered] = useState(false);
+   const badgeInfo = badge ? badgeStyles[badge] : null;
 
    return (
       <motion.div
@@ -259,21 +294,28 @@ const ProjectCard = ({ title, role, desc, tech, children }: { title: string, rol
          <div className="relative z-10">
             <div className="flex justify-between items-start mb-4">
                <div>
-                  <motion.h3 
-                     className="text-xl font-bold text-[var(--text-primary)]"
-                     animate={isHovered ? { x: 5 } : { x: 0 }}
-                  >
-                     {title}
-                  </motion.h3>
+                  <div className="flex items-center gap-2 mb-1">
+                     <motion.h3
+                        className="text-xl font-bold text-[var(--text-primary)]"
+                        animate={isHovered ? { x: 5 } : { x: 0 }}
+                     >
+                        {title}
+                     </motion.h3>
+                     {badgeInfo && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeInfo.bg} ${badgeInfo.text} ${badgeInfo.border} border whitespace-nowrap`}>
+                           {badgeInfo.icon} {badgeInfo.label}
+                        </span>
+                     )}
+                  </div>
                   <span className="text-xs font-mono text-[var(--accent-color)] px-2 py-1 rounded bg-[var(--accent-color)]/10 border border-[var(--accent-color)]/20 mt-1 inline-block">
                      {role}
                   </span>
                </div>
                <div className="flex gap-1">
                   {tech.map((t, i) => (
-                     <motion.span 
-                        key={t} 
-                        className="w-2 h-2 rounded-full bg-[var(--text-secondary)]" 
+                     <motion.span
+                        key={t}
+                        className="w-2 h-2 rounded-full bg-[var(--text-secondary)]"
                         title={t}
                         animate={isHovered ? { scale: [1, 1.5, 1] } : { scale: 1 }}
                         transition={{ delay: i * 0.1, duration: 0.3 }}
@@ -719,6 +761,7 @@ function App() {
                      role="Fullstack & AI"
                      desc="Vergleich von Bildern mit Python, OpenCV & KI. Pixel-Diff, SSIM und Feature Matching."
                      tech={['Python', 'OpenCV', 'React']}
+                     badge="live"
                   >
                      <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex flex-col items-center justify-center h-[150px] relative overflow-hidden group">
                         <SiOpencv className="text-6xl text-[var(--accent-color)]/20 group-hover:text-[var(--accent-color)] transition-colors duration-500" />
@@ -739,6 +782,7 @@ function App() {
                      role="Platform Engineering"
                      desc="Ein Kubernetes-Operator, der Crashes erkennt und Pods automatisch neu verteilt. Reduzierte Downtime um 99%."
                      tech={['Go', 'K8s', 'Docker']}
+                     badge="concept"
                   >
                      <MockK8sCluster />
                   </ProjectCard>
@@ -749,6 +793,7 @@ function App() {
                      role="Security Ops"
                      desc="Machine Learning Modell, das DDOS-Muster in Echtzeit erkennt und IP-Regeln dynamisch in die iptables injiziert."
                      tech={['Python', 'Pytorch', 'Linux']}
+                     badge="concept"
                   >
                      <MockFirewall />
                   </ProjectCard>
@@ -759,6 +804,7 @@ function App() {
                      role="Network Architect"
                      desc="Verteilung von statischen Assets über 5 Kontinente. Smart Routing basierend auf Client-Latenz."
                      tech={['Rust', 'WASM', 'Nginx']}
+                     badge="concept"
                   >
                      <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex items-center justify-center h-[150px] relative overflow-hidden group">
                         <FaGlobeAmericas className="text-6xl text-[var(--text-secondary)]/20 group-hover:text-[var(--accent-color)]/20 transition-colors duration-700" />
@@ -777,6 +823,7 @@ function App() {
                        role="UX Research & Satire"
                        desc="Satirischer Chatbot der Bundesagentur für Arbeit. Visualisiert 'Administrative Burden' und Technical Debt durch passiv-aggressive Antworten basierend auf echten Systemfehlern."
                         tech={['React', 'TypeScript', 'UX Research', 'Satire']}
+                        badge="research"
                      >
                         <Suspense fallback={<div className="h-[150px] bg-[var(--bg-card)] rounded-xl animate-pulse"></div>}>
                            <AmtGPTPreview onClick={() => setIsAmtGPTOpen(true)} />
@@ -798,26 +845,145 @@ function App() {
           </section>
           </main>
 
+          {/* CONTACT SECTION */}
+          <section id="contact" className="py-24 px-4 bg-gradient-to-b from-[var(--bg-primary)] to-zinc-950 relative border-t border-[var(--border-color)]">
+            <div className="max-w-4xl mx-auto">
+               {/* Section Header */}
+               <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-center mb-16"
+               >
+                  <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">Let's Connect</h2>
+                  <p className="text-[var(--text-secondary)] max-w-lg mx-auto text-lg">
+                     Bereit für den Einstieg in die IT. Offen für Ausbildung, Praktikum oder Junior-Positionen.
+                  </p>
+               </motion.div>
+
+               {/* Contact Cards Grid */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                  {/* Email Card - Primary CTA */}
+                  <motion.a
+                     href="mailto:kontakt@pascalhintermaier.de"
+                     initial={{ opacity: 0, x: -20 }}
+                     whileInView={{ opacity: 1, x: 0 }}
+                     viewport={{ once: true }}
+                     whileHover={{ scale: 1.02, y: -3 }}
+                     whileTap={{ scale: 0.98 }}
+                     className="group relative overflow-hidden bg-gradient-to-br from-[var(--accent-color)] to-[var(--accent-color)]/80 p-8 rounded-2xl border border-[var(--accent-color)]/30 shadow-lg shadow-[var(--accent-color)]/20 cursor-pointer"
+                  >
+                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                     <div className="relative z-10">
+                        <div className="flex items-center gap-4 mb-4">
+                           <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                              <FaEnvelope className="text-2xl text-white" />
+                           </div>
+                           <div>
+                              <h3 className="text-xl font-bold text-white">E-Mail schreiben</h3>
+                              <p className="text-white/80 text-sm">Bevorzugte Kontaktmethode</p>
+                           </div>
+                        </div>
+                        <p className="text-white/90 text-sm mb-4">
+                           Ich antworte in der Regel innerhalb von 24 Stunden.
+                        </p>
+                        <div className="flex items-center gap-2 text-white font-medium">
+                           <span>kontakt@pascalhintermaier.de</span>
+                           <FaRocket className="text-lg group-hover:translate-x-1 transition-transform" />
+                        </div>
+                     </div>
+                  </motion.a>
+
+                  {/* GitHub Card */}
+                  <motion.a
+                     href="https://github.com/NotDonCitron"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     initial={{ opacity: 0, x: 20 }}
+                     whileInView={{ opacity: 1, x: 0 }}
+                     viewport={{ once: true }}
+                     whileHover={{ scale: 1.02, y: -3 }}
+                     whileTap={{ scale: 0.98 }}
+                     className="group relative overflow-hidden bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/50 transition-colors cursor-pointer"
+                  >
+                     <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-color)]/0 to-[var(--accent-color)]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                     <div className="relative z-10">
+                        <div className="flex items-center gap-4 mb-4">
+                           <div className="p-3 bg-zinc-800 rounded-xl group-hover:bg-[var(--accent-color)]/20 transition-colors">
+                              <FaGitAlt className="text-2xl text-[var(--text-secondary)] group-hover:text-[var(--accent-color)] transition-colors" />
+                           </div>
+                           <div>
+                              <h3 className="text-xl font-bold text-[var(--text-primary)]">GitHub</h3>
+                              <p className="text-[var(--text-secondary)] text-sm">Code & Projekte</p>
+                           </div>
+                        </div>
+                        <p className="text-[var(--text-secondary)] text-sm mb-4">
+                           Schau dir meine Projekte und Code-Beispiele an.
+                        </p>
+                        <div className="flex items-center gap-2 text-[var(--accent-color)] font-medium">
+                           <span>github.com/NotDonCitron</span>
+                           <span className="text-lg group-hover:translate-x-1 transition-transform">→</span>
+                        </div>
+                     </div>
+                  </motion.a>
+               </div>
+
+               {/* Quick Info Cards */}
+               <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16 max-w-md mx-auto"
+               >
+                  <div className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-color)] text-center">
+                     <div className="text-2xl mb-1">📍</div>
+                     <div className="text-[var(--text-primary)] font-medium text-sm">69250 Schönau</div>
+                     <div className="text-[var(--text-secondary)] text-xs">Rhein-Neckar-Kreis</div>
+                  </div>
+                  <div className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-color)] text-center">
+                     <div className="text-2xl mb-1">🎯</div>
+                     <div className="text-[var(--text-primary)] font-medium text-sm">IT-Systeminformatik</div>
+                     <div className="text-[var(--text-secondary)] text-xs">Ausbildung angestrebt</div>
+                  </div>
+               </motion.div>
+
+               {/* Download CV Button */}
+               <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 }}
+                  className="text-center mb-16"
+               >
+                  <a
+                     href="./Lebenslauf_Hintermaier-1.pdf"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     className="inline-flex items-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-[var(--accent-color)]/50 text-[var(--text-primary)] font-medium rounded-xl transition-all hover:shadow-lg hover:shadow-[var(--accent-color)]/10"
+                  >
+                     <span className="text-xl">📄</span>
+                     <span>Lebenslauf herunterladen (PDF)</span>
+                  </a>
+               </motion.div>
+            </div>
+          </section>
+
           {/* FOOTER */}
-          <footer id="contact" className="py-16 text-center border-t border-zinc-900 mb-20">
+          <footer className="py-8 text-center border-t border-zinc-900 mb-20 bg-zinc-950">
             <div className="max-w-4xl mx-auto px-4">
-               <p className="text-zinc-400 text-sm mb-4">© 2025 Pascal Hintermaier • Mannheim</p>
-               <div className="flex justify-center gap-6 text-zinc-500 text-xs">
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-color)] transition-colors">
-                     GitHub
-                  </a>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-color)] transition-colors">
-                     LinkedIn
-                  </a>
-                  <span className="text-zinc-700">|</span>
+               <div className="flex justify-center gap-6 text-zinc-500 text-sm mb-4">
                   <a href="#impressum" className="hover:text-[var(--accent-color)] transition-colors">
                      Impressum
                   </a>
+                  <span className="text-zinc-700">|</span>
                   <a href="#datenschutz" className="hover:text-[var(--accent-color)] transition-colors">
                      Datenschutz
                   </a>
                </div>
-               <p className="text-zinc-600 text-xs mt-4">Built with React, Tailwind & ☕</p>
+               <p className="text-zinc-600 text-xs">
+                  © 2025 Pascal Hintermaier • Built with React, Tailwind & ☕
+               </p>
             </div>
           </footer>
 
