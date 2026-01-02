@@ -10,11 +10,11 @@ import {
    SiTypescript, SiReact, SiTailwindcss, SiOpencv, SiOpenai
 } from 'react-icons/si';
 
-const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
-
-import { AmtGPTPreview, AmtGPTModal } from './components/AmtGPT';
-
-import './index.css';
+ const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
+ const AmtGPTModal = lazy(() => import('./components/AmtGPT/AmtGPTModal').then(m => ({ default: m.default })));
+ const AmtGPTPreview = lazy(() => import('./components/AmtGPT/AmtGPTPreview').then(m => ({ default: m.default })));
+ 
+ import './index.css';
 
 // --- MacOS Dock Component ---
 
@@ -776,9 +776,11 @@ function App() {
                        title="Amt-GPT"
                        role="UX Research & Satire"
                        desc="Satirischer Chatbot der Bundesagentur für Arbeit. Visualisiert 'Administrative Burden' und Technical Debt durch passiv-aggressive Antworten basierend auf echten Systemfehlern."
-                       tech={['React', 'TypeScript', 'UX Research', 'Satire']}
-                    >
-                       <AmtGPTPreview onClick={() => setIsAmtGPTOpen(true)} />
+                        tech={['React', 'TypeScript', 'UX Research', 'Satire']}
+                     >
+                        <Suspense fallback={<div className="h-[150px] bg-[var(--bg-card)] rounded-xl animate-pulse"></div>}>
+                           <AmtGPTPreview onClick={() => setIsAmtGPTOpen(true)} />
+                        </Suspense>
                     </ProjectCard>
                  </div>
               </div>
@@ -878,10 +880,12 @@ function App() {
           </section>
 
           {/* Amt-GPT Modal */}
-          <AmtGPTModal
-            isOpen={isAmtGPTOpen}
-            onClose={() => setIsAmtGPTOpen(false)}
-         />
+          <Suspense fallback={<div></div>}>
+             <AmtGPTModal
+                isOpen={isAmtGPTOpen}
+                onClose={() => setIsAmtGPTOpen(false)}
+             />
+          </Suspense>
       </div>
    );
 }
