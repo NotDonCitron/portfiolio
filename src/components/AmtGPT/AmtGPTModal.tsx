@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
-import AmtGPTSimulator from './AmtGPTSimulator';
+import AmtGPTWorkbench from './AmtGPTWorkbench';
 
 interface AmtGPTModalProps {
   isOpen: boolean;
@@ -41,10 +41,10 @@ const AmtGPTModal = ({ isOpen, onClose }: AmtGPTModalProps) => {
           onClick={onClose}
         >
           <motion.div
-            className="amt-gpt-modal"
-            initial={{ opacity: 0, scale: 0.9, y: 50 }}
+            className="amt-gpt-modal workbench-modal"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 50 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, type: 'spring', damping: 25 }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -57,9 +57,9 @@ const AmtGPTModal = ({ isOpen, onClose }: AmtGPTModalProps) => {
               <FaTimes />
             </button>
 
-            {/* Modal Content */}
-            <div className="amt-gpt-modal-content">
-              <AmtGPTSimulator />
+            {/* Modal Content - Now using Workbench */}
+            <div className="amt-gpt-modal-content workbench-content">
+              <AmtGPTWorkbench />
             </div>
           </motion.div>
         </motion.div>

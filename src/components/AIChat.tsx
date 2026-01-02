@@ -101,10 +101,10 @@ const AIChat = () => {
 
           <div className="chat-messages">
             {messages.map((msg) => (
-              <div key={msg.id} className={'message ' + msg.role}>
-                <div className="message-content">{msg.content}</div>
-              </div>
-            ))}
+               <div key={msg.id} className={`message ${msg.role}`}>
+                 <div className="message-content">{msg.content}</div>
+               </div>
+             ))}
             {isLoading && (
               <div className="typing-indicator">
                 Schreibe...
