@@ -306,7 +306,7 @@ const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => 
 // --- Enterprise Projects ---
 
 // Project badge types for clarity
-type ProjectBadge = 'live' | 'demo' | 'concept' | 'research';
+type ProjectBadge = 'live' | 'demo' | 'concept' | 'research' | 'tool';
 
 const badgeStyles: Record<ProjectBadge, { bg: string, text: string, border: string, label: string, icon: string }> = {
    live: {
@@ -336,6 +336,13 @@ const badgeStyles: Record<ProjectBadge, { bg: string, text: string, border: stri
       border: 'border-purple-500/30',
       label: 'UX Research',
       icon: '🔬'
+   },
+   tool: {
+      bg: 'bg-orange-500/20',
+      text: 'text-orange-400',
+      border: 'border-orange-500/30',
+      label: 'Tool',
+      icon: '🛠️'
    }
 };
 
@@ -397,43 +404,7 @@ const ProjectCard = ({ title, role, desc, tech, badge, children }: { title: stri
    );
 };
 
-const MockK8sCluster = () => {
-   const [nodes, setNodes] = useState(Array(12).fill('active'));
 
-   useEffect(() => {
-      const interval = setInterval(() => {
-         // Randomly crash and recover nodes
-         setNodes(prev => prev.map(() => Math.random() > 0.9 ? 'recovering' : (Math.random() > 0.1 ? 'active' : 'error')));
-      }, 2000);
-      return () => clearInterval(interval);
-   }, []);
-
-   return (
-      <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)]">
-         <div className="flex items-center justify-between mb-2 text-xs text-[var(--text-secondary)] font-mono">
-            <span>Cluster Status: <span className="text-[var(--accent-color)]">HEALTHY</span></span>
-            <span>v1.28.2</span>
-         </div>
-         <div className="grid grid-cols-4 gap-2">
-            {nodes.map((status, i) => (
-               <motion.div
-                  key={i}
-                  animate={{
-                     backgroundColor: status === 'active' ? 'var(--accent-color)' : (status === 'error' ? '#ef4444' : '#eab308'),
-                     opacity: status === 'active' ? 0.5 : 1
-                  }}
-                  className="h-8 rounded w-full"
-               />
-            ))}
-         </div>
-         <div className="mt-2 text-[10px] text-[var(--text-secondary)] flex gap-4">
-            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[var(--accent-color)] opacity-50"></div> Ready</span>
-            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> CrashLoopBackOff</span>
-            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-yellow-500"></div> Pending</span>
-         </div>
-      </div>
-   );
-}
 
 const MockFirewall = () => {
    const [attacks, setAttacks] = useState<{ ip: string, country: string }[]>([]);
@@ -783,16 +754,79 @@ function App() {
                            </ProjectCard>
                         </BentoItem>
 
+
                         <BentoItem delay={0.2}>
                            <ProjectCard
-                              title="Kubernetes Home-Lab"
-                              role="DevOps Engineer"
-                              desc="3-Node K3s Cluster auf Raspberry Pis. Hosting von Nextcloud, Pi-hole und personal Gitea Instance. Monitoring via Grafana & Prometheus."
-                              tech={['K3s', 'Docker', 'Linux', 'Ansible']}
+                              title="Bar Inventory Twin"
+                              role="Fullstack & IoT"
+                              desc="Digitaler Zwilling für Bar-Bestände. Echtzeit-Tracking und Visualisierung von Flaschenbeständen. Interaktive Demo verfügbar."
+                              tech={['JavaScript', 'CSS', 'HTML', 'LocalStorage']}
                               badge="demo"
                            >
-                              <div className="mt-4">
-                                 <MockK8sCluster />
+                              <div className="mt-4 flex gap-2">
+                                 <a
+                                    href="/projects/bar-inventory/"
+                                    className="flex-1 text-center px-3 py-2 text-xs font-bold bg-[var(--accent-color)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                 >
+                                    Live Demo 🚀
+                                 </a>
+                              </div>
+                           </ProjectCard>
+                        </BentoItem>
+
+                        <BentoItem delay={0.3}>
+                           <ProjectCard
+                              title="HACCP Digital"
+                              role="Compliance Engineer"
+                              desc="Digitale Checklisten für Lebensmittelsicherheit. Ersetzt Papierkram durch smarte, mobile-first Protokolle."
+                              tech={['PWA', 'JavaScript', 'Forms']}
+                              badge="demo"
+                           >
+                              <div className="mt-4 flex gap-2">
+                                 <a
+                                    href="/projects/haccp-checklist/"
+                                    className="flex-1 text-center px-3 py-2 text-xs font-bold bg-[var(--accent-color)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                 >
+                                    Live Demo 📋
+                                 </a>
+                              </div>
+                           </ProjectCard>
+                        </BentoItem>
+
+                        <BentoItem delay={0.4}>
+                           <ProjectCard
+                              title="Visual Regression"
+                              role="QA Automation"
+                              desc="Pixel-genauer Bildvergleich für UI-Testing. Erkennt visuelle Regressionen zwischen Deployments automatisch."
+                              tech={['Python', 'OpenCV', 'JS']}
+                              badge="tool"
+                           >
+                              <div className="mt-4 flex gap-2">
+                                 <a
+                                    href="/projects/image-compare/"
+                                    className="flex-1 text-center px-3 py-2 text-xs font-bold bg-[var(--accent-color)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                 >
+                                    Tool öffnen 🔍
+                                 </a>
+                              </div>
+                           </ProjectCard>
+                        </BentoItem>
+
+                        <BentoItem delay={0.5}>
+                           <ProjectCard
+                              title="Password Strength"
+                              role="Security Audit"
+                              desc="Client-side Passwort-Analyse. Prüft Entropie und Common-Patterns ohne Datenübertragung."
+                              tech={['Crypto', 'JavaScript']}
+                              badge="tool"
+                           >
+                              <div className="mt-4 flex gap-2">
+                                 <a
+                                    href="/projects/password-checker/"
+                                    className="flex-1 text-center px-3 py-2 text-xs font-bold bg-[var(--accent-color)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                 >
+                                    Check Now 🔒
+                                 </a>
                               </div>
                            </ProjectCard>
                         </BentoItem>
