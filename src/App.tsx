@@ -7,18 +7,23 @@ import {
    FaRocket, FaServer, FaShieldAlt, FaTerminal
 } from 'react-icons/fa';
 import {
-   SiTypescript, SiReact, SiTailwindcss, SiOpencv, SiOpenai
+   SiTypescript, SiReact, SiTailwindcss, SiOpencv, SiOpenai,
+   SiKalilinux, SiWireshark, SiBurpsuite
 } from 'react-icons/si';
 
- const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
- const AmtGPTModal = lazy(() => import('./components/AmtGPT/AmtGPTModal').then(m => ({ default: m.default })));
- const AmtGPTPreview = lazy(() => import('./components/AmtGPT/AmtGPTPreview').then(m => ({ default: m.default })));
- 
- import './index.css';
+const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
+
+import './index.css';
+
+interface BeforeInstallPromptEvent extends Event {
+   readonly platforms: string[];
+   prompt(): Promise<void>;
+   readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 // --- MacOS Dock Component ---
 
-function DockIcon({ mouseX, icon: Icon, label, onClick }: { mouseX: MotionValue, icon: any, label: string, onClick: () => void }) {
+function DockIcon({ mouseX, icon: Icon, label, onClick }: { mouseX: MotionValue, icon: React.ComponentType<{ className?: string }>, label: string, onClick: () => void }) {
    const ref = useRef<HTMLDivElement>(null);
 
    const distance = useTransform(mouseX, (val) => {
@@ -30,21 +35,21 @@ function DockIcon({ mouseX, icon: Icon, label, onClick }: { mouseX: MotionValue,
    const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
    return (
-       <motion.div
-          ref={ref}
-          style={{ width }}
-          className="aspect-square w-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center relative group cursor-pointer hover:border-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 backdrop-blur-md"
-          onClick={onClick}
-          role="button"
-          aria-label={label}
-          tabIndex={0}
-       >
-          <Icon className="text-[var(--text-primary)] w-5 h-5 group-hover:text-[var(--accent-color)] transition-colors" />
-          <span className="absolute -top-10 px-2 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-color)] text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-             {label}
-          </span>
-       </motion.div>
-    );
+      <motion.div
+         ref={ref}
+         style={{ width }}
+         className="aspect-square w-10 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center relative group cursor-pointer hover:border-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 backdrop-blur-md"
+         onClick={onClick}
+         role="button"
+         aria-label={label}
+         tabIndex={0}
+      >
+         <Icon className="text-[var(--text-primary)] w-5 h-5 group-hover:text-[var(--accent-color)] transition-colors" />
+         <span className="absolute -top-10 px-2 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-color)] text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            {label}
+         </span>
+      </motion.div>
+   );
 }
 
 const Dock = () => {
@@ -154,7 +159,7 @@ const themes = [
 
 const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => void }) => {
    const [isOpen, setIsOpen] = useState(false);
-   const [particles, setParticles] = useState<{ x: number, y: number, id: number, color: string }[]>([]);
+   const [particles, setParticles] = useState<{ x: number, y: number, id: number, color: string, offsetX: number, offsetY: number }[]>([]);
 
    const createParticles = () => {
       const colors = ['#10b981', '#0ea5e9', '#ec4899', '#f59e0b', '#8b5cf6'];
@@ -162,7 +167,9 @@ const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => 
          x: Math.random() * 100,
          y: Math.random() * 100,
          id: Date.now() + i,
-         color: colors[Math.floor(Math.random() * colors.length)]
+         color: colors[Math.floor(Math.random() * colors.length)],
+         offsetX: (Math.random() - 0.5) * 20,
+         offsetY: (Math.random() - 0.5) * 20
       }));
       setParticles(newParticles);
       setTimeout(() => setParticles([]), 2000);
@@ -179,31 +186,31 @@ const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => 
          {particles.length > 0 && (
             <div className="particle-container">
                {particles.map(p => (
-                  <motion.div
-                     key={p.id}
-                     initial={{ opacity: 1, scale: 0, x: `${p.x}vw`, y: `${p.y}vh` }}
-                     animate={{ 
-                        opacity: 0, 
-                        scale: 2,
-                        x: `${p.x + (Math.random() - 0.5) * 20}vw`,
-                        y: `${p.y + (Math.random() - 0.5) * 20}vh`
-                     }}
-                     transition={{ duration: 1.5, ease: "easeOut" }}
-                     className="absolute w-3 h-3 rounded-full"
-                     style={{ backgroundColor: p.color, boxShadow: `0 0 10px ${p.color}` }}
-                  />
+                   <motion.div
+                      key={p.id}
+                      initial={{ opacity: 1, scale: 0, x: `${p.x}vw`, y: `${p.y}vh` }}
+                      animate={{
+                         opacity: 0,
+                         scale: 2,
+                         x: `${p.x + p.offsetX}vw`,
+                         y: `${p.y + p.offsetY}vh`
+                      }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="absolute w-3 h-3 rounded-full"
+                      style={{ backgroundColor: p.color, boxShadow: `0 0 10px ${p.color}` }}
+                   />
                ))}
             </div>
          )}
          <div className="fixed  top-4 right-4 z-50 flex flex-col items-end gap-2">
-             <motion.button
-                whileHover={{ scale: 1.1, rotate: 180 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="Theme auswählen"
-                aria-expanded={isOpen}
-                className="p-3 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] transition-all shadow-xl relative overflow-hidden group"
-             >
+            <motion.button
+               whileHover={{ scale: 1.1, rotate: 180 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={() => setIsOpen(!isOpen)}
+               aria-label="Theme auswählen"
+               aria-expanded={isOpen}
+               className="p-3 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] transition-all shadow-xl relative overflow-hidden group"
+            >
                <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-[var(--accent-color)] to-transparent opacity-0 group-hover:opacity-20"
                   animate={{ x: ['-100%', '100%'] }}
@@ -423,8 +430,8 @@ const BentoItem = ({ children, className, delay = 0 }: { children: React.ReactNo
 
 
 
-const TechIcon = ({ icon: Icon, name, color, desc, delay = 0 }: { icon: any, name: string, color?: string, desc?: string, delay?: number }) => (
-   <motion.div 
+const TechIcon = ({ icon: Icon, name, color, desc, delay = 0 }: { icon: React.ComponentType<{ className?: string }>, name: string, color?: string, desc?: string, delay?: number }) => (
+   <motion.div
       className="flex flex-col items-center gap-2 group relative tech-icon-float"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -432,7 +439,7 @@ const TechIcon = ({ icon: Icon, name, color, desc, delay = 0 }: { icon: any, nam
       transition={{ delay, duration: 0.5 }}
       style={{ animationDelay: `${delay}s` }}
    >
-      <motion.div 
+      <motion.div
          className={`p-3 bg-zinc-800/50 rounded-xl group-hover:bg-zinc-700/50 transition-colors relative ${color ? color : ''}`}
          whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
          transition={{ duration: 0.3 }}
@@ -464,13 +471,13 @@ const TimelineItem = ({ year, title, desc, side, children, index = 0 }: { year: 
       transition={{ duration: 0.6, delay: index * 0.15 }}
       className={`relative md:w-1/2 mb-8 ${side === 'left' ? 'md:ml-auto md:pr-12 md:text-right' : 'md:mr-auto md:pl-12 md:text-left'}`}
    >
-      <motion.div 
+      <motion.div
          className={`absolute top-0 ${side === 'left' ? '-left-3 md:-left-3' : '-left-3 md:-right-3'} w-6 h-6 rounded-full bg-green-500 border-4 border-zinc-950 z-10 hidden md:block`}
          initial={{ scale: 0 }}
          whileInView={{ scale: 1 }}
          transition={{ delay: index * 0.15 + 0.3, type: "spring" }}
       />
-      <motion.div 
+      <motion.div
          className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl backdrop-blur-sm hover:border-zinc-700 transition-colors"
          whileHover={{ scale: 1.02, boxShadow: "0 0 20px var(--accent-color)" }}
       >
@@ -578,21 +585,20 @@ function App() {
       const savedTheme = localStorage.getItem('portfolio-theme');
       return savedTheme || 'cyberpunk';
    });
-   const [isAmtGPTOpen, setIsAmtGPTOpen] = useState(false);
-   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
    const [showInstall, setShowInstall] = useState(false);
    const { scrollYProgress } = useScroll();
    const scaleX = useScrollSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.1 });
 
-   useEffect(() => {
-      const handler = (e: Event) => {
-         e.preventDefault();
-         setDeferredPrompt(e);
-         setShowInstall(true);
-      };
-      window.addEventListener('beforeinstallprompt', handler);
-      return () => window.removeEventListener('beforeinstallprompt', handler);
-   }, []);
+    useEffect(() => {
+       const handler = (e: Event) => {
+          e.preventDefault();
+          setDeferredPrompt(e as BeforeInstallPromptEvent);
+          setShowInstall(true);
+       };
+       window.addEventListener('beforeinstallprompt', handler);
+       return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
 
    const handleInstall = async () => {
       if (!deferredPrompt) return;
@@ -609,244 +615,360 @@ function App() {
       localStorage.setItem('portfolio-theme', theme);
    }, [theme]);
 
-    return (
-        <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
-           <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[var(--bg-card)] focus:border-2 focus:border-[var(--accent-color)] focus:text-[var(--text-primary)] focus:font-bold"
-           >
-              Zum Hauptinhalt springen
-           </a>
-           <motion.div className="scroll-progress" style={{ scaleX }} />
-          <div className="noise-bg"></div>
-           <ThemeSwitcher current={theme} set={setTheme} />
-           {showInstall && (
-              <button
-                 onClick={handleInstall}
-                 className="fixed bottom-24 right-4 px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg shadow-lg hover:opacity-90 transition-opacity z-50 font-medium text-sm"
-              >
-                 App installieren 📱
-              </button>
-           )}
-          <Suspense fallback={<div className="fixed bottom-20 right-4 w-[50px] h-[50px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse"></div>}>
-            <AIChat />
-          </Suspense>
-           <Dock />
-
-          <main id="main-content">
-          {/* SECTION 1: HERO CONTROL CENTER */}
-          <section id="hero" className="min-h-screen p-4 md:p-8 flex items-center justify-center relative">
-            <div className="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
-
-               {/* 1. Hero */}
-               <BentoItem className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-zinc-900 to-zinc-950">
-                  <div>
-                     <div className="flex items-center gap-2 mb-4">
-                        <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20 flex items-center gap-1">
-                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                           Offen für Chancen
-                        </span>
-                     </div>
-                     <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-2 gradient-text-hero">
-                        Daten in Intelligenz verwandeln.
-                     </h1>
-                     <h2 className="text-xl md:text-2xl font-semibold text-[var(--accent-color)] mb-4">
-                        Pascal Hintermaier • AI & Automation
-                     </h2>
-                     <p className="text-zinc-400 text-base leading-relaxed max-w-md mb-6">
-                        Von der Bar zur Konsole: 6 Jahre Gastro-Management, jetzt Linux, Python & AI.
-                        Stressresistent, problemlösungsorientiert, bereit für die IT.
-                     </p>
-                     <div className="flex gap-3 flex-wrap">
-                        <button
-                           onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-                           className="px-5 py-2.5 bg-[var(--accent-color)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
-                        >
-                           Projekte ansehen
-                        </button>
-                        <button
-                           onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                           className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--text-primary)] font-medium rounded-lg hover:border-[var(--accent-color)] transition-colors"
-                        >
-                           Kontakt
-                        </button>
-                     </div>
-                  </div>
-               </BentoItem>
-
-               {/* 2. Tech Stack */}
-               <BentoItem className="md:col-span-2 md:row-span-2" delay={0.2}>
-                  <div className="flex flex-col h-full">
-                     <div className="flex items-center justify-between mb-4">
-                        <div>
-                           <h3 className="text-xl font-bold text-white mb-1">Tech Stack</h3>
-                           <p className="text-zinc-500 text-sm">Meine Werkzeuge: Ops, Dev & AI</p>
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* OPS */}
-                        <div className="space-y-3">
-                           <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Infrastructure & Ops</h4>
-                           <div className="flex flex-wrap gap-4">
-                              <TechIcon icon={FaWindows} name="Windows" desc="15+ Jahre Erfahrung" />
-                              <TechIcon icon={FaLinux} name="Linux" desc="Pop!_OS, Debian" />
-                              <TechIcon icon={FaDocker} name="Docker" desc="Container & Compose" />
-                              <TechIcon icon={FaNetworkWired} name="Netzwerk" desc="TCP/IP, Pi-hole" />
-                           </div>
-                        </div>
-
-                        {/* AI & DATA */}
-                        <div className="space-y-3">
-                           <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">AI & Automation</h4>
-                           <div className="flex flex-wrap gap-4">
-                              <TechIcon icon={FaPython} name="Python" color="text-yellow-400" desc="OpenCV, Automation Scripts" />
-                              <TechIcon icon={SiOpenai} name="RAG / LLM" color="text-green-400" desc="Gemini, lokale Modelle" />
-                              <TechIcon icon={FaBrain} name="Auto-Workflow" color="text-purple-400" desc="Task Automation" />
-                           </div>
-                        </div>
-
-                        {/* DEV */}
-                        <div className="space-y-3">
-                           <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Web Dev</h4>
-                           <div className="flex flex-wrap gap-4">
-                              <TechIcon icon={SiReact} name="React" desc="Komponenten-basierte UIs" />
-                              <TechIcon icon={SiTypescript} name="TypeScript" desc="Typsichere JS-Entwicklung" />
-                              <TechIcon icon={SiTailwindcss} name="Tailwind" desc="Utility-First CSS" />
-                              <TechIcon icon={FaGitAlt} name="Git" desc="Versionskontrolle & GitHub" />
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </BentoItem>
-            </div>
-
-            {/* Scroll Indicator */}
-            <motion.div
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1, y: [0, 10, 0] }}
-               transition={{ delay: 2, duration: 2, repeat: Infinity }}
-               className="absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-500 flex flex-col items-center gap-2"
+   return (
+      <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
+         <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[var(--bg-card)] focus:border-2 focus:border-[var(--accent-color)] focus:text-[var(--text-primary)] focus:font-bold"
+         >
+            Zum Hauptinhalt springen
+         </a>
+         <motion.div className="scroll-progress" style={{ scaleX }} />
+         <div className="noise-bg"></div>
+         <ThemeSwitcher current={theme} set={setTheme} />
+         {showInstall && (
+            <button
+               onClick={handleInstall}
+               className="fixed bottom-24 right-4 px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg shadow-lg hover:opacity-90 transition-opacity z-50 font-medium text-sm"
             >
-               <span className="text-[10px] uppercase tracking-widest">Scrollen zum Entdecken</span>
-               <div className="w-px h-8 bg-gradient-to-b from-zinc-500 to-transparent"></div>
-            </motion.div>
-         </section>
+               App installieren 📱
+            </button>
+         )}
+         <Suspense fallback={<div className="fixed bottom-20 right-4 w-[50px] h-[50px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse"></div>}>
+            <AIChat />
+         </Suspense>
+         <Dock />
 
-         {/* SECTION 2: THE JOURNEY */}
-         <section id="timeline" className="min-h-screen py-24 bg-zinc-950 relative border-t border-zinc-900/50">
-            <div className="text-center mb-16 px-4">
-               <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Der Werdegang</h2>
-               <p className="text-zinc-500 max-w-lg mx-auto">
-                  Kein gerader Weg, sondern eine Entwicklung aus Neugier und Problemlösung.
-               </p>
-            </div>
-            <Timeline />
-         </section>
+         <main id="main-content">
+            {/* SECTION 1: HERO CONTROL CENTER */}
+            <section id="hero" className="min-h-screen p-4 md:p-8 flex items-center justify-center relative">
+               <div className="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
 
-         {/* SECTION 2.5: BIG SCALE OPERATIONS */}
-         <section id="projects" className="min-h-screen py-24 px-4 bg-[var(--bg-primary)]/50 relative border-t border-[var(--border-color)]">
-            <div className="max-w-6xl mx-auto">
-               <div className="mb-12">
-                  <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">Enterprise Projects</h2>
-                  <p className="text-[var(--text-secondary)] max-w-lg">
-                     Simulationen von Hochverfügbarkeits-Systemen & Security Automation.
-                  </p>
+                  {/* 1. Hero */}
+                  <BentoItem className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-zinc-900 to-zinc-950">
+                     <div>
+                        <div className="flex items-center gap-2 mb-4">
+                           <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                              Offen für Chancen
+                           </span>
+                        </div>
+                        <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-2 gradient-text-hero">
+                           Daten in Intelligenz verwandeln.
+                        </h1>
+                        <h2 className="text-xl md:text-2xl font-semibold text-[var(--accent-color)] mb-4">
+                           Pascal Hintermaier • AI & Automation
+                        </h2>
+                        <p className="text-zinc-400 text-base leading-relaxed max-w-md mb-6">
+                           Von der Bar zur Konsole: 6 Jahre Gastro-Management, jetzt Linux, Python & AI.
+                           Stressresistent, problemlösungsorientiert, bereit für die IT.
+                        </p>
+                        <div className="flex gap-3 flex-wrap">
+                           <button
+                              onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
+                              className="px-5 py-2.5 bg-[var(--accent-color)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                           >
+                              Projekte ansehen
+                           </button>
+                           <button
+                              onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                              className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--text-primary)] font-medium rounded-lg hover:border-[var(--accent-color)] transition-colors"
+                           >
+                              Kontakt
+                           </button>
+                        </div>
+                     </div>
+                  </BentoItem>
+
+                  {/* 2. Tech Stack */}
+                  <BentoItem className="md:col-span-2 md:row-span-2" delay={0.2}>
+                     <div className="flex flex-col h-full">
+                        <div className="flex items-center justify-between mb-4">
+                           <div>
+                              <h3 className="text-xl font-bold text-white mb-1">Tech Stack</h3>
+                              <p className="text-zinc-500 text-sm">Meine Werkzeuge: Ops, Dev & AI</p>
+                           </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                           {/* OPS */}
+                           <div className="space-y-3">
+                              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Infrastructure & Ops</h4>
+                              <div className="flex flex-wrap gap-4">
+                                 <TechIcon icon={FaWindows} name="Windows" desc="15+ Jahre Erfahrung" />
+                                 <TechIcon icon={FaLinux} name="Linux" desc="Pop!_OS, Debian" />
+                                 <TechIcon icon={FaDocker} name="Docker" desc="Container & Compose" />
+                                 <TechIcon icon={FaNetworkWired} name="Netzwerk" desc="TCP/IP, Pi-hole" />
+                              </div>
+                           </div>
+
+                           {/* AI & DATA */}
+                           <div className="space-y-3">
+                              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">AI & Automation</h4>
+                              <div className="flex flex-wrap gap-4">
+                                 <TechIcon icon={FaPython} name="Python" color="text-yellow-400" desc="OpenCV, Automation Scripts" />
+                                 <TechIcon icon={SiOpenai} name="RAG / LLM" color="text-green-400" desc="Gemini, lokale Modelle" />
+                                 <TechIcon icon={FaBrain} name="Auto-Workflow" color="text-purple-400" desc="Task Automation" />
+                              </div>
+                           </div>
+
+                           {/* DEV */}
+                           <div className="space-y-3">
+                              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Web Dev</h4>
+                              <div className="flex flex-wrap gap-4">
+                                 <TechIcon icon={SiReact} name="React" desc="Komponenten-basierte UIs" />
+                                 <TechIcon icon={SiTypescript} name="TypeScript" desc="Typsichere JS-Entwicklung" />
+                                 <TechIcon icon={SiTailwindcss} name="Tailwind" desc="Utility-First CSS" />
+                                 <TechIcon icon={FaGitAlt} name="Git" desc="Versionskontrolle & GitHub" />
+                              </div>
+                           </div>
+
+                           {/* SECURITY & PENTESTING */}
+                           <div className="space-y-3">
+                              <h4 className="text-xs font-bold text-red-500 uppercase tracking-wider">Security & Pentesting</h4>
+                              <div className="flex flex-wrap gap-4">
+                                 <TechIcon icon={SiKalilinux} name="Kali Linux" color="text-blue-400" desc="Offensive Security OS" />
+                                 <TechIcon icon={SiBurpsuite} name="Burp Suite" color="text-orange-400" desc="Web App Testing" />
+                                 <TechIcon icon={SiWireshark} name="Wireshark" color="text-blue-300" desc="Traffic Analysis" />
+                                 <TechIcon icon={FaShieldAlt} name="OWASP" color="text-red-400" desc="Top 10 Vulnerabilities" />
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </BentoItem>
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* FEATURED: IMAGE COMPARE TOOL */}
-                  <ProjectCard
-                     title="AI Bildvergleich"
-                     role="Fullstack & AI"
-                     desc="Vergleich von Bildern mit Python, OpenCV & KI. Pixel-Diff, SSIM und Feature Matching."
-                     tech={['Python', 'OpenCV', 'React']}
-                     badge="live"
-                  >
-                     <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex flex-col items-center justify-center h-[150px] relative overflow-hidden group">
-                        <SiOpencv className="text-6xl text-[var(--accent-color)]/20 group-hover:text-[var(--accent-color)] transition-colors duration-500" />
-                        <a
-                           href="./projects/image-compare/index.html"
-                           target="_blank"
-                           className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
-                        >
-                           <span className="px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg font-bold text-sm transform scale-90 group-hover:scale-100 transition-transform">
-                              Starten 🚀
-                           </span>
-                        </a>
-                     </div>
-                  </ProjectCard>
-                  {/* PROJECT 1: K8S */}
-                  <ProjectCard
-                     title="K8s Auto-Healer"
-                     role="Platform Engineering"
-                     desc="Ein Kubernetes-Operator, der Crashes erkennt und Pods automatisch neu verteilt. Reduzierte Downtime um 99%."
-                     tech={['Go', 'K8s', 'Docker']}
-                     badge="concept"
-                  >
-                     <MockK8sCluster />
-                  </ProjectCard>
+               {/* Scroll Indicator */}
+               <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, y: [0, 10, 0] }}
+                  transition={{ delay: 2, duration: 2, repeat: Infinity }}
+                  className="absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-500 flex flex-col items-center gap-2"
+               >
+                  <span className="text-[10px] uppercase tracking-widest">Scrollen zum Entdecken</span>
+                  <div className="w-px h-8 bg-gradient-to-b from-zinc-500 to-transparent"></div>
+               </motion.div>
+            </section>
 
-                  {/* PROJECT 2: AI FIREWALL */}
-                  <ProjectCard
-                     title="Sentient Firewall"
-                     role="Security Ops"
-                     desc="Machine Learning Modell, das DDOS-Muster in Echtzeit erkennt und IP-Regeln dynamisch in die iptables injiziert."
-                     tech={['Python', 'Pytorch', 'Linux']}
-                     badge="concept"
-                  >
-                     <MockFirewall />
-                  </ProjectCard>
+            {/* SECTION 2: THE JOURNEY */}
+            <section id="timeline" className="min-h-screen py-24 bg-zinc-950 relative border-t border-zinc-900/50">
+               <div className="text-center mb-16 px-4">
+                  <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Der Werdegang</h2>
+                  <p className="text-zinc-500 max-w-lg mx-auto">
+                     Kein gerader Weg, sondern eine Entwicklung aus Neugier und Problemlösung.
+                  </p>
+               </div>
+               <Timeline />
+            </section>
 
-                  {/* PROJECT 3: CDN */}
-                  <ProjectCard
-                     title="Global CDN Manager"
-                     role="Network Architect"
-                     desc="Verteilung von statischen Assets über 5 Kontinente. Smart Routing basierend auf Client-Latenz."
-                     tech={['Rust', 'WASM', 'Nginx']}
-                     badge="concept"
-                  >
-                     <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex items-center justify-center h-[150px] relative overflow-hidden group">
-                        <FaGlobeAmericas className="text-6xl text-[var(--text-secondary)]/20 group-hover:text-[var(--accent-color)]/20 transition-colors duration-700" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                             <div className="text-center">
-                                <div className="text-2xl font-bold text-[var(--text-primary)]">500TB+</div>
-                                <div className="text-[10px] text-[var(--text-secondary)]">Traffic / Month</div>
-                             </div>
-                          </div>
-                       </div>
-                    </ProjectCard>
-  
-                    {/* Amt-GPT Project */}
-                    <ProjectCard
-                       title="Amt-GPT"
-                       role="UX Research & Satire"
-                       desc="Satirischer Chatbot der Bundesagentur für Arbeit. Visualisiert 'Administrative Burden' und Technical Debt durch passiv-aggressive Antworten basierend auf echten Systemfehlern."
-                        tech={['React', 'TypeScript', 'UX Research', 'Satire']}
+            {/* SECTION 2.5: BIG SCALE OPERATIONS */}
+            <section id="projects" className="min-h-screen py-24 px-4 bg-[var(--bg-primary)]/50 relative border-t border-[var(--border-color)]">
+               <div className="max-w-6xl mx-auto">
+                  <div className="mb-12">
+                     <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">Enterprise Projects</h2>
+                     <p className="text-[var(--text-secondary)] max-w-lg">
+                        Simulationen von Hochverfügbarkeits-Systemen & Security Automation.
+                     </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                     {/* FEATURED: IMAGE COMPARE TOOL */}
+                     <ProjectCard
+                        title="AI Bildvergleich"
+                        role="Fullstack & AI"
+                        desc="Vergleich von Bildern mit Python, OpenCV & KI. Pixel-Diff, SSIM und Feature Matching."
+                        tech={['Python', 'OpenCV', 'React']}
+                        badge="live"
+                     >
+                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex flex-col items-center justify-center h-[150px] relative overflow-hidden group">
+                           <SiOpencv className="text-6xl text-[var(--accent-color)]/20 group-hover:text-[var(--accent-color)] transition-colors duration-500" />
+                           <a
+                              href="./projects/image-compare/index.html"
+                              target="_blank"
+                              className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                           >
+                              <span className="px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg font-bold text-sm transform scale-90 group-hover:scale-100 transition-transform">
+                                 Starten 🚀
+                              </span>
+                           </a>
+                        </div>
+                     </ProjectCard>
+                     {/* PROJECT 1: K8S */}
+                     <ProjectCard
+                        title="K8s Auto-Healer"
+                        role="Platform Engineering"
+                        desc="Ein Kubernetes-Operator, der Crashes erkennt und Pods automatisch neu verteilt. Reduzierte Downtime um 99%."
+                        tech={['Go', 'K8s', 'Docker']}
+                        badge="concept"
+                     >
+                        <MockK8sCluster />
+                     </ProjectCard>
+
+                     {/* PROJECT 2: AI FIREWALL */}
+                     <ProjectCard
+                        title="Sentient Firewall"
+                        role="Security Ops"
+                        desc="Machine Learning Modell, das DDOS-Muster in Echtzeit erkennt und IP-Regeln dynamisch in die iptables injiziert."
+                        tech={['Python', 'Pytorch', 'Linux']}
+                        badge="concept"
+                     >
+                        <MockFirewall />
+                     </ProjectCard>
+
+                     {/* PROJECT 3: CDN */}
+                     <ProjectCard
+                        title="Global CDN Manager"
+                        role="Network Architect"
+                        desc="Verteilung von statischen Assets über 5 Kontinente. Smart Routing basierend auf Client-Latenz."
+                        tech={['Rust', 'WASM', 'Nginx']}
+                        badge="concept"
+                     >
+                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex items-center justify-center h-[150px] relative overflow-hidden group">
+                           <FaGlobeAmericas className="text-6xl text-[var(--text-secondary)]/20 group-hover:text-[var(--accent-color)]/20 transition-colors duration-700" />
+                           <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center">
+                                 <div className="text-2xl font-bold text-[var(--text-primary)]">500TB+</div>
+                                 <div className="text-[10px] text-[var(--text-secondary)]">Traffic / Month</div>
+                              </div>
+                           </div>
+                        </div>
+                     </ProjectCard>
+                     {/* SECURITY PROJECT: Vulnerability Scanner */}
+                     <ProjectCard
+                        title="Vulnerability Scanner"
+                        role="Security Tool Dev"
+                        desc="Python-basierter Scanner für Web-Vulnerabilities. Erkennt SQLi, XSS, SSRF und generiert priorisierte Reports."
+                        tech={['Python', 'Nmap', 'OWASP']}
+                        badge="demo"
+                     >
+                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] font-mono text-xs overflow-hidden h-[150px] relative">
+                           <div className="absolute top-0 left-0 w-full p-2 bg-red-500/10 border-b border-red-500/20 text-red-400 font-bold flex justify-between">
+                              <span>VULNSCAN v1.0</span>
+                              <SiKalilinux />
+                           </div>
+                           <div className="mt-8 space-y-1 text-[var(--text-secondary)]">
+                              <div className="text-green-400">[+] Target: 192.168.1.0/24</div>
+                              <div className="text-yellow-400">[!] SQLi found: /api/users?id=1' OR '1'='1</div>
+                              <div className="text-yellow-400">[!] XSS found: /search?q=&lt;script&gt;</div>
+                              <div className="text-red-400">[!!] CRITICAL: Admin panel exposed</div>
+                           </div>
+                        </div>
+                     </ProjectCard>
+
+                     {/* SECURITY PROJECT: CTF Write-Ups */}
+                     <ProjectCard
+                        title="CTF Write-Ups"
+                        role="Ethical Hacker"
+                        desc="Dokumentierte Walkthroughs von HackTheBox und TryHackMe Challenges. Lernprozess von Recon bis Root."
+                        tech={['Kali', 'Burp', 'Metasploit']}
                         badge="research"
                      >
-                        <Suspense fallback={<div className="h-[150px] bg-[var(--bg-card)] rounded-xl animate-pulse"></div>}>
-                           <AmtGPTPreview onClick={() => setIsAmtGPTOpen(true)} />
-                        </Suspense>
-                    </ProjectCard>
-                 </div>
-              </div>
-           </section>
+                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] h-[150px] relative overflow-hidden">
+                           <div className="flex gap-2 mb-3">
+                              <span className="px-2 py-1 bg-green-500/20 text-green-400 text-[10px] rounded border border-green-500/30">HTB</span>
+                              <span className="px-2 py-1 bg-red-500/20 text-red-400 text-[10px] rounded border border-red-500/30">TryHackMe</span>
+                           </div>
+                           <div className="space-y-2 text-xs">
+                              <div className="flex justify-between items-center">
+                                 <span className="text-[var(--text-primary)]">🎯 Machines Pwned</span>
+                                 <span className="text-green-400 font-mono">In Progress</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                 <span className="text-[var(--text-primary)]">📝 Write-Ups</span>
+                                 <span className="text-blue-400 font-mono">Coming Soon</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                 <span className="text-[var(--text-primary)]">🏆 Rank</span>
+                                 <span className="text-yellow-400 font-mono">Starter</span>
+                              </div>
+                           </div>
+                        </div>
+                     </ProjectCard>
+                  </div>
 
-         {/* SECTION 3: THREAT MAP */}
-         <section id="ops" className="h-[80vh] bg-[var(--bg-primary)] relative border-t border-[var(--border-color)] overflow-hidden">
-            <ThreatMap />
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-               <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-2 shadow-black drop-shadow-lg">Globale Operationen</h2>
-               <p className="text-[var(--text-secondary)] bg-[var(--bg-card)]/50 backdrop-blur px-4 py-1 rounded-full">
-                  Live Cyber-Security Monitoring Dashboard
-               </p>
-            </div>
-          </section>
-          </main>
+                  {/* CERTIFICATIONS SECTION */}
+                  <div className="mt-12 p-6 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
+                     <div className="flex items-center justify-between mb-6">
+                        <div>
+                           <h3 className="text-xl font-bold text-[var(--text-primary)]">🎓 Zertifizierungen</h3>
+                           <p className="text-[var(--text-secondary)] text-sm">Security & Pentesting Roadmap</p>
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {/* eJPT */}
+                        <motion.div
+                           whileHover={{ scale: 1.03 }}
+                           className="p-4 bg-black/20 rounded-xl border border-blue-500/30 relative overflow-hidden group"
+                        >
+                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[8px] font-bold rounded">
+                              PLANNED
+                           </div>
+                           <div className="text-3xl mb-2">🎯</div>
+                           <h4 className="font-bold text-[var(--text-primary)] text-sm">eJPT</h4>
+                           <p className="text-[10px] text-[var(--text-secondary)]">Junior Penetration Tester</p>
+                           <div className="mt-2 text-[10px] text-blue-400">~$200 • 2-4 Wochen</div>
+                        </motion.div>
 
-          {/* CONTACT SECTION */}
-          <section id="contact" className="py-24 px-4 bg-gradient-to-b from-[var(--bg-primary)] to-zinc-950 relative border-t border-[var(--border-color)]">
+                        {/* PNPT */}
+                        <motion.div
+                           whileHover={{ scale: 1.03 }}
+                           className="p-4 bg-black/20 rounded-xl border border-purple-500/30 relative overflow-hidden group"
+                        >
+                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-zinc-500/20 text-zinc-400 text-[8px] font-bold rounded">
+                              FUTURE
+                           </div>
+                           <div className="text-3xl mb-2">🔓</div>
+                           <h4 className="font-bold text-[var(--text-primary)] text-sm">PNPT</h4>
+                           <p className="text-[10px] text-[var(--text-secondary)]">Practical Network Pentester</p>
+                           <div className="mt-2 text-[10px] text-purple-400">~$500 • 7-8 Wochen</div>
+                        </motion.div>
+
+                        {/* Security+ */}
+                        <motion.div
+                           whileHover={{ scale: 1.03 }}
+                           className="p-4 bg-black/20 rounded-xl border border-green-500/30 relative overflow-hidden group"
+                        >
+                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-zinc-500/20 text-zinc-400 text-[8px] font-bold rounded">
+                              FUTURE
+                           </div>
+                           <div className="text-3xl mb-2">🛡️</div>
+                           <h4 className="font-bold text-[var(--text-primary)] text-sm">Security+</h4>
+                           <p className="text-[10px] text-[var(--text-secondary)]">CompTIA Baseline</p>
+                           <div className="mt-2 text-[10px] text-green-400">~$400 • 4-6 Wochen</div>
+                        </motion.div>
+
+                        {/* OSCP */}
+                        <motion.div
+                           whileHover={{ scale: 1.03 }}
+                           className="p-4 bg-black/20 rounded-xl border border-red-500/30 relative overflow-hidden group"
+                        >
+                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-zinc-500/20 text-zinc-400 text-[8px] font-bold rounded">
+                              GOAL
+                           </div>
+                           <div className="text-3xl mb-2">🏆</div>
+                           <h4 className="font-bold text-[var(--text-primary)] text-sm">OSCP</h4>
+                           <p className="text-[10px] text-[var(--text-secondary)]">Gold Standard</p>
+                           <div className="mt-2 text-[10px] text-red-400">~$1000 • 8-12 Wochen</div>
+                        </motion.div>
+                     </div>
+                  </div>
+               </div>
+            </section>
+
+            {/* SECTION 3: THREAT MAP */}
+            <section id="ops" className="h-[80vh] bg-[var(--bg-primary)] relative border-t border-[var(--border-color)] overflow-hidden">
+               <ThreatMap />
+               <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-center pointer-events-none">
+                  <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-2 shadow-black drop-shadow-lg">Globale Operationen</h2>
+                  <p className="text-[var(--text-secondary)] bg-[var(--bg-card)]/50 backdrop-blur px-4 py-1 rounded-full">
+                     Live Cyber-Security Monitoring Dashboard
+                  </p>
+               </div>
+            </section>
+         </main>
+
+         {/* CONTACT SECTION */}
+         <section id="contact" className="py-24 px-4 bg-gradient-to-b from-[var(--bg-primary)] to-zinc-950 relative border-t border-[var(--border-color)]">
             <div className="max-w-4xl mx-auto">
                {/* Section Header */}
                <motion.div
@@ -967,10 +1089,10 @@ function App() {
                   </a>
                </motion.div>
             </div>
-          </section>
+         </section>
 
-          {/* FOOTER */}
-          <footer className="py-8 text-center border-t border-zinc-900 mb-20 bg-zinc-950">
+         {/* FOOTER */}
+         <footer className="py-8 text-center border-t border-zinc-900 mb-20 bg-zinc-950">
             <div className="max-w-4xl mx-auto px-4">
                <div className="flex justify-center gap-6 text-zinc-500 text-sm mb-4">
                   <a href="#impressum" className="hover:text-[var(--accent-color)] transition-colors">
@@ -985,73 +1107,66 @@ function App() {
                   © 2025 Pascal Hintermaier • Built with React, Tailwind & ☕
                </p>
             </div>
-          </footer>
+         </footer>
 
-          {/* IMPRESSUM */}
-          <section id="impressum" className="py-16 px-4 bg-[var(--bg-primary)] border-t border-[var(--border-color)]">
-             <div className="max-w-4xl mx-auto">
-                <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Impressum</h2>
-                <div className="space-y-4 text-[var(--text-secondary)]">
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">Angaben gemäß § 5 TMG</h3>
-                      <p className="mt-2">Pascal Hintermaier</p>
-                      <p>Musterstraße 123</p>
-                      <p>68161 Mannheim</p>
-                      <p>Deutschland</p>
-                   </div>
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">Kontakt</h3>
-                      <p className="mt-2">E-Mail: kontakt@pascalhintermaier.de</p>
-                   </div>
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">Verantwortlich für den Inhalt</h3>
-                      <p className="mt-2">Pascal Hintermaier</p>
-                   </div>
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">Haftung für Inhalte</h3>
-                      <p className="mt-2">Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
-                   </div>
-                </div>
-             </div>
-          </section>
+         {/* IMPRESSUM */}
+         <section id="impressum" className="py-16 px-4 bg-[var(--bg-primary)] border-t border-[var(--border-color)]">
+            <div className="max-w-4xl mx-auto">
+               <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Impressum</h2>
+               <div className="space-y-4 text-[var(--text-secondary)]">
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">Angaben gemäß § 5 TMG</h3>
+                     <p className="mt-2">Pascal Hintermaier</p>
+                     <p>Musterstraße 123</p>
+                     <p>68161 Mannheim</p>
+                     <p>Deutschland</p>
+                  </div>
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">Kontakt</h3>
+                     <p className="mt-2">E-Mail: kontakt@pascalhintermaier.de</p>
+                  </div>
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">Verantwortlich für den Inhalt</h3>
+                     <p className="mt-2">Pascal Hintermaier</p>
+                  </div>
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">Haftung für Inhalte</h3>
+                     <p className="mt-2">Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+                  </div>
+               </div>
+            </div>
+         </section>
 
-          {/* DATENSCHUTZ */}
-          <section id="datenschutz" className="py-16 px-4 bg-[var(--bg-card)] border-t border-[var(--border-color)]">
-             <div className="max-w-4xl mx-auto">
-                <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Datenschutzerklärung</h2>
-                <div className="space-y-6 text-[var(--text-secondary)]">
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">1. Datenschutz auf einen Blick</h3>
-                      <p className="mt-2">Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre persönlichen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
-                   </div>
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">2. Datenerfassung auf dieser Website</h3>
-                      <p className="mt-2">Diese Website ist ein statisches Portfolio. Es werden keine persönlichen Daten (Name, E-Mail-Adresse, etc.) auf unseren Servern gespeichert. Die Website nutzt lokale Dienste:</p>
-                      <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
-                         <li>Lokale Speicherung des ausgewählten Themes im Browser (localStorage)</li>
-                         <li>Optional: AI-Chat-Funktion sendet Nachrichten an HuggingFace API (nach Zustimmung)</li>
-                      </ul>
-                   </div>
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">3. Cookies</h3>
-                      <p className="mt-2">Diese Website verwendet keine Cookies. Es wird lediglich localStorage verwendet, um Ihre Theme-Präferenz lokal zu speichern.</p>
-                   </div>
-                   <div>
-                      <h3 className="font-semibold text-[var(--text-primary)]">4. AI-Chat-Funktionalität</h3>
-                      <p className="mt-2">Wenn Sie die AI-Chat-Funktion verwenden, werden Ihre Nachrichten an die HuggingFace API gesendet, um Antworten zu generieren. Dies geschieht nur, wenn Sie aktiv Text eingeben und senden. Wir speichern keine dieser Daten auf unseren Servern.</p>
-                      <p className="mt-2"><strong>Stand:</strong> Januar 2025</p>
-                   </div>
-                </div>
-             </div>
-          </section>
+         {/* DATENSCHUTZ */}
+         <section id="datenschutz" className="py-16 px-4 bg-[var(--bg-card)] border-t border-[var(--border-color)]">
+            <div className="max-w-4xl mx-auto">
+               <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Datenschutzerklärung</h2>
+               <div className="space-y-6 text-[var(--text-secondary)]">
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">1. Datenschutz auf einen Blick</h3>
+                     <p className="mt-2">Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre persönlichen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
+                  </div>
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">2. Datenerfassung auf dieser Website</h3>
+                     <p className="mt-2">Diese Website ist ein statisches Portfolio. Es werden keine persönlichen Daten (Name, E-Mail-Adresse, etc.) auf unseren Servern gespeichert. Die Website nutzt lokale Dienste:</p>
+                     <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
+                        <li>Lokale Speicherung des ausgewählten Themes im Browser (localStorage)</li>
+                        <li>Optional: AI-Chat-Funktion sendet Nachrichten an HuggingFace API (nach Zustimmung)</li>
+                     </ul>
+                  </div>
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">3. Cookies</h3>
+                     <p className="mt-2">Diese Website verwendet keine Cookies. Es wird lediglich localStorage verwendet, um Ihre Theme-Präferenz lokal zu speichern.</p>
+                  </div>
+                  <div>
+                     <h3 className="font-semibold text-[var(--text-primary)]">4. AI-Chat-Funktionalität</h3>
+                     <p className="mt-2">Wenn Sie die AI-Chat-Funktion verwenden, werden Ihre Nachrichten an die HuggingFace API gesendet, um Antworten zu generieren. Dies geschieht nur, wenn Sie aktiv Text eingeben und senden. Wir speichern keine dieser Daten auf unseren Servern.</p>
+                     <p className="mt-2"><strong>Stand:</strong> Januar 2025</p>
+                  </div>
+               </div>
+            </div>
+         </section>
 
-          {/* Amt-GPT Modal */}
-          <Suspense fallback={<div></div>}>
-             <AmtGPTModal
-                isOpen={isAmtGPTOpen}
-                onClose={() => setIsAmtGPTOpen(false)}
-             />
-          </Suspense>
       </div>
    );
 }
