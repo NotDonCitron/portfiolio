@@ -1,0 +1,9 @@
+node_modules
+.git
+.npm
+.DS_Store
+*.log
+coverage
+dist
+public/projects/image-compare/backend
+src/components/AmtGPT
