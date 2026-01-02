@@ -1,0 +1,15 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#09090b"/>
+  <rect width="1200" height="630" fill="url(#gradient)" opacity="0.3"/>
+  <text x="600" y="250" font-family="Arial" font-size="72" font-weight="bold" fill="#10b981" text-anchor="middle">Pascal Hintermaier</text>
+  <text x="600" y="320" font-family="Arial" font-size="48" fill="#e4e4e7" text-anchor="middle">AI & Automation Portfolio</text>
+  <text x="600" y="380" font-family="Arial" font-size="28" fill="#a1a1aa" text-anchor="middle">Von der Bar zur Konsole: Linux, Python & AI</text>
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="50" fill="#10b981" opacity="0.2"/>
+  <circle cx="1100" cy="530" r="80" fill="#0ea5e9" opacity="0.2"/>
+</svg>

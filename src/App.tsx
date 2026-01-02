@@ -537,8 +537,30 @@ function App() {
       return savedTheme || 'cyberpunk';
    });
    const [isAmtGPTOpen, setIsAmtGPTOpen] = useState(false);
+   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+   const [showInstall, setShowInstall] = useState(false);
    const { scrollYProgress } = useScroll();
    const scaleX = useScrollSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.1 });
+
+   useEffect(() => {
+      const handler = (e: Event) => {
+         e.preventDefault();
+         setDeferredPrompt(e);
+         setShowInstall(true);
+      };
+      window.addEventListener('beforeinstallprompt', handler);
+      return () => window.removeEventListener('beforeinstallprompt', handler);
+   }, []);
+
+   const handleInstall = async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+         setDeferredPrompt(null);
+         setShowInstall(false);
+      }
+   };
 
    useEffect(() => {
       document.body.setAttribute('data-theme', theme);
@@ -555,7 +577,15 @@ function App() {
            </a>
            <motion.div className="scroll-progress" style={{ scaleX }} />
           <div className="noise-bg"></div>
-          <ThemeSwitcher current={theme} set={setTheme} />
+           <ThemeSwitcher current={theme} set={setTheme} />
+           {showInstall && (
+              <button
+                 onClick={handleInstall}
+                 className="fixed bottom-24 right-4 px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg shadow-lg hover:opacity-90 transition-opacity z-50 font-medium text-sm"
+              >
+                 App installieren 📱
+              </button>
+           )}
           <Suspense fallback={<div className="fixed bottom-20 right-4 w-[50px] h-[50px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse"></div>}>
             <AIChat />
           </Suspense>
@@ -787,10 +817,68 @@ function App() {
                </div>
                <p className="text-zinc-600 text-xs mt-4">Built with React, Tailwind & ☕</p>
             </div>
-         </footer>
+          </footer>
 
-         {/* Amt-GPT Modal */}
-         <AmtGPTModal
+          {/* IMPRESSUM */}
+          <section id="impressum" className="py-16 px-4 bg-[var(--bg-primary)] border-t border-[var(--border-color)]">
+             <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Impressum</h2>
+                <div className="space-y-4 text-[var(--text-secondary)]">
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">Angaben gemäß § 5 TMG</h3>
+                      <p className="mt-2">Pascal Hintermaier</p>
+                      <p>Musterstraße 123</p>
+                      <p>68161 Mannheim</p>
+                      <p>Deutschland</p>
+                   </div>
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">Kontakt</h3>
+                      <p className="mt-2">E-Mail: kontakt@pascalhintermaier.de</p>
+                   </div>
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">Verantwortlich für den Inhalt</h3>
+                      <p className="mt-2">Pascal Hintermaier</p>
+                   </div>
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">Haftung für Inhalte</h3>
+                      <p className="mt-2">Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+                   </div>
+                </div>
+             </div>
+          </section>
+
+          {/* DATENSCHUTZ */}
+          <section id="datenschutz" className="py-16 px-4 bg-[var(--bg-card)] border-t border-[var(--border-color)]">
+             <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Datenschutzerklärung</h2>
+                <div className="space-y-6 text-[var(--text-secondary)]">
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">1. Datenschutz auf einen Blick</h3>
+                      <p className="mt-2">Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre persönlichen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
+                   </div>
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">2. Datenerfassung auf dieser Website</h3>
+                      <p className="mt-2">Diese Website ist ein statisches Portfolio. Es werden keine persönlichen Daten (Name, E-Mail-Adresse, etc.) auf unseren Servern gespeichert. Die Website nutzt lokale Dienste:</p>
+                      <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
+                         <li>Lokale Speicherung des ausgewählten Themes im Browser (localStorage)</li>
+                         <li>Optional: AI-Chat-Funktion sendet Nachrichten an HuggingFace API (nach Zustimmung)</li>
+                      </ul>
+                   </div>
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">3. Cookies</h3>
+                      <p className="mt-2">Diese Website verwendet keine Cookies. Es wird lediglich localStorage verwendet, um Ihre Theme-Präferenz lokal zu speichern.</p>
+                   </div>
+                   <div>
+                      <h3 className="font-semibold text-[var(--text-primary)]">4. AI-Chat-Funktionalität</h3>
+                      <p className="mt-2">Wenn Sie die AI-Chat-Funktion verwenden, werden Ihre Nachrichten an die HuggingFace API gesendet, um Antworten zu generieren. Dies geschieht nur, wenn Sie aktiv Text eingeben und senden. Wir speichern keine dieser Daten auf unseren Servern.</p>
+                      <p className="mt-2"><strong>Stand:</strong> Januar 2025</p>
+                   </div>
+                </div>
+             </div>
+          </section>
+
+          {/* Amt-GPT Modal */}
+          <AmtGPTModal
             isOpen={isAmtGPTOpen}
             onClose={() => setIsAmtGPTOpen(false)}
          />

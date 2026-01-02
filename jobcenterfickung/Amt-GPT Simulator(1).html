@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amt-GPT: Satirischer BA Portal-Simulator</title>
+    <style>
+        :root {
+            --color-primary: #0052CC;
+            --color-error: #C00000;
+            --color-warning: #A84900;
+            --color-bg: #f5f5f2;
+            --color-surface: #ffffff;
+            --color-text: #1f2121;
+            --color-text-secondary: #626464;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0052CC 0%, #003aa3 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .warning-banner {
+            background: #fff4e0;
+            border-left: 4px solid var(--color-warning);
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #5d3000;
+        }
+
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--color-surface);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .panel h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--color-text);
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: 8px;
+        }
+
+        .problems-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .problem-btn {
+            background: var(--color-surface);
+            border: 1px solid #d0d0d0;
+            padding: 12px;
+            text-align: left;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            color: var(--color-text);
+        }
+
+        .problem-btn:hover {
+            background: #f0f0f0;
+            border-color: var(--color-primary);
+            box-shadow: 0 2px 4px rgba(0, 82, 204, 0.1);
+        }
+
+        .problem-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .bot-response {
+            background: #f0f3f9;
+            border-left: 4px solid var(--color-primary);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            min-height: 100px;
+        }
+
+        .bot-response .bot-label {
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bot-response .bot-text {
+            color: var(--color-text);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .technical-reason {
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 12px;
+            border: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .technical-reason .label {
+            font-weight: 600;
+            color: var(--color-warning);
+            margin-bottom: 6px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .severity {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .severity.critical {
+            background: #c00000;
+            color: white;
+        }
+
+        .severity.high {
+            background: var(--color-warning);
+            color: white;
+        }
+
+        .severity.medium {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sources {
+            background: var(--color-surface);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .sources h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--color-text);
+        }
+
+        .sources ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sources li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .sources li:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-right: 4px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            margin-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Amt-GPT</h1>
+            <p>Satirischer Chatbot der Bundesagentur für Arbeit – Basierend auf echten technischen Mängeln</p>
+        </header>
+
+        <div class="warning-banner">
+            <strong>⚠️ Satire-Hinweis:</strong> Dieser Simulator ist eine Parodie auf reale Systemprobleme der BA. Alle "Ausreden" sind basierend auf dokumentierten technischen Fehlern (COBOL-Legacy, Batch-Processing, Session-Timeouts, BundID-Fehler, administrative Burden). Quellen: Bundesrechnungshof, IAB, WSI-Institut, Herd & Moynihan Framework.
+        </div>
+
+        <div class="simulation-area">
+            <div class="panel">
+                <h2>🚨 Nutzer-Probleme</h2>
+                <div class="problems-list" id="problemsList"></div>
+            </div>
+
+            <div class="panel">
+                <h2>💬 Amt-GPT Antwort</h2>
+                <div id="responseArea">
+                    <p style="color: var(--color-text-secondary); font-style: italic;">Wählen Sie ein Problem, um die satirische Antwort zu sehen...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="sources">
+            <h3>📚 Verifizierte Quellen</h3>
+            <ul>
+                <li><span class="badge">Behörde</span> <strong>Bundesrechnungshof (2025):</strong> "Verwaltungsdigitalisierung: Empfehlungen für die 21. Legislaturperiode" – Kritik an fehlender IT-Redundanz, Session-Timeout-Problemen, Datenverwaltung</li>
+                <li><span class="badge">Akademie</span> <strong>Herd & Moynihan (2022):</strong> "Administrative Burden Framework" – Learning, Compliance, Psychological Costs</li>
+                <li><span class="badge">Forschung</span> <strong>Sievert & Bruder (2024):</strong> "Administrative Burden and Policy Perceptions" – Deutsches Fallstudie zu Arbeitslosengeld</li>
+                <li><span class="badge">Institut</span> <strong>WSI / Kaps (2023):</strong> "Digitalisierung in der Bundesagentur für Arbeit" – VerBIS, Batch-Processing-Architektur</li>
+                <li><span class="badge">Technik</span> <strong>AusweisApp FAQ & BundID Support:</strong> 127.0.0.1:24727 Fehler, Browser-Inkompatibilität, lokale Authentifizierungsprobleme</li>
+                <li><span class="badge">Nutzer</span> <strong>Reddit, Trustpilot, Foren:</strong> Session-Timeout-Beschwerden, Upload-Limit-Frustration, Phone-Anxiety-Berichte</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><strong>Ziel dieses Simulators:</strong> Systemische Probleme der BA sichtbar machen durch Satire. Jede "Ausrede" ist eine reale technische Schuld.<br/>
+            <strong>Nutzt:</strong> COBOL-Mainframe-Architektur, 24-48h Batch-Sync, 5-Min Session-Timeout, 2MB Upload-Limit, BundID-Authentifizierungsfehler, erzwungene Telefonates, DKZ-Matching-Bugs.<br/>
+            <strong>Ergebnis:</strong> 60% Nicht-Inanspruchnahme bei Grundsicherung (administratives Burden).</p>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                id: "password",
+                title: "❌ Passwort vergessen",
+                response: "Wir senden Ihnen einen PIN-Brief per Post. Erwarten Sie die Zustellung in 5–7 Werktagen.",
+                reason: "Fehlender E-Mail-Reset-Flow; nur PIN-Brief-Erzwingung als 'Sicherheits'-Übertrieb",
+                severity: "HIGH",
+                tags: ["Authentication", "Medienbruch"]
+            },
+            {
+                id: "upload",
+                title: "📁 Upload bricht ab (2,1 MB Datei)",
+                response: "Ihre Datei ist mit 2,1 MB zu groß. Unser Mainframe benötigt Entschlackung. Maximale Größe: 2,0 MB.",
+                reason: "2 MB Hard-Limit aus COBOL-Legacy (40 Jahre alt), Array-Größe ist fest kompiliert",
+                severity: "MEDIUM",
+                tags: ["Technical Debt", "COBOL"]
+            },
+            {
+                id: "timeout",
+                title: "⏰ Sitzung abgestürzt (nach 5 Min)",
+                response: "Die 5-Minuten-Meditation war erfolgreich. Ihre Daten wurden zum Schutz gelöscht. Bitte starten Sie von vorne.",
+                reason: "5-Minuten Session-Timeout ohne Auto-Save oder Vorwarnung; bei komplexen Anträgen führt dies zu Abbruch",
+                severity: "CRITICAL",
+                tags: ["Session Management", "UX"]
+            },
+            {
+                id: "bundid",
+                title: "🔐 BundID: 'Technischer Fehler'",
+                response: "Verbindung zu 127.0.0.1:24727 fehlgeschlagen. Haben Sie die AusweisApp2 auf Ihrem PC installiert? Zwei Geräte nötig.",
+                reason: "BundID-Architektur erfordert lokale Kommunikation zwischen Smartphone & PC; Browser-Inkompatibilität, Firewall-Probleme",
+                severity: "CRITICAL",
+                tags: ["BundID", "Authentication"]
+            },
+            {
+                id: "matching",
+                title: "🤔 Warum 'Kindergarten-Betreuung'?",
+                response: "Unser DKZ-Katalog hat 'Python' als 'Tierpflege' klassifiziert. Bewerben Sie sich im Zoo. Ablehnung = Sanktionsrisiko.",
+                reason: "Algorithmic Mismatch durch Keyword-Wildcard-Assoziationen; keine Zumutbarkeitsprüfung vor Vermittlungsvorschlag",
+                severity: "CRITICAL",
+                tags: ["Matching-Bug", "DKZ"]
+            },
+            {
+                id: "phone",
+                title: "☎️ Ich habe Angst vor Telefonaten",
+                response: "Das ist ein Problem mit Ihnen. Die Hotline erreichen Sie unter XXXX-XXXX (unterdrückte Nummer). Gerne rufen wir Sie an.",
+                reason: "Telefon ist erzwungene Lösung; Viele Sachbearbeiter rufen aus Home-Office mit unterdrückter Nummer an; Phone Anxiety wird ignoriert",
+                severity: "CRITICAL",
+                tags: ["Phone Anxiety", "Sludge Design"]
+            },
+            {
+                id: "weekend",
+                title: "📴 Website offline am Wochenende",
+                response: "Freitag 18:00 bis Montag 06:00: Wartung für nächtliche Batch-Läufe. COBOL-Mainframe braucht Schlaf.",
+                reason: "Batch-Processing-Architektur; nächtliche Synchronisation; keine Redundanz oder 24/7-Verfügbarkeit",
+                severity: "MEDIUM",
+                tags: ["Batch Processing", "Availability"]
+            },
+            {
+                id: "german",
+                title: "📝 12-seitiges Formular, schwache Deutschkenntnisse",
+                response: "'Mitwirkungspflichten', 'Eingliederungsverwaltungsakt', 'Zumutbarkeitsprüfung' – das ist Deutsch. Bitte rufen Sie an.",
+                reason: "Behördendeutsch als bewusste Sludge-Strategie zur Reduktion der Inanspruchnahme",
+                severity: "HIGH",
+                tags: ["Sludge Design", "Complexity"]
+            },
+            {
+                id: "outage",
+                title: "💥 Rechenzentrum komplett offline",
+                response: "Rechenzentren waren übergelastet. Keine Notstrom. Kein Failover. Sie sind selbst schuld.",
+                reason: "Einzelnes Rechenzentrum ohne Redundanz; Bundesrechnungshof: Nur 10% erfüllen BSI-Mindeststandard",
+                severity: "CRITICAL",
+                tags: ["Infrastructure", "Redundancy"]
+            },
+            {
+                id: "sync",
+                title: "📊 Änderung sichtbar erst nach 48h",
+                response: "Ihre Online-Eingabe wird erst in der nächtlichen Batch um 22:00 synchronisiert. Sachbearbeiter sieht es dann Montag.",
+                reason: "VerBIS Batch-Processing mit 24-48h Latenz; asynchrone Web→Mainframe & Mainframe→Web Sync",
+                severity: "HIGH",
+                tags: ["Batch Processing", "Sync"]
+            }
+        ];
+
+        const stats = [
+            { value: "60%", label: "Nicht-Inanspruchnahme (Grundsicherung)" },
+            { value: "5 Min", label: "Session-Timeout" },
+            { value: "2 MB", label: "Max. Datei-Upload" },
+            { value: "40+ Jahre", label: "COBOL-Legacy" }
+        ];
+
+        function renderProblems() {
+            const container = document.getElementById("problemsList");
+            container.innerHTML = problems.map(p => `
+                <button class="problem-btn" onclick="selectProblem('${p.id}')">
+                    <div>${p.title}</div>
+                    <div style="font-size: 11px; color: #999; margin-top: 4px;">${p.tags.join(" • ")}</div>
+                </button>
+            `).join("");
+        }
+
+        function selectProblem(id) {
+            const problem = problems.find(p => p.id === id);
+            if (!problem) return;
+
+            // Update active button
+            document.querySelectorAll(".problem-btn").forEach(btn => btn.classList.remove("active"));
+            event.target.closest(".problem-btn")?.classList.add("active");
+
+            // Update response
+            const responseArea = document.getElementById("responseArea");
+            responseArea.innerHTML = `
+                <div class="bot-response">
+                    <div class="bot-label">🤖 Amt-GPT Antwort</div>
+                    <div class="bot-text">"${problem.response}"</div>
+                    <div class="technical-reason">
+                        <div class="label">🔧 Technische Ursache</div>
+                        <div>${problem.reason}</div>
+                        <span class="severity ${problem.severity.toLowerCase()}">${problem.severity}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStats() {
+            const container = document.getElementById("statsGrid");
+            container.innerHTML = stats.map(s => `
+                <div class="stat-card">
+                    <div class="stat-value">${s.value}</div>
+                    <div class="stat-label">${s.label}</div>
+                </div>
+            `).join("");
+        }
+
+        // Initialize
+        renderProblems();
+        renderStats();
+        
+        // Auto-select first problem
+        setTimeout(() => {
+            selectProblem("password");
+            document.querySelector(".problem-btn").click();
+        }, 100);
+    </script>
+</body>
+</html>

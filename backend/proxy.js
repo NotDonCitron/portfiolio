@@ -105,10 +105,8 @@ const server = createServer((req, res) => {
           hfRes.on('end', () => {
             if (hfRes.statusCode === 200) {
               const result = JSON.parse(hfData)
-              let generatedText = result.choices?.[0]?.message?.content || ''
-
-              // Strip <think> tags and their content
-              generatedText = generatedText.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+              // Strip <think> tags and their content (handle unclosed tags)
+              generatedText = generatedText.replace(/<think>[\s\S]*?(?:<\/think>|$)/g, '').trim()
 
               console.log(`✅ Response: ${generatedText.substring(0, 50)}...`)
 
@@ -142,7 +140,7 @@ Kontaktdaten: E-Mail: ${process.env.CONTACT_EMAIL || 'pascal.hintermaier@example
             { role: "system", content: systemPrompt },
             { role: "user", content: message }
           ],
-          max_tokens: 500,
+          max_tokens: 1000,
           temperature: 0.7,
           stream: false
         }))

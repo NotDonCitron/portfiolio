@@ -16,7 +16,7 @@
     <meta property="og:url" content="https://pascalhintermaier.de/" />
     <meta property="og:title" content="Pascal Hintermaier - AI & Automation Portfolio" />
     <meta property="og:description" content="Von der Bar zur Konsole: 6 Jahre Gastro-Management, jetzt Linux, Python & AI. Stressresistent, problemlösungsorientiert, bereit für die IT." />
-    <meta property="og:image" content="https://pascalhintermaier.de/og-image.png" />
+    <meta property="og:image" content="https://pascalhintermaier.de/og-image.svg" />
     <meta property="og:locale" content="de_DE" />
 
     <!-- Twitter Card -->
@@ -24,7 +24,7 @@
     <meta name="twitter:url" content="https://pascalhintermaier.de/" />
     <meta name="twitter:title" content="Pascal Hintermaier - AI & Automation Portfolio" />
     <meta name="twitter:description" content="Von der Bar zur Konsole: 6 Jahre Gastro-Management, jetzt Linux, Python & AI." />
-    <meta name="twitter:image" content="https://pascalhintermaier.de/og-image.png" />
+    <meta name="twitter:image" content="https://pascalhintermaier.de/og-image.svg" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,6 +32,29 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#10b981" />
     <title>Pascal Hintermaier - AI & Automation Portfolio</title>
+    <style>
+      /* Critical CSS for initial render */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      .loading-spinner {
+        border: 3px solid rgba(16, 185, 129, 0.1);
+        border-top: 3px solid #10b981;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
 
     <!-- Structured Data / JSON-LD -->
     <script type="application/ld+json">
@@ -40,7 +63,7 @@
       "@type": "Person",
       "name": "Pascal Hintermaier",
       "url": "https://pascalhintermaier.de/",
-      "image": "https://pascalhintermaier.de/og-image.png",
+      "image": "https://pascalhintermaier.de/og-image.svg",
       "sameAs": [
         "https://github.com/NotDonCitron",
         "https://linkedin.com/in/pascalhintermaier"
