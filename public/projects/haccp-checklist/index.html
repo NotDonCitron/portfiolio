@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACCP Checkliste - Tägliche Kontrolle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧊 HACCP Tägliche Kontrolle</h1>
+            <p class="subtitle">Hygiene-Dokumentation für Gastronomie</p>
+        </header>
+
+        <div class="date-section">
+            <label for="check-date">Datum:</label>
+            <input type="date" id="check-date">
+            <span class="shift-label">Schicht:</span>
+            <select id="shift">
+                <option value="frueh">Frühschicht</option>
+                <option value="spaet">Spätschicht</option>
+            </select>
+        </div>
+
+        <div class="checklist-section">
+            <h2>Temperaturkontrolle</h2>
+            <table class="check-table">
+                <thead>
+                    <tr>
+                        <th>Gerät</th>
+                        <th>Soll °C</th>
+                        <th>Ist °C</th>
+                        <th>OK?</th>
+                    </tr>
+                </thead>
+                <tbody id="temp-checks">
+                    <tr>
+                        <td>Kühlschrank 1</td>
+                        <td>2-7</td>
+                        <td><input type="number" step="0.1" class="temp-input" data-min="2" data-max="7"></td>
+                        <td class="status-cell">-</td>
+                    </tr>
+                    <tr>
+                        <td>Kühlschrank 2</td>
+                        <td>2-7</td>
+                        <td><input type="number" step="0.1" class="temp-input" data-min="2" data-max="7"></td>
+                        <td class="status-cell">-</td>
+                    </tr>
+                    <tr>
+                        <td>Tiefkühler</td>
+                        <td>-18</td>
+                        <td><input type="number" step="0.1" class="temp-input" data-min="-25" data-max="-18"></td>
+                        <td class="status-cell">-</td>
+                    </tr>
+                    <tr>
+                        <td>Eismaschine</td>
+                        <td>-5</td>
+                        <td><input type="number" step="0.1" class="temp-input" data-min="-10" data-max="-3"></td>
+                        <td class="status-cell">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="checklist-section">
+            <h2>Hygiene-Checkliste</h2>
+            <div class="check-list" id="hygiene-checks">
+                <label class="check-item">
+                    <input type="checkbox" data-task="Hände gewaschen">
+                    <span>Hände gewaschen & desinfiziert</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" data-task="Arbeitskleidung sauber">
+                    <span>Saubere Arbeitskleidung</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" data-task="Arbeitsflächen gereinigt">
+                    <span>Arbeitsflächen gereinigt</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" data-task="Schneidebretter desinfiziert">
+                    <span>Schneidebretter desinfiziert</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" data-task="Müll entsorgt">
+                    <span>Müll entsorgt</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" data-task="Boden gewischt">
+                    <span>Boden gewischt</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" data-task="Spülmaschine kontrolliert">
+                    <span>Spülmaschine Temperatur OK (65°C)</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" data-task="MHD kontrolliert">
+                    <span>Mindesthaltbarkeitsdaten kontrolliert</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="checklist-section">
+            <h2>Wareneingang</h2>
+            <div class="waren-input">
+                <input type="text" id="waren-name" placeholder="Produkt">
+                <input type="number" id="waren-temp" placeholder="Temp °C" step="0.1">
+                <select id="waren-status">
+                    <option value="ok">OK</option>
+                    <option value="abgelehnt">Abgelehnt</option>
+                </select>
+                <button id="add-waren" type="button">+ Hinzufügen</button>
+            </div>
+            <table class="check-table" id="waren-table">
+                <thead>
+                    <tr>
+                        <th>Produkt</th>
+                        <th>Temp</th>
+                        <th>Status</th>
+                        <th>Uhrzeit</th>
+                    </tr>
+                </thead>
+                <tbody id="waren-list"></tbody>
+            </table>
+        </div>
+
+        <div class="checklist-section">
+            <h2>Bemerkungen</h2>
+            <textarea id="notes" rows="3" placeholder="Auffälligkeiten, Probleme, etc..."></textarea>
+        </div>
+
+        <div class="signature-section">
+            <div class="sig-field">
+                <label>Kontrolliert von:</label>
+                <input type="text" id="controller-name" placeholder="Name">
+            </div>
+            <div class="sig-field">
+                <label>Uhrzeit:</label>
+                <input type="time" id="control-time">
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="save-btn" type="button">💾 Speichern</button>
+            <button id="print-btn" type="button">🖨️ Drucken</button>
+            <button id="export-btn" type="button">📄 PDF Export</button>
+        </div>
+
+        <div class="history-section">
+            <h2>Letzte Einträge</h2>
+            <div id="history-list"></div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

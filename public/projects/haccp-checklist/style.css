@@ -1,0 +1,383 @@
+/* HACCP Checkliste - Praktisches, einfaches Design */
+/* Bewusst simpel gehalten - wie ein echtes Arbeits-Tool */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    line-height: 1.4;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 15px;
+    background: #fff;
+    min-height: 100vh;
+}
+
+/* Header - simpel */
+header {
+    text-align: center;
+    padding: 15px 0;
+    border-bottom: 2px solid #333;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Datum & Schicht Zeile */
+.date-section {
+    background: #eee;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.date-section label,
+.shift-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.date-section input,
+.date-section select {
+    padding: 5px 8px;
+    border: 1px solid #999;
+    font-size: 0.9rem;
+}
+
+/* Sektionen */
+.checklist-section {
+    margin-bottom: 25px;
+    border: 1px solid #ccc;
+    padding: 15px;
+}
+
+.checklist-section h2 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Tabellen - klassisch */
+.check-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.check-table th,
+.check-table td {
+    border: 1px solid #999;
+    padding: 8px;
+    text-align: left;
+}
+
+.check-table th {
+    background: #ddd;
+    font-weight: bold;
+}
+
+.check-table tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.temp-input {
+    width: 60px;
+    padding: 3px;
+    border: 1px solid #999;
+    text-align: center;
+}
+
+.status-cell {
+    text-align: center;
+    font-weight: bold;
+}
+
+.status-ok {
+    color: green;
+}
+
+.status-warn {
+    color: #c60;
+    background: #fff3cd;
+}
+
+.status-bad {
+    color: red;
+    background: #ffdddd;
+}
+
+/* Checkbox Liste */
+.check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.check-item:hover {
+    background: #f0f0f0;
+}
+
+.check-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.check-item input:checked + span {
+    text-decoration: line-through;
+    color: #666;
+}
+
+/* Wareneingang */
+.waren-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.waren-input input,
+.waren-input select {
+    padding: 6px;
+    border: 1px solid #999;
+    font-size: 0.9rem;
+}
+
+.waren-input input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+}
+
+.waren-input input[type="number"] {
+    width: 80px;
+}
+
+.waren-input button {
+    padding: 6px 12px;
+    background: #4a7c4e;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.waren-input button:hover {
+    background: #3d6640;
+}
+
+/* Textarea */
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #999;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+}
+
+/* Signatur Bereich */
+.signature-section {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    flex-wrap: wrap;
+}
+
+.sig-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sig-field label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.sig-field input {
+    padding: 5px 8px;
+    border: 1px solid #999;
+    font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.actions button {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: 1px solid #666;
+}
+
+#save-btn {
+    background: #2563eb;
+    color: white;
+    border-color: #1d4ed8;
+}
+
+#save-btn:hover {
+    background: #1d4ed8;
+}
+
+#print-btn {
+    background: #eee;
+    color: #333;
+}
+
+#print-btn:hover {
+    background: #ddd;
+}
+
+#export-btn {
+    background: #059669;
+    color: white;
+    border-color: #047857;
+}
+
+#export-btn:hover {
+    background: #047857;
+}
+
+/* History */
+.history-section {
+    border-top: 2px solid #333;
+    padding-top: 15px;
+}
+
+.history-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.history-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 8px;
+    background: #fafafa;
+    font-size: 0.85rem;
+}
+
+.history-item .date {
+    font-weight: bold;
+}
+
+.history-item .summary {
+    color: #666;
+    margin-top: 3px;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    display: none;
+    z-index: 100;
+}
+
+.toast.show {
+    display: block;
+}
+
+.toast.success {
+    background: #059669;
+}
+
+.toast.error {
+    background: #dc2626;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .container {
+        padding: 0;
+    }
+    
+    .actions,
+    .history-section,
+    .toast {
+        display: none !important;
+    }
+    
+    .checklist-section {
+        page-break-inside: avoid;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .date-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .signature-section {
+        flex-direction: column;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .actions button {
+        width: 100%;
+    }
+}

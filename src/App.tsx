@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, MotionValue, useScroll, useSpring as useScrollSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, MotionValue, useScroll, useSpring as useScrollSpring, AnimatePresence } from 'framer-motion';
 import {
    FaEnvelope,
-   FaGhost, FaBriefcase, FaSave, FaGamepad, FaLeaf, FaPalette, FaGlobeAmericas, FaWindows,
-   FaLinux, FaDocker, FaNetworkWired, FaPython, FaBrain, FaGitAlt,
-   FaRocket, FaServer, FaShieldAlt, FaTerminal
+   FaGhost, FaBriefcase, FaSave, FaGamepad, FaLeaf, FaPalette,
+   FaRocket, FaServer, FaTerminal, FaBars, FaTimes, FaShieldAlt,
+   FaUsers, FaClipboardList, FaBoxOpen, FaCocktail, FaQrcode, FaCheckCircle, FaExclamationTriangle
 } from 'react-icons/fa';
-import {
-   SiTypescript, SiReact, SiTailwindcss, SiOpencv, SiOpenai,
-   SiKalilinux, SiWireshark, SiBurpsuite
-} from 'react-icons/si';
+import { SiGithub } from 'react-icons/si';
+
+import { Routes, Route, Link } from 'react-router-dom';
+const FluidumDashboard = lazy(() => import('./pages/FluidumDashboard'));
 
 const AIChat = lazy(() => import('./components/AIChat').then(m => ({ default: m.default })));
+const StartupAnimation = lazy(() => import('./components/StartupAnimation').then(m => ({ default: m.default })));
+const HACCPScanner = lazy(() => import('./components/HACCPScanner'));
+const InventoryTwin = lazy(() => import('./components/InventoryTwin'));
 
 import './index.css';
 
@@ -68,84 +71,139 @@ const Dock = () => {
          <DockIcon mouseX={mouseX} icon={FaTerminal} label="Hero" onClick={() => scrollTo('hero')} />
          <DockIcon mouseX={mouseX} icon={FaRocket} label="Timeline" onClick={() => scrollTo('timeline')} />
          <DockIcon mouseX={mouseX} icon={FaServer} label="Projects" onClick={() => scrollTo('projects')} />
-         <DockIcon mouseX={mouseX} icon={FaShieldAlt} label="Global Ops" onClick={() => scrollTo('ops')} />
+         <DockIcon mouseX={mouseX} icon={FaBoxOpen} label="Inventory" onClick={() => scrollTo('inventory')} />
+         <DockIcon mouseX={mouseX} icon={FaQrcode} label="HACCP" onClick={() => window.dispatchEvent(new CustomEvent('open-haccp'))} />
          <DockIcon mouseX={mouseX} icon={FaEnvelope} label="Contact" onClick={() => scrollTo('contact')} />
       </motion.div>
    );
 };
 
-// --- Threat Map Component ---
+// --- Mobile Navigation ---
+const MobileNav = () => {
+   const [isOpen, setIsOpen] = useState(false);
 
-const ThreatMap = () => {
-   // Simple grid based map approximation
-   const [pings, setPings] = useState<{ x: number, y: number, id: number }[]>([]);
+   const scrollTo = (id: string) => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      setIsOpen(false);
+   };
 
-   useEffect(() => {
-      const interval = setInterval(() => {
-         const x = Math.random() * 100;
-         const y = Math.random() * 100;
-         const id = Date.now();
-         setPings(prev => [...prev, { x, y, id }].slice(-5));
-      }, 800);
-      return () => clearInterval(interval);
-   }, []);
+   const navItems = [
+      { id: 'hero', label: 'Start', icon: FaTerminal },
+      { id: 'timeline', label: 'Werdegang', icon: FaRocket },
+      { id: 'projects', label: 'Projekte', icon: FaServer },
+      { id: 'inventory', label: 'Inventory Twin', icon: FaBoxOpen },
+      { id: 'contact', label: 'Kontakt', icon: FaEnvelope },
+   ];
 
    return (
-      <div className="w-full h-full relative overflow-hidden opacity-50 hover:opacity-100 transition-opacity duration-500">
-         {/* Grid Lines */}
-         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      <div className="md:hidden fixed bottom-4 right-4 z-50">
+         {/* Toggle Button */}
+         <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-14 h-14 rounded-full bg-[var(--accent-color)] text-white flex items-center justify-center shadow-lg shadow-[var(--accent-color)]/30"
+            aria-label={isOpen ? "Menü schließen" : "Menü öffnen"}
+         >
+            {isOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
+         </motion.button>
 
-         {/* Central Hub (Germany approx) */}
-         <div className="absolute top-[30%] left-[50%] w-4 h-4 bg-[var(--accent-color)] rounded-full animate-ping z-10 shadow-[0_0_20px_var(--accent-color)]"></div>
-         <div className="absolute top-[30%] left-[50%] w-2 h-2 bg-white rounded-full z-20"></div>
-
-         {/* Random Pings & Arcs */}
-         {pings.map(p => (
-            <React.Fragment key={p.id}>
-               {/* Attack Source Ping */}
-               <div
-                  className="absolute w-2 h-2 bg-[var(--accent-color)] rounded-full animate-ping"
-                  style={{ left: `${p.x}%`, top: `${p.y}%` }}
-               />
-
-               {/* Svg Arc Line */}
-               <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                  <motion.path
-                     initial={{ pathLength: 0, opacity: 0 }}
-                     animate={{ pathLength: 1, opacity: [0, 1, 0] }}
-                     transition={{ duration: 1.5, ease: "easeInOut" }}
-                     d={`M ${p.x * 10} ${p.y * 5} Q 50 30 50 30`}
-                     stroke="var(--accent-color)"
-                     strokeWidth="1"
-                     fill="none"
-                  />
-                  <line
-                     x1={`${p.x}%`} y1={`${p.y}%`}
-                     x2="50%" y2="30%"
-                     stroke="url(#grad1)"
-                     strokeWidth="0.5"
-                     className="vector-line"
-                  />
-                  <defs>
-                     <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{ stopColor: 'var(--accent-color)', stopOpacity: 0 }} />
-                        <stop offset="100%" style={{ stopColor: 'var(--accent-color)', stopOpacity: 0.5 }} />
-                     </linearGradient>
-                  </defs>
-               </svg>
-            </React.Fragment>
-         ))}
-
-         {/* Stats Overlay */}
-         <div className="absolute top-4 left-4 p-4 rounded-lg bg-[var(--bg-card)] border border-[var(--border-color)] text-[10px] font-mono backdrop-blur-md">
-            <div className="text-[var(--text-secondary)]">THREAT LEVEL</div>
-            <div className="text-xl text-[var(--accent-color)] font-bold animate-pulse">ACTIVE</div>
-            <div className="mt-2 text-[var(--text-secondary)]">EVENTS: {pings.length + 12}</div>
-            <div className="text-[var(--text-secondary)]">GLOBAL LATENCY: 24ms</div>
-         </div>
+         {/* Menu Items */}
+         <AnimatePresence>
+            {isOpen && (
+               <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 20 }}
+                  className="absolute bottom-16 right-0 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-2 backdrop-blur-xl shadow-xl"
+               >
+                  {navItems.map((item, index) => (
+                     <motion.button
+                        key={item.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        onClick={() => scrollTo(item.id)}
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-[var(--accent-color)]/10 transition-colors text-left"
+                     >
+                        <item.icon className="text-[var(--accent-color)]" />
+                        <span className="text-[var(--text-primary)] text-sm font-medium">{item.label}</span>
+                     </motion.button>
+                  ))}
+               </motion.div>
+            )}
+         </AnimatePresence>
       </div>
    );
 };
+
+// --- Typing Animation Component ---
+const TypingText = ({ text, className }: { text: string, className?: string }) => {
+   const [displayedText, setDisplayedText] = useState('');
+   const [currentIndex, setCurrentIndex] = useState(0);
+   const [showCursor, setShowCursor] = useState(true);
+
+   useEffect(() => {
+      if (currentIndex < text.length) {
+         const timeout = setTimeout(() => {
+            setDisplayedText(prev => prev + text[currentIndex]);
+            setCurrentIndex(prev => prev + 1);
+         }, 50);
+         return () => clearTimeout(timeout);
+      }
+   }, [currentIndex, text]);
+
+   useEffect(() => {
+      const cursorInterval = setInterval(() => {
+         setShowCursor(prev => !prev);
+      }, 500);
+      return () => clearInterval(cursorInterval);
+   }, []);
+
+   return (
+      <span className={className}>
+         {displayedText}
+         <span className={`${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity`}>|</span>
+      </span>
+   );
+};
+
+// --- GitHub Stats Widget ---
+const GitHubStats = () => {
+   return (
+      <motion.a
+         href="https://github.com/NotDonCitron"
+         target="_blank"
+         rel="noopener noreferrer"
+         initial={{ opacity: 0, y: 20 }}
+         whileInView={{ opacity: 1, y: 0 }}
+         viewport={{ once: true }}
+         whileHover={{ scale: 1.02 }}
+         className="bento-card p-4 flex items-center gap-4 bg-[var(--bg-card)] cursor-pointer group"
+      >
+         <div className="p-3 bg-zinc-800 rounded-xl group-hover:bg-[var(--accent-color)]/20 transition-colors">
+            <SiGithub className="text-2xl text-[var(--text-secondary)] group-hover:text-[var(--accent-color)] transition-colors" />
+         </div>
+         <div className="flex-1">
+            <div className="text-sm font-bold text-[var(--text-primary)]">GitHub Activity</div>
+            <div className="text-xs text-[var(--text-secondary)]">Active Learning & Building</div>
+         </div>
+         <div className="flex gap-2">
+            <div className="text-center">
+               <div className="text-lg font-bold text-[var(--accent-color)]">10+</div>
+               <div className="text-[10px] text-[var(--text-secondary)]">Repos</div>
+            </div>
+            <div className="text-center">
+               <div className="text-lg font-bold text-[var(--accent-color)]">📈</div>
+               <div className="text-[10px] text-[var(--text-secondary)]">Active</div>
+            </div>
+         </div>
+      </motion.a>
+   );
+};
+
+// --- Threat Map Component ---
+
+
 
 // --- Theme Switcher ---
 
@@ -186,19 +244,19 @@ const ThemeSwitcher = ({ current, set }: { current: string, set: (t: string) => 
          {particles.length > 0 && (
             <div className="particle-container">
                {particles.map(p => (
-                   <motion.div
-                      key={p.id}
-                      initial={{ opacity: 1, scale: 0, x: `${p.x}vw`, y: `${p.y}vh` }}
-                      animate={{
-                         opacity: 0,
-                         scale: 2,
-                         x: `${p.x + p.offsetX}vw`,
-                         y: `${p.y + p.offsetY}vh`
-                      }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                      className="absolute w-3 h-3 rounded-full"
-                      style={{ backgroundColor: p.color, boxShadow: `0 0 10px ${p.color}` }}
-                   />
+                  <motion.div
+                     key={p.id}
+                     initial={{ opacity: 1, scale: 0, x: `${p.x}vw`, y: `${p.y}vh` }}
+                     animate={{
+                        opacity: 0,
+                        scale: 2,
+                        x: `${p.x + p.offsetX}vw`,
+                        y: `${p.y + p.offsetY}vh`
+                     }}
+                     transition={{ duration: 1.5, ease: "easeOut" }}
+                     className="absolute w-3 h-3 rounded-full"
+                     style={{ backgroundColor: p.color, boxShadow: `0 0 10px ${p.color}` }}
+                  />
                ))}
             </div>
          )}
@@ -430,36 +488,7 @@ const BentoItem = ({ children, className, delay = 0 }: { children: React.ReactNo
 
 
 
-const TechIcon = ({ icon: Icon, name, color, desc, delay = 0 }: { icon: React.ComponentType<{ className?: string }>, name: string, color?: string, desc?: string, delay?: number }) => (
-   <motion.div
-      className="flex flex-col items-center gap-2 group relative tech-icon-float"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.5 }}
-      style={{ animationDelay: `${delay}s` }}
-   >
-      <motion.div
-         className={`p-3 bg-zinc-800/50 rounded-xl group-hover:bg-zinc-700/50 transition-colors relative ${color ? color : ''}`}
-         whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-         transition={{ duration: 0.3 }}
-      >
-         <motion.div
-            className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--accent-color)]/0 to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100"
-            initial={false}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-         />
-         <Icon className={`text-2xl text-zinc-300 group-hover:text-white transition-colors relative z-10`} />
-      </motion.div>
-      <span className="text-xs text-zinc-500 group-hover:text-zinc-300 transition-colors">{name}</span>
-      {desc && (
-         <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 bg-zinc-800 border border-zinc-700 rounded text-[10px] text-zinc-300 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-            {desc}
-         </div>
-      )}
-   </motion.div>
-);
+
 
 
 
@@ -489,22 +518,34 @@ const TimelineItem = ({ year, title, desc, side, children, index = 0 }: { year: 
    </motion.div>
 );
 
-const BarManagerShowcase = () => (
-   <div className="mt-4 text-left font-mono text-xs bg-zinc-950 p-3 rounded-lg border border-zinc-800 relative overflow-hidden">
-      <div className="flex justify-between text-zinc-600 mb-2 border-b border-zinc-800 pb-1">
-         <span>bar_inventory.py</span>
-         <span>v0.1 (2019)</span>
+const BarManagementCard = () => (
+   <div className="mt-4 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 backdrop-blur-sm group hover:border-zinc-700 transition-colors">
+      <div className="flex items-center gap-2 mb-3 border-b border-zinc-800 pb-2 justify-between">
+         <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Operations Log</span>
+         </div>
+         <Link to="/fluidum" className="text-xs px-2 py-1 bg-[var(--accent-color)] text-white rounded hover:bg-blue-600 transition-colors">
+            Open Dashboard
+         </Link>
       </div>
-      <div className="text-green-500/80">
-         <p>def mix_cocktail(ingredients):</p>
-         <p className="pl-4">if inventory.check(ingredients):</p>
-         <p className="pl-8">dispense(ingredients)</p>
-         <p className="pl-8">log_usage()</p>
-         <p className="pl-4">else:</p>
-         <p className="pl-8">print("Zu wenig Bestände!")</p>
-      </div>
-      <div className="mt-3 pt-2 border-t border-zinc-800/50 text-zinc-500 italic">
-         "Mein erstes Python-Skript. Ich wollte nicht mehr von Hand zählen."
+      <div className="grid grid-cols-2 gap-3">
+         <div className="bg-zinc-950/50 p-2 rounded border border-zinc-800/50">
+            <div className="text-xs text-zinc-500 mb-1 flex items-center gap-1"><FaUsers className="text-[10px]" /> Personnel</div>
+            <div className="text-sm text-zinc-300 font-medium">8 Mitarbeiter</div>
+         </div>
+         <div className="bg-zinc-950/50 p-2 rounded border border-zinc-800/50">
+            <div className="text-xs text-zinc-500 mb-1 flex items-center gap-1"><FaClipboardList className="text-[10px]" /> Protocol</div>
+            <div className="text-sm text-zinc-300 font-medium">HACCP & Safety</div>
+         </div>
+         <div className="bg-zinc-950/50 p-2 rounded border border-zinc-800/50">
+            <div className="text-xs text-zinc-500 mb-1 flex items-center gap-1"><FaBoxOpen className="text-[10px]" /> Logistics</div>
+            <div className="text-sm text-zinc-300 font-medium">Einkauf & Supply</div>
+         </div>
+         <div className="bg-zinc-950/50 p-2 rounded border border-zinc-800/50">
+            <div className="text-xs text-zinc-500 mb-1 flex items-center gap-1"><FaCocktail className="text-[10px]" /> Product</div>
+            <div className="text-sm text-zinc-300 font-medium">Creation & Menu</div>
+         </div>
       </div>
    </div>
 );
@@ -546,17 +587,18 @@ const Timeline = () => (
             title="Bar-Chef bei Fluidum UG"
             desc="Personalverantwortung für bis zu 8 Mitarbeiter. Cocktail-Kreation, Logistik, Einkauf, HACCP-Umsetzung und Bar-Schulungen für das Team."
          >
-            <BarManagerShowcase />
+            <BarManagementCard />
          </TimelineItem>
          <TimelineItem
             index={4}
             side="right"
             year="2023 - HEUTE"
             title="Wechsel in die IT"
-            desc="Vorbereitung auf IT-Systeminformatik. Linux mastered (Pop!_OS), Home-Lab aufgebaut, Docker & Automation gelernt. Bereit für den Neustart."
+            desc="Vorbereitung auf IT-Systeminformatik. Linux mastered (Pop!_OS), Home-Lab & Electronics Lab aufgebaut. Hardware-Hacking, Docker & Automation gelernt. Bereit für den Neustart."
          >
             <div className="flex gap-2 mt-2 flex-wrap">
                <span className="px-2 py-1 bg-green-500/20 text-green-400 text-[10px] rounded border border-green-500/30">Linux</span>
+               <span className="px-2 py-1 bg-amber-500/20 text-amber-400 text-[10px] rounded border border-amber-500/30">Electronics</span>
                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-[10px] rounded border border-blue-500/30">Docker</span>
                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-[10px] rounded border border-purple-500/30">Python</span>
             </div>
@@ -585,20 +627,32 @@ function App() {
       const savedTheme = localStorage.getItem('portfolio-theme');
       return savedTheme || 'cyberpunk';
    });
-    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
    const [showInstall, setShowInstall] = useState(false);
+   const [showStartup, setShowStartup] = useState(() => {
+      // Only show startup animation once per session
+      const hasSeenStartup = sessionStorage.getItem('portfolio-startup-seen');
+      return !hasSeenStartup;
+   });
    const { scrollYProgress } = useScroll();
    const scaleX = useScrollSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.1 });
+   const [showHACCP, setShowHACCP] = useState(false);
 
-    useEffect(() => {
-       const handler = (e: Event) => {
-          e.preventDefault();
-          setDeferredPrompt(e as BeforeInstallPromptEvent);
-          setShowInstall(true);
-       };
-       window.addEventListener('beforeinstallprompt', handler);
-       return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, []);
+   useEffect(() => {
+      const handleOpenHaccp = () => setShowHACCP(true);
+      window.addEventListener('open-haccp', handleOpenHaccp);
+      return () => window.removeEventListener('open-haccp', handleOpenHaccp);
+   }, []);
+
+   useEffect(() => {
+      const handler = (e: Event) => {
+         e.preventDefault();
+         setDeferredPrompt(e as BeforeInstallPromptEvent);
+         setShowInstall(true);
+      };
+      window.addEventListener('beforeinstallprompt', handler);
+      return () => window.removeEventListener('beforeinstallprompt', handler);
+   }, []);
 
    const handleInstall = async () => {
       if (!deferredPrompt) return;
@@ -610,564 +664,266 @@ function App() {
       }
    };
 
+   const handleStartupComplete = () => {
+      setShowStartup(false);
+      sessionStorage.setItem('portfolio-startup-seen', 'true');
+   };
+
    useEffect(() => {
       document.body.setAttribute('data-theme', theme);
       localStorage.setItem('portfolio-theme', theme);
    }, [theme]);
 
-   return (
-      <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
-         <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[var(--bg-card)] focus:border-2 focus:border-[var(--accent-color)] focus:text-[var(--text-primary)] focus:font-bold"
-         >
-            Zum Hauptinhalt springen
-         </a>
-         <motion.div className="scroll-progress" style={{ scaleX }} />
-         <div className="noise-bg"></div>
-         <ThemeSwitcher current={theme} set={setTheme} />
-         {showInstall && (
-            <button
-               onClick={handleInstall}
-               className="fixed bottom-24 right-4 px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg shadow-lg hover:opacity-90 transition-opacity z-50 font-medium text-sm"
-            >
-               App installieren 📱
-            </button>
-         )}
-         <Suspense fallback={<div className="fixed bottom-20 right-4 w-[50px] h-[50px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse"></div>}>
-            <AIChat />
+   // Show startup animation
+   if (showStartup) {
+      return (
+         <Suspense fallback={<div className="min-h-screen bg-zinc-950" />}>
+            <StartupAnimation onComplete={handleStartupComplete} />
          </Suspense>
-         <Dock />
+      );
+   }
 
-         <main id="main-content">
-            {/* SECTION 1: HERO CONTROL CENTER */}
-            <section id="hero" className="min-h-screen p-4 md:p-8 flex items-center justify-center relative">
-               <div className="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
 
-                  {/* 1. Hero */}
-                  <BentoItem className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-zinc-900 to-zinc-950">
-                     <div>
-                        <div className="flex items-center gap-2 mb-4">
-                           <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20 flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                              Offen für Chancen
-                           </span>
-                        </div>
-                        <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-2 gradient-text-hero">
-                           Daten in Intelligenz verwandeln.
-                        </h1>
-                        <h2 className="text-xl md:text-2xl font-semibold text-[var(--accent-color)] mb-4">
-                           Pascal Hintermaier • AI & Automation
+
+   return (
+      <Routes>
+         <Route path="/" element={
+            <div className="min-h-screen text-[var(--text-primary)] font-body selection:bg-[var(--accent-color)] selection:text-white transition-colors duration-500 pb-20">
+               <motion.div className="scroll-progress" style={{ scaleX }} />
+               <div className="noise-bg"></div>
+               <ThemeSwitcher current={theme} set={setTheme} />
+               <Suspense fallback={<div className="fixed bottom-20 right-4 w-[50px] h-[50px] rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] animate-pulse"></div>}>
+                  <AIChat />
+               </Suspense>
+               <Suspense fallback={null}>
+                  <HACCPScanner isOpen={showHACCP} onClose={() => setShowHACCP(false)} />
+               </Suspense>
+               <Dock />
+               <MobileNav />
+
+               {/* Hero Section */}
+               <section id="hero" className="min-h-screen flex flex-col items-center justify-center relative p-8">
+                  <div className="absolute inset-0 overflow-hidden">
+                     <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--accent-color)]/20 rounded-full blur-[100px] animate-pulse"></div>
+                     <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
+                  </div>
+
+                  <div className="z-10 text-center space-y-6 max-w-4xl">
+                     <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                     >
+                        <h2 className="text-xl md:text-2xl font-mono text-[var(--accent-color)] mb-4">
+                           <TypingText text="> SYSTEM.INIT(USER='PASCAL');" />
                         </h2>
-                        <p className="text-zinc-400 text-base leading-relaxed max-w-md mb-6">
-                           Von der Bar zur Konsole: 6 Jahre Gastro-Management, jetzt Linux, Python & AI.
-                           Stressresistent, problemlösungsorientiert, bereit für die IT.
+                        <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-6 glitch-text" data-text="PASCAL HINTERMAIER">
+                           PASCAL HINTERMAIER
+                        </h1>
+                        <p className="text-xl md:text-2xl text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
+                           Vom <span className="text-[var(--text-primary)] font-bold">Bar-Management</span> zur <span className="text-[var(--text-primary)] font-bold">IT-Systeminformatik</span>.
+                           <br />
+                           <span className="text-sm mt-2 block">Building Autonomous Agents & Resilient Infrastructure.</span>
                         </p>
-                        <div className="flex gap-3 flex-wrap">
-                           <button
-                              onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-                              className="px-5 py-2.5 bg-[var(--accent-color)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
-                           >
-                              Projekte ansehen
-                           </button>
-                           <button
-                              onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                              className="px-5 py-2.5 border border-[var(--border-color)] text-[var(--text-primary)] font-medium rounded-lg hover:border-[var(--accent-color)] transition-colors"
-                           >
-                              Kontakt
-                           </button>
-                        </div>
-                     </div>
-                  </BentoItem>
+                     </motion.div>
 
-                  {/* 2. Tech Stack */}
-                  <BentoItem className="md:col-span-2 md:row-span-2" delay={0.2}>
-                     <div className="flex flex-col h-full">
-                        <div className="flex items-center justify-between mb-4">
-                           <div>
-                              <h3 className="text-xl font-bold text-white mb-1">Tech Stack</h3>
-                              <p className="text-zinc-500 text-sm">Meine Werkzeuge: Ops, Dev & AI</p>
-                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                           {/* OPS */}
-                           <div className="space-y-3">
-                              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Infrastructure & Ops</h4>
-                              <div className="flex flex-wrap gap-4">
-                                 <TechIcon icon={FaWindows} name="Windows" desc="15+ Jahre Erfahrung" />
-                                 <TechIcon icon={FaLinux} name="Linux" desc="Pop!_OS, Debian" />
-                                 <TechIcon icon={FaDocker} name="Docker" desc="Container & Compose" />
-                                 <TechIcon icon={FaNetworkWired} name="Netzwerk" desc="TCP/IP, Pi-hole" />
-                              </div>
-                           </div>
-
-                           {/* AI & DATA */}
-                           <div className="space-y-3">
-                              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">AI & Automation</h4>
-                              <div className="flex flex-wrap gap-4">
-                                 <TechIcon icon={FaPython} name="Python" color="text-yellow-400" desc="OpenCV, Automation Scripts" />
-                                 <TechIcon icon={SiOpenai} name="RAG / LLM" color="text-green-400" desc="Gemini, lokale Modelle" />
-                                 <TechIcon icon={FaBrain} name="Auto-Workflow" color="text-purple-400" desc="Task Automation" />
-                              </div>
-                           </div>
-
-                           {/* DEV */}
-                           <div className="space-y-3">
-                              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Web Dev</h4>
-                              <div className="flex flex-wrap gap-4">
-                                 <TechIcon icon={SiReact} name="React" desc="Komponenten-basierte UIs" />
-                                 <TechIcon icon={SiTypescript} name="TypeScript" desc="Typsichere JS-Entwicklung" />
-                                 <TechIcon icon={SiTailwindcss} name="Tailwind" desc="Utility-First CSS" />
-                                 <TechIcon icon={FaGitAlt} name="Git" desc="Versionskontrolle & GitHub" />
-                              </div>
-                           </div>
-
-                           {/* SECURITY & PENTESTING */}
-                           <div className="space-y-3">
-                              <h4 className="text-xs font-bold text-red-500 uppercase tracking-wider">Security & Pentesting</h4>
-                              <div className="flex flex-wrap gap-4">
-                                 <TechIcon icon={SiKalilinux} name="Kali Linux" color="text-blue-400" desc="Offensive Security OS" />
-                                 <TechIcon icon={SiBurpsuite} name="Burp Suite" color="text-orange-400" desc="Web App Testing" />
-                                 <TechIcon icon={SiWireshark} name="Wireshark" color="text-blue-300" desc="Traffic Analysis" />
-                                 <TechIcon icon={FaShieldAlt} name="OWASP" color="text-red-400" desc="Top 10 Vulnerabilities" />
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </BentoItem>
-               </div>
-
-               {/* Scroll Indicator */}
-               <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1, y: [0, 10, 0] }}
-                  transition={{ delay: 2, duration: 2, repeat: Infinity }}
-                  className="absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-500 flex flex-col items-center gap-2"
-               >
-                  <span className="text-[10px] uppercase tracking-widest">Scrollen zum Entdecken</span>
-                  <div className="w-px h-8 bg-gradient-to-b from-zinc-500 to-transparent"></div>
-               </motion.div>
-            </section>
-
-            {/* SECTION 2: THE JOURNEY */}
-            <section id="timeline" className="min-h-screen py-24 bg-zinc-950 relative border-t border-zinc-900/50">
-               <div className="text-center mb-16 px-4">
-                  <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Der Werdegang</h2>
-                  <p className="text-zinc-500 max-w-lg mx-auto">
-                     Kein gerader Weg, sondern eine Entwicklung aus Neugier und Problemlösung.
-                  </p>
-               </div>
-               <Timeline />
-            </section>
-
-            {/* SECTION 2.5: BIG SCALE OPERATIONS */}
-            <section id="projects" className="min-h-screen py-24 px-4 bg-[var(--bg-primary)]/50 relative border-t border-[var(--border-color)]">
-               <div className="max-w-6xl mx-auto">
-                  <div className="mb-12">
-                     <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">Enterprise Projects</h2>
-                     <p className="text-[var(--text-secondary)] max-w-lg">
-                        Simulationen von Hochverfügbarkeits-Systemen & Security Automation.
-                     </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     {/* FEATURED: IMAGE COMPARE TOOL */}
-                     <ProjectCard
-                        title="AI Bildvergleich"
-                        role="Fullstack & AI"
-                        desc="Vergleich von Bildern mit Python, OpenCV & KI. Pixel-Diff, SSIM und Feature Matching."
-                        tech={['Python', 'OpenCV', 'React']}
-                        badge="live"
+                     <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5, duration: 1 }}
+                        className="flex flex-wrap justify-center gap-4 mt-8"
                      >
-                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex flex-col items-center justify-center h-[150px] relative overflow-hidden group">
-                           <SiOpencv className="text-6xl text-[var(--accent-color)]/20 group-hover:text-[var(--accent-color)] transition-colors duration-500" />
-                           <a
-                              href="./projects/image-compare/index.html"
-                              target="_blank"
-                              className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                        <button onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-3 bg-[var(--accent-color)] text-white rounded-lg font-bold hover:bg-blue-600 transition-all shadow-[0_0_20px_var(--accent-color)] hover:shadow-[0_0_40px_var(--accent-color)]">
+                           Projekte ansehen
+                        </button>
+                        <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-3 bg-zinc-900 border border-zinc-700 text-white rounded-lg font-bold hover:border-[var(--accent-color)] transition-all">
+                           Kontakt aufnehmen
+                        </button>
+                     </motion.div>
+                  </div>
+               </section>
+
+               <section id="timeline" className="min-h-screen bg-[var(--bg-card)]/50 backdrop-blur-sm py-20">
+                  <div className="max-w-7xl mx-auto px-6">
+                     <motion.h2
+                        initial={{ opacity: 0, x: -50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="text-4xl md:text-6xl font-black mb-16 text-center md:text-left"
+                     >
+                        WERDEGANG<span className="text-[var(--accent-color)]">.log</span>
+                     </motion.h2>
+                     <Timeline />
+                  </div>
+               </section>
+
+               <section id="projects" className="min-h-screen py-20 relative">
+                  <div className="max-w-7xl mx-auto px-6">
+                     <motion.h2
+                        initial={{ opacity: 0, x: 50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="text-4xl md:text-6xl font-black mb-16 text-right"
+                     >
+                        PROJECTS<span className="text-[var(--accent-color)]">.exe</span>
+                     </motion.h2>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <BentoItem className="col-span-1 md:col-span-2 bg-gradient-to-br from-zinc-900 to-zinc-950">
+                           <ProjectCard
+                              title="Portfolio Modernization"
+                              role="Fullstack Engineer"
+                              desc="Diese Website selbst ist ein Showcase. Built with React 19, Vite, Tailwind v4 und Framer Motion. Integriert lokale LLMs via HuggingFace und bietet eine PWA-Experience."
+                              tech={['React', 'TypeScript', 'Tailwind', 'Vite', 'Framer Motion']}
+                              badge="live"
                            >
-                              <span className="px-4 py-2 bg-[var(--accent-color)] text-white rounded-lg font-bold text-sm transform scale-90 group-hover:scale-100 transition-transform">
-                                 Starten 🚀
+                              <div className="mt-4 flex gap-2">
+                                 <GitHubStats />
+                              </div>
+                           </ProjectCard>
+                        </BentoItem>
+
+                        <BentoItem delay={0.2}>
+                           <ProjectCard
+                              title="Kubernetes Home-Lab"
+                              role="DevOps Engineer"
+                              desc="3-Node K3s Cluster auf Raspberry Pis. Hosting von Nextcloud, Pi-hole und personal Gitea Instance. Monitoring via Grafana & Prometheus."
+                              tech={['K3s', 'Docker', 'Linux', 'Ansible']}
+                              badge="demo"
+                           >
+                              <div className="mt-4">
+                                 <MockK8sCluster />
+                              </div>
+                           </ProjectCard>
+                        </BentoItem>
+
+                        <BentoItem delay={0.4}>
+                           <ProjectCard
+                              title="Sentient Firewall"
+                              role="Security Researcher"
+                              desc="AI-driven Firewall mit LSTM Neural Network für Echtzeit-Traffic-Analyse. Erkennt DDoS, Port Scanning und Brute Force Angriffe. Open Source auf GitHub."
+                              tech={['Python', 'PyTorch', 'Scapy', 'Flask']}
+                              badge="live"
+                           >
+                              <div className="mt-4">
+                                 <MockFirewall />
+                              </div>
+                              <div className="mt-3 flex gap-2">
+                                 <a
+                                    href="/projects/sentient-firewall/"
+                                    className="flex-1 text-center px-3 py-2 text-xs font-bold bg-[var(--accent-color)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                 >
+                                    Demo 🚀
+                                 </a>
+                                 <a
+                                    href="https://github.com/NotDonCitron/sentient-firewall"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex-1 text-center px-3 py-2 text-xs font-bold bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition-colors flex items-center justify-center gap-1"
+                                 >
+                                    <SiGithub /> Code
+                                 </a>
+                              </div>
+                           </ProjectCard>
+                        </BentoItem>
+
+                        <BentoItem className="md:col-span-3">
+                           <div className="p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 flex items-center justify-between">
+                              <div>
+                                 <h3 className="text-xl font-bold mb-1">Mehr Projekte auf GitHub</h3>
+                                 <p className="text-zinc-400">Schauen Sie sich meine Repositories und Contributions an.</p>
+                              </div>
+                              <a href="https://github.com/NotDonCitron" target="_blank" rel="noopener noreferrer" className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg font-bold transition-colors">
+                                 GitHub Profile
+                              </a>
+                           </div>
+                        </BentoItem>
+                     </div>
+                  </div>
+               </section>
+
+               <section id="inventory" className="py-20 bg-[var(--bg-card)]/30 backdrop-blur-sm relative border-t border-[var(--border-color)]">
+                  <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
+                     <div className="md:col-span-1">
+                        <h2 className="text-4xl font-bold mb-6">Digital Inventory Twin</h2>
+                        <p className="text-zinc-400 text-lg mb-8 leading-relaxed">
+                           Ein Echtzeit-Abbild der physischen Bestände. Demonstriert die Verbindung von klassischer Logistik mit moderner IT-Infrastruktur.
+                        </p>
+                        <ul className="space-y-4 mb-8">
+                           <li className="flex items-center gap-3 text-zinc-300">
+                              <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm"><FaCheckCircle /></span>
+                              <span>Live-Status Überwachung</span>
+                           </li>
+                           <li className="flex items-center gap-3 text-zinc-300">
+                              <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm"><FaBoxOpen /></span>
+                              <span>Smart Location Tracking</span>
+                           </li>
+                           <li className="flex items-center gap-3 text-zinc-300">
+                              <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm"><FaExclamationTriangle /></span>
+                              <span>Auto-Alert bei Low Stock</span>
+                           </li>
+                        </ul>
+                        <div className="p-4 bg-zinc-900/50 rounded-xl border border-zinc-800">
+                           <div className="text-xs font-mono text-zinc-500 mb-2">SYSTEM STATUS</div>
+                           <div className="flex items-center gap-2 text-green-400 font-mono text-sm">
+                              <span className="relative flex h-2 w-2">
+                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                               </span>
-                           </a>
-                        </div>
-                     </ProjectCard>
-                     {/* PROJECT 1: K8S */}
-                     <ProjectCard
-                        title="K8s Auto-Healer"
-                        role="Platform Engineering"
-                        desc="Ein Kubernetes-Operator, der Crashes erkennt und Pods automatisch neu verteilt. Reduzierte Downtime um 99%."
-                        tech={['Go', 'K8s', 'Docker']}
-                        badge="concept"
-                     >
-                        <MockK8sCluster />
-                     </ProjectCard>
-
-                     {/* PROJECT 2: AI FIREWALL */}
-                     <ProjectCard
-                        title="Sentient Firewall"
-                        role="Security Ops"
-                        desc="Machine Learning Modell, das DDOS-Muster in Echtzeit erkennt und IP-Regeln dynamisch in die iptables injiziert."
-                        tech={['Python', 'Pytorch', 'Linux']}
-                        badge="concept"
-                     >
-                        <MockFirewall />
-                     </ProjectCard>
-
-                     {/* PROJECT 3: CDN */}
-                     <ProjectCard
-                        title="Global CDN Manager"
-                        role="Network Architect"
-                        desc="Verteilung von statischen Assets über 5 Kontinente. Smart Routing basierend auf Client-Latenz."
-                        tech={['Rust', 'WASM', 'Nginx']}
-                        badge="concept"
-                     >
-                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] flex items-center justify-center h-[150px] relative overflow-hidden group">
-                           <FaGlobeAmericas className="text-6xl text-[var(--text-secondary)]/20 group-hover:text-[var(--accent-color)]/20 transition-colors duration-700" />
-                           <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="text-center">
-                                 <div className="text-2xl font-bold text-[var(--text-primary)]">500TB+</div>
-                                 <div className="text-[10px] text-[var(--text-secondary)]">Traffic / Month</div>
-                              </div>
+                              ONLINE • SYNCED
                            </div>
-                        </div>
-                     </ProjectCard>
-                     {/* SECURITY PROJECT: Vulnerability Scanner */}
-                     <ProjectCard
-                        title="Vulnerability Scanner"
-                        role="Security Tool Dev"
-                        desc="Python-basierter Scanner für Web-Vulnerabilities. Erkennt SQLi, XSS, SSRF und generiert priorisierte Reports."
-                        tech={['Python', 'Nmap', 'OWASP']}
-                        badge="demo"
-                     >
-                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] font-mono text-xs overflow-hidden h-[150px] relative">
-                           <div className="absolute top-0 left-0 w-full p-2 bg-red-500/10 border-b border-red-500/20 text-red-400 font-bold flex justify-between">
-                              <span>VULNSCAN v1.0</span>
-                              <SiKalilinux />
-                           </div>
-                           <div className="mt-8 space-y-1 text-[var(--text-secondary)]">
-                              <div className="text-green-400">[+] Target: 192.168.1.0/24</div>
-                              <div className="text-yellow-400">[!] SQLi found: /api/users?id=1' OR '1'='1</div>
-                              <div className="text-yellow-400">[!] XSS found: /search?q=&lt;script&gt;</div>
-                              <div className="text-red-400">[!!] CRITICAL: Admin panel exposed</div>
-                           </div>
-                        </div>
-                     </ProjectCard>
-
-                     {/* SECURITY PROJECT: CTF Write-Ups */}
-                     <ProjectCard
-                        title="CTF Write-Ups"
-                        role="Ethical Hacker"
-                        desc="Dokumentierte Walkthroughs von HackTheBox und TryHackMe Challenges. Lernprozess von Recon bis Root."
-                        tech={['Kali', 'Burp', 'Metasploit']}
-                        badge="research"
-                     >
-                        <div className="bg-black/20 p-4 rounded-xl border border-[var(--border-color)] h-[150px] relative overflow-hidden">
-                           <div className="flex gap-2 mb-3">
-                              <span className="px-2 py-1 bg-green-500/20 text-green-400 text-[10px] rounded border border-green-500/30">HTB</span>
-                              <span className="px-2 py-1 bg-red-500/20 text-red-400 text-[10px] rounded border border-red-500/30">TryHackMe</span>
-                           </div>
-                           <div className="space-y-2 text-xs">
-                              <div className="flex justify-between items-center">
-                                 <span className="text-[var(--text-primary)]">🎯 Machines Pwned</span>
-                                 <span className="text-green-400 font-mono">In Progress</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                 <span className="text-[var(--text-primary)]">📝 Write-Ups</span>
-                                 <span className="text-blue-400 font-mono">Coming Soon</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                 <span className="text-[var(--text-primary)]">🏆 Rank</span>
-                                 <span className="text-yellow-400 font-mono">Starter</span>
-                              </div>
-                           </div>
-                        </div>
-                     </ProjectCard>
-                  </div>
-
-                  {/* CERTIFICATIONS SECTION */}
-                  <div className="mt-12 p-6 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
-                     <div className="flex items-center justify-between mb-6">
-                        <div>
-                           <h3 className="text-xl font-bold text-[var(--text-primary)]">🎓 Zertifizierungen</h3>
-                           <p className="text-[var(--text-secondary)] text-sm">Security & Pentesting Roadmap</p>
                         </div>
                      </div>
-                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {/* eJPT */}
-                        <motion.div
-                           whileHover={{ scale: 1.03 }}
-                           className="p-4 bg-black/20 rounded-xl border border-blue-500/30 relative overflow-hidden group"
-                        >
-                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[8px] font-bold rounded">
-                              PLANNED
+                     <div className="md:col-span-2 h-[500px] bg-black/40 rounded-2xl border border-[var(--border-color)] relative overflow-hidden shadow-2xl flex flex-col">
+                        <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">
+                           <div className="flex gap-2">
+                              <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                              <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                              <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
                            </div>
-                           <div className="text-3xl mb-2">🎯</div>
-                           <h4 className="font-bold text-[var(--text-primary)] text-sm">eJPT</h4>
-                           <p className="text-[10px] text-[var(--text-secondary)]">Junior Penetration Tester</p>
-                           <div className="mt-2 text-[10px] text-blue-400">~$200 • 2-4 Wochen</div>
-                        </motion.div>
-
-                        {/* PNPT */}
-                        <motion.div
-                           whileHover={{ scale: 1.03 }}
-                           className="p-4 bg-black/20 rounded-xl border border-purple-500/30 relative overflow-hidden group"
-                        >
-                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-zinc-500/20 text-zinc-400 text-[8px] font-bold rounded">
-                              FUTURE
-                           </div>
-                           <div className="text-3xl mb-2">🔓</div>
-                           <h4 className="font-bold text-[var(--text-primary)] text-sm">PNPT</h4>
-                           <p className="text-[10px] text-[var(--text-secondary)]">Practical Network Pentester</p>
-                           <div className="mt-2 text-[10px] text-purple-400">~$500 • 7-8 Wochen</div>
-                        </motion.div>
-
-                        {/* Security+ */}
-                        <motion.div
-                           whileHover={{ scale: 1.03 }}
-                           className="p-4 bg-black/20 rounded-xl border border-green-500/30 relative overflow-hidden group"
-                        >
-                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-zinc-500/20 text-zinc-400 text-[8px] font-bold rounded">
-                              FUTURE
-                           </div>
-                           <div className="text-3xl mb-2">🛡️</div>
-                           <h4 className="font-bold text-[var(--text-primary)] text-sm">Security+</h4>
-                           <p className="text-[10px] text-[var(--text-secondary)]">CompTIA Baseline</p>
-                           <div className="mt-2 text-[10px] text-green-400">~$400 • 4-6 Wochen</div>
-                        </motion.div>
-
-                        {/* OSCP */}
-                        <motion.div
-                           whileHover={{ scale: 1.03 }}
-                           className="p-4 bg-black/20 rounded-xl border border-red-500/30 relative overflow-hidden group"
-                        >
-                           <div className="absolute top-2 right-2 px-2 py-0.5 bg-zinc-500/20 text-zinc-400 text-[8px] font-bold rounded">
-                              GOAL
-                           </div>
-                           <div className="text-3xl mb-2">🏆</div>
-                           <h4 className="font-bold text-[var(--text-primary)] text-sm">OSCP</h4>
-                           <p className="text-[10px] text-[var(--text-secondary)]">Gold Standard</p>
-                           <div className="mt-2 text-[10px] text-red-400">~$1000 • 8-12 Wochen</div>
-                        </motion.div>
+                           <div className="text-xs font-mono text-zinc-500">inventory_node_v2.0.1</div>
+                        </div>
+                        <Suspense fallback={<div className="flex-1 flex items-center justify-center">Loading Inventory Module...</div>}>
+                           <InventoryTwin />
+                        </Suspense>
                      </div>
                   </div>
-               </div>
-            </section>
+               </section>
 
-            {/* SECTION 3: THREAT MAP */}
-            <section id="ops" className="h-[80vh] bg-[var(--bg-primary)] relative border-t border-[var(--border-color)] overflow-hidden">
-               <ThreatMap />
-               <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-                  <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-2 shadow-black drop-shadow-lg">Globale Operationen</h2>
-                  <p className="text-[var(--text-secondary)] bg-[var(--bg-card)]/50 backdrop-blur px-4 py-1 rounded-full">
-                     Live Cyber-Security Monitoring Dashboard
-                  </p>
-               </div>
-            </section>
-         </main>
-
-         {/* CONTACT SECTION */}
-         <section id="contact" className="py-24 px-4 bg-gradient-to-b from-[var(--bg-primary)] to-zinc-950 relative border-t border-[var(--border-color)]">
-            <div className="max-w-4xl mx-auto">
-               {/* Section Header */}
-               <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="text-center mb-16"
-               >
-                  <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">Let's Connect</h2>
-                  <p className="text-[var(--text-secondary)] max-w-lg mx-auto text-lg">
-                     Bereit für den Einstieg in die IT. Offen für Ausbildung, Praktikum oder Junior-Positionen.
-                  </p>
-               </motion.div>
-
-               {/* Contact Cards Grid */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                  {/* Email Card - Primary CTA */}
-                  <motion.a
-                     href="mailto:kontakt@pascalhintermaier.de"
-                     initial={{ opacity: 0, x: -20 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true }}
-                     whileHover={{ scale: 1.02, y: -3 }}
-                     whileTap={{ scale: 0.98 }}
-                     className="group relative overflow-hidden bg-gradient-to-br from-[var(--accent-color)] to-[var(--accent-color)]/80 p-8 rounded-2xl border border-[var(--accent-color)]/30 shadow-lg shadow-[var(--accent-color)]/20 cursor-pointer"
-                  >
-                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                     <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-4">
-                           <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                              <FaEnvelope className="text-2xl text-white" />
-                           </div>
-                           <div>
-                              <h3 className="text-xl font-bold text-white">E-Mail schreiben</h3>
-                              <p className="text-white/80 text-sm">Bevorzugte Kontaktmethode</p>
-                           </div>
-                        </div>
-                        <p className="text-white/90 text-sm mb-4">
-                           Ich antworte in der Regel innerhalb von 24 Stunden.
-                        </p>
-                        <div className="flex items-center gap-2 text-white font-medium">
-                           <span>kontakt@pascalhintermaier.de</span>
-                           <FaRocket className="text-lg group-hover:translate-x-1 transition-transform" />
-                        </div>
+               <section id="contact" className="min-h-screen flex items-center justify-center py-20 relative overflow-hidden">
+                  {/* Footer / Contact */}
+                  <div className="text-center z-10">
+                     <motion.h2
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        whileInView={{ scale: 1, opacity: 1 }}
+                        className="text-6xl md:text-9xl font-black mb-8 text-[var(--accent-color)] opacity-20 select-none"
+                     >
+                        CONTACT
+                     </motion.h2>
+                     <h3 className="text-3xl font-bold mb-8">Bereit für den nächsten Schritt?</h3>
+                     <div className="flex justify-center gap-6 mb-12">
+                        <a href="mailto:pascal.hintermaier@example.com" className="p-4 bg-zinc-800 rounded-full hover:bg-[var(--accent-color)] hover:text-white transition-all transform hover:scale-110">
+                           <FaEnvelope className="text-2xl" />
+                        </a>
+                        <a href="https://github.com/NotDonCitron" className="p-4 bg-zinc-800 rounded-full hover:bg-[var(--accent-color)] hover:text-white transition-all transform hover:scale-110">
+                           <SiGithub className="text-2xl" />
+                        </a>
+                        <a href="https://linkedin.com" className="p-4 bg-zinc-800 rounded-full hover:bg-[var(--accent-color)] hover:text-white transition-all transform hover:scale-110">
+                           <FaBriefcase className="text-2xl" />
+                        </a>
                      </div>
-                  </motion.a>
-
-                  {/* GitHub Card */}
-                  <motion.a
-                     href="https://github.com/NotDonCitron"
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     initial={{ opacity: 0, x: 20 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true }}
-                     whileHover={{ scale: 1.02, y: -3 }}
-                     whileTap={{ scale: 0.98 }}
-                     className="group relative overflow-hidden bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/50 transition-colors cursor-pointer"
-                  >
-                     <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-color)]/0 to-[var(--accent-color)]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                     <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-4">
-                           <div className="p-3 bg-zinc-800 rounded-xl group-hover:bg-[var(--accent-color)]/20 transition-colors">
-                              <FaGitAlt className="text-2xl text-[var(--text-secondary)] group-hover:text-[var(--accent-color)] transition-colors" />
-                           </div>
-                           <div>
-                              <h3 className="text-xl font-bold text-[var(--text-primary)]">GitHub</h3>
-                              <p className="text-[var(--text-secondary)] text-sm">Code & Projekte</p>
-                           </div>
-                        </div>
-                        <p className="text-[var(--text-secondary)] text-sm mb-4">
-                           Schau dir meine Projekte und Code-Beispiele an.
-                        </p>
-                        <div className="flex items-center gap-2 text-[var(--accent-color)] font-medium">
-                           <span>github.com/NotDonCitron</span>
-                           <span className="text-lg group-hover:translate-x-1 transition-transform">→</span>
-                        </div>
-                     </div>
-                  </motion.a>
-               </div>
-
-               {/* Quick Info Cards */}
-               <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 }}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16 max-w-md mx-auto"
-               >
-                  <div className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-color)] text-center">
-                     <div className="text-2xl mb-1">📍</div>
-                     <div className="text-[var(--text-primary)] font-medium text-sm">69250 Schönau</div>
-                     <div className="text-[var(--text-secondary)] text-xs">Rhein-Neckar-Kreis</div>
+                     <p className="text-zinc-500">© 2026 Pascal Hintermaier. Built with AI & Passion.</p>
                   </div>
-                  <div className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-color)] text-center">
-                     <div className="text-2xl mb-1">🎯</div>
-                     <div className="text-[var(--text-primary)] font-medium text-sm">IT-Systeminformatik</div>
-                     <div className="text-[var(--text-secondary)] text-xs">Ausbildung angestrebt</div>
-                  </div>
-               </motion.div>
-
-               {/* Download CV Button */}
-               <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 }}
-                  className="text-center mb-16"
-               >
-                  <a
-                     href="./Lebenslauf_Hintermaier-1.pdf"
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     className="inline-flex items-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-[var(--accent-color)]/50 text-[var(--text-primary)] font-medium rounded-xl transition-all hover:shadow-lg hover:shadow-[var(--accent-color)]/10"
-                  >
-                     <span className="text-xl">📄</span>
-                     <span>Lebenslauf herunterladen (PDF)</span>
-                  </a>
-               </motion.div>
+               </section>
             </div>
-         </section>
+         } />
 
-         {/* FOOTER */}
-         <footer className="py-8 text-center border-t border-zinc-900 mb-20 bg-zinc-950">
-            <div className="max-w-4xl mx-auto px-4">
-               <div className="flex justify-center gap-6 text-zinc-500 text-sm mb-4">
-                  <a href="#impressum" className="hover:text-[var(--accent-color)] transition-colors">
-                     Impressum
-                  </a>
-                  <span className="text-zinc-700">|</span>
-                  <a href="#datenschutz" className="hover:text-[var(--accent-color)] transition-colors">
-                     Datenschutz
-                  </a>
-               </div>
-               <p className="text-zinc-600 text-xs">
-                  © 2025 Pascal Hintermaier • Built with React, Tailwind & ☕
-               </p>
-            </div>
-         </footer>
-
-         {/* IMPRESSUM */}
-         <section id="impressum" className="py-16 px-4 bg-[var(--bg-primary)] border-t border-[var(--border-color)]">
-            <div className="max-w-4xl mx-auto">
-               <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Impressum</h2>
-               <div className="space-y-4 text-[var(--text-secondary)]">
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">Angaben gemäß § 5 TMG</h3>
-                     <p className="mt-2">Pascal Hintermaier</p>
-                     <p>Musterstraße 123</p>
-                     <p>68161 Mannheim</p>
-                     <p>Deutschland</p>
-                  </div>
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">Kontakt</h3>
-                     <p className="mt-2">E-Mail: kontakt@pascalhintermaier.de</p>
-                  </div>
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">Verantwortlich für den Inhalt</h3>
-                     <p className="mt-2">Pascal Hintermaier</p>
-                  </div>
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">Haftung für Inhalte</h3>
-                     <p className="mt-2">Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
-                  </div>
-               </div>
-            </div>
-         </section>
-
-         {/* DATENSCHUTZ */}
-         <section id="datenschutz" className="py-16 px-4 bg-[var(--bg-card)] border-t border-[var(--border-color)]">
-            <div className="max-w-4xl mx-auto">
-               <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-8">Datenschutzerklärung</h2>
-               <div className="space-y-6 text-[var(--text-secondary)]">
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">1. Datenschutz auf einen Blick</h3>
-                     <p className="mt-2">Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre persönlichen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
-                  </div>
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">2. Datenerfassung auf dieser Website</h3>
-                     <p className="mt-2">Diese Website ist ein statisches Portfolio. Es werden keine persönlichen Daten (Name, E-Mail-Adresse, etc.) auf unseren Servern gespeichert. Die Website nutzt lokale Dienste:</p>
-                     <ul className="list-disc list-inside mt-2 ml-4 space-y-1">
-                        <li>Lokale Speicherung des ausgewählten Themes im Browser (localStorage)</li>
-                        <li>Optional: AI-Chat-Funktion sendet Nachrichten an HuggingFace API (nach Zustimmung)</li>
-                     </ul>
-                  </div>
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">3. Cookies</h3>
-                     <p className="mt-2">Diese Website verwendet keine Cookies. Es wird lediglich localStorage verwendet, um Ihre Theme-Präferenz lokal zu speichern.</p>
-                  </div>
-                  <div>
-                     <h3 className="font-semibold text-[var(--text-primary)]">4. AI-Chat-Funktionalität</h3>
-                     <p className="mt-2">Wenn Sie die AI-Chat-Funktion verwenden, werden Ihre Nachrichten an die HuggingFace API gesendet, um Antworten zu generieren. Dies geschieht nur, wenn Sie aktiv Text eingeben und senden. Wir speichern keine dieser Daten auf unseren Servern.</p>
-                     <p className="mt-2"><strong>Stand:</strong> Januar 2025</p>
-                  </div>
-               </div>
-            </div>
-         </section>
-
-      </div>
+         <Route path="/fluidum" element={
+            <Suspense fallback={<div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">Loading Fluidum OS...</div>}>
+               <FluidumDashboard />
+            </Suspense>
+         } />
+      </Routes>
    );
 }
 

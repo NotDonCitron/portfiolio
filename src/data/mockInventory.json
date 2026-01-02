@@ -1,0 +1,110 @@
+[
+    {
+        "id": "ITEM-1001",
+        "name": "Premium Gin 'Black Forest'",
+        "category": "Spirituosen",
+        "quantity": 12,
+        "location": "A-01-02",
+        "status": "in_stock",
+        "lastUpdated": "2025-12-28T14:30:00"
+    },
+    {
+        "id": "ITEM-1002",
+        "name": "Tonic Water (Glas)",
+        "category": "Antialkoholika",
+        "quantity": 48,
+        "location": "B-02-01",
+        "status": "in_stock",
+        "lastUpdated": "2025-12-29T09:15:00"
+    },
+    {
+        "id": "ITEM-1003",
+        "name": "Limettensaft Frisch",
+        "category": "Frische",
+        "quantity": 2,
+        "location": "K-01-A",
+        "status": "low_stock",
+        "lastUpdated": "2026-01-02T08:00:00"
+    },
+    {
+        "id": "ITEM-1004",
+        "name": "Rohrzucker Sirup",
+        "category": "Sirup",
+        "quantity": 5,
+        "location": "A-01-04",
+        "status": "in_stock",
+        "lastUpdated": "2025-12-30T16:45:00"
+    },
+    {
+        "id": "ITEM-1005",
+        "name": "Cocktail-Servietten",
+        "category": "Non-Food",
+        "quantity": 500,
+        "location": "L-03-01",
+        "status": "in_stock",
+        "lastUpdated": "2025-11-15T10:00:00"
+    },
+    {
+        "id": "ITEM-1006",
+        "name": "Wodka Premium",
+        "category": "Spirituosen",
+        "quantity": 0,
+        "location": "A-02-01",
+        "status": "out_of_stock",
+        "lastUpdated": "2026-01-01T23:00:00"
+    },
+    {
+        "id": "ITEM-1007",
+        "name": "Eiswürfel (Würfel)",
+        "category": "Eis",
+        "quantity": 50,
+        "location": "K-02-B",
+        "status": "in_stock",
+        "lastUpdated": "2026-01-02T12:00:00"
+    },
+    {
+        "id": "ITEM-1008",
+        "name": "Minze Frisch",
+        "category": "Frische",
+        "quantity": 10,
+        "location": "K-01-B",
+        "status": "optimal",
+        "lastUpdated": "2026-01-02T08:15:00"
+    },
+    {
+        "id": "ITEM-1009",
+        "name": "Glas 'Tumbler'",
+        "category": "Non-Food",
+        "quantity": 30,
+        "location": "G-01-01",
+        "status": "in_stock",
+        "lastUpdated": "2025-10-20T11:00:00"
+    },
+    {
+        "id": "ITEM-1010",
+        "name": "Whisky 'Single Malt'",
+        "category": "Spirituosen",
+        "quantity": 4,
+        "location": "A-03-02",
+        "status": "low_stock",
+        "lastUpdated": "2025-12-25T18:00:00"
+    },
+    {
+        "id": "ITEM-1011",
+        "name": "Orangen",
+        "category": "Frische",
+        "quantity": 15,
+        "location": "K-01-C",
+        "status": "in_stock",
+        "lastUpdated": "2026-01-02T08:00:00"
+    },
+    {
+        "id": "ITEM-1012",
+        "name": "Strohhalme (Papier)",
+        "category": "Non-Food",
+        "quantity": 1000,
+        "location": "L-03-02",
+        "status": "optimal",
+        "lastUpdated": "2025-09-01T10:00:00"
+    }
+]

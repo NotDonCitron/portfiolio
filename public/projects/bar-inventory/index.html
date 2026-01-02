@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Inventar Manager | Bestandsverwaltung</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍸</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">🍸</span>
+                <div class="logo-text">
+                    <h1>Bar Inventar Manager</h1>
+                    <span class="tagline">Professionelle Bestandsverwaltung</span>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat">
+                    <span class="stat-value" id="totalItems">0</span>
+                    <span class="stat-label">Produkte</span>
+                </div>
+                <div class="stat warning">
+                    <span class="stat-value" id="lowStockCount">0</span>
+                    <span class="stat-label">Nachbestellen</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="totalValue">0€</span>
+                    <span class="stat-label">Warenwert</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Produkt suchen...">
+                </div>
+
+                <nav class="category-nav">
+                    <h3>Kategorien</h3>
+                    <ul class="category-list">
+                        <li class="category-item active" data-category="all">
+                            <span class="cat-icon">📦</span>
+                            <span class="cat-name">Alle Produkte</span>
+                            <span class="cat-count" id="count-all">0</span>
+                        </li>
+                        <li class="category-item" data-category="spirits">
+                            <span class="cat-icon">🥃</span>
+                            <span class="cat-name">Spirituosen</span>
+                            <span class="cat-count" id="count-spirits">0</span>
+                        </li>
+                        <li class="category-item" data-category="wine">
+                            <span class="cat-icon">🍷</span>
+                            <span class="cat-name">Wein & Sekt</span>
+                            <span class="cat-count" id="count-wine">0</span>
+                        </li>
+                        <li class="category-item" data-category="beer">
+                            <span class="cat-icon">🍺</span>
+                            <span class="cat-name">Bier</span>
+                            <span class="cat-count" id="count-beer">0</span>
+                        </li>
+                        <li class="category-item" data-category="softdrinks">
+                            <span class="cat-icon">🥤</span>
+                            <span class="cat-name">Softdrinks</span>
+                            <span class="cat-count" id="count-softdrinks">0</span>
+                        </li>
+                        <li class="category-item" data-category="ingredients">
+                            <span class="cat-icon">🍋</span>
+                            <span class="cat-name">Zutaten</span>
+                            <span class="cat-count" id="count-ingredients">0</span>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="quick-actions">
+                    <button class="action-btn primary" id="addProductBtn">
+                        <span>➕</span> Neues Produkt
+                    </button>
+                    <button class="action-btn" id="exportBtn">
+                        <span>📊</span> Export (CSV)
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Product Grid -->
+            <section class="product-section">
+                <div class="section-header">
+                    <h2 id="currentCategoryTitle">Alle Produkte</h2>
+                    <div class="view-controls">
+                        <button class="view-btn active" data-view="grid">▦</button>
+                        <button class="view-btn" data-view="list">☰</button>
+                    </div>
+                </div>
+
+                <div class="product-grid" id="productGrid">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <span class="empty-icon">📭</span>
+                    <h3>Keine Produkte gefunden</h3>
+                    <p>Fügen Sie Ihr erstes Produkt hinzu oder ändern Sie die Filter.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Add/Edit Product Modal -->
+        <div class="modal-overlay" id="productModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Neues Produkt</h2>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+                <form id="productForm">
+                    <div class="form-group">
+                        <label for="productName">Produktname *</label>
+                        <input type="text" id="productName" required placeholder="z.B. Absolut Vodka">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productCategory">Kategorie *</label>
+                            <select id="productCategory" required>
+                                <option value="">Auswählen...</option>
+                                <option value="spirits">🥃 Spirituosen</option>
+                                <option value="wine">🍷 Wein & Sekt</option>
+                                <option value="beer">🍺 Bier</option>
+                                <option value="softdrinks">🥤 Softdrinks</option>
+                                <option value="ingredients">🍋 Zutaten</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productSize">Größe</label>
+                            <input type="text" id="productSize" placeholder="z.B. 0.7L">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productStock">Bestand *</label>
+                            <input type="number" id="productStock" required min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="productMinStock">Mindestbestand</label>
+                            <input type="number" id="productMinStock" min="0" placeholder="5">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productPrice">Einkaufspreis (€)</label>
+                            <input type="number" id="productPrice" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="productSellPrice">Verkaufspreis (€)</label>
+                            <input type="number" id="productSellPrice" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productNotes">Notizen</label>
+                        <textarea id="productNotes" rows="2" placeholder="Zusätzliche Informationen..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelBtn">Abbrechen</button>
+                        <button type="submit" class="btn-primary">Speichern</button>
+                    </div>
+                    <input type="hidden" id="productId">
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>🍸 Bar Inventar Manager | Entwickelt von <a href="../../">Pascal Hintermaier</a></p>
+            <p class="footer-note">Basierend auf 6 Jahren Erfahrung in der Gastronomie</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

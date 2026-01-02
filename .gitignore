@@ -40,3 +40,6 @@ __pycache__/
 
 # Hugging Face Tokens (double protection)
 
+
+.gemini/
+gha-creds-*.json

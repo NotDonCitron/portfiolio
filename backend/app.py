@@ -257,6 +257,101 @@ def health():
     return jsonify({"status": "ok", "model": MODEL_NAME, "opencv": cv2.__version__})
 
 
+# ========================================
+# Fluidum Management API
+# ========================================
+
+from models import db, Staff, Shift, Task, InventoryItem, TrainingModule, SystemTelemetry
+from datetime import datetime
+
+# Initialize DB
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fluidum.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
+    # Create some dummy data if empty
+    if not Staff.query.first():
+        admin = Staff(name='Pascal Hintermaier', role='Admin', status='Active', skills='Management, IT')
+        bar_chef = Staff(name='Max Mustermann', role='Bar-Chef', status='Active', skills='Cocktails, Leadership')
+        db.session.add(admin)
+        db.session.add(bar_chef)
+        for i in range(5):
+             db.session.add(Staff(name=f'Employee {i+1}', role='Employee', status='Active'))
+        
+        # Dummy Inventory with Tech Enrichment
+        db.session.add(InventoryItem(name='Vodka Absolut', category='Spirits', quantity=24, unit='Bottles', min_threshold=6, sensor_id='RFID-V-001', storage_zone='Main-Rear', consumption_rate=1.2))
+        db.session.add(InventoryItem(name='Lime Juice', category='Mixers', quantity=2, unit='L', min_threshold=10, sensor_id='SCALE-L-4', storage_zone='Cold-Storage-1', consumption_rate=4.5))
+        db.session.add(InventoryItem(name='CO2 Cylinder', category='Consumables', quantity=85, unit='%', min_threshold=15, sensor_id='PRES-CO2', storage_zone='Cellar', consumption_rate=0.5))
+        
+        # Dummy Telemetry
+        db.session.add(SystemTelemetry(metric_type='Temperature', value=4.2, unit='°C', status='Normal'))
+        db.session.add(SystemTelemetry(metric_type='Pressure', value=2.8, unit='bar', status='Normal'))
+        db.session.add(SystemTelemetry(metric_type='CO2', value=850, unit='ppm', status='Warning'))
+        db.session.add(SystemTelemetry(metric_type='Coolant Flow', value=12.5, unit='L/min', status='Normal'))
+        
+        db.session.commit()
+
+@app.route("/api/fluidum/staff", methods=["GET", "POST"])
+def manage_staff():
+    if request.method == "POST":
+        data = request.json
+        new_staff = Staff(
+            name=data['name'], 
+            role=data.get('role', 'Employee'),
+            contact=data.get('contact', ''),
+            skills=data.get('skills', '')
+        )
+        db.session.add(new_staff)
+        db.session.commit()
+        return jsonify(new_staff.to_dict()), 201
+    
+    staff = Staff.query.all()
+    return jsonify([s.to_dict() for s in staff])
+
+@app.route("/api/fluidum/shifts", methods=["GET", "POST"])
+def manage_shifts():
+    if request.method == "POST":
+        data = request.json
+        new_shift = Shift(
+            staff_id=data['staffId'],
+            title=data['title'],
+            start_time=datetime.fromisoformat(data['start'].replace('Z', '+00:00')),
+            end_time=datetime.fromisoformat(data['end'].replace('Z', '+00:00')),
+            location=data.get('location', 'Main Bar')
+        )
+        db.session.add(new_shift)
+        db.session.commit()
+        return jsonify(new_shift.to_dict()), 201
+        
+    shifts = Shift.query.all()
+    return jsonify([s.to_dict() for s in shifts])
+
+@app.route("/api/fluidum/logistics", methods=["GET"])
+def get_inventory():
+    items = InventoryItem.query.all()
+    return jsonify([i.to_dict() for i in items])
+
+@app.route("/api/fluidum/telemetry", methods=["GET"])
+def get_telemetry():
+    metrics = SystemTelemetry.query.all()
+    return jsonify([m.to_dict() for m in metrics])
+
+@app.route("/api/fluidum/tasks", methods=["GET", "POST"])
+def manage_tasks():
+    if request.method == "POST":
+        data = request.json
+        new_task = Task(title=data['title'], status='Pending')
+        db.session.add(new_task)
+        db.session.commit()
+        return jsonify(new_task.to_dict())
+    
+    tasks = Task.query.all()
+    return jsonify([t.to_dict() for t in tasks])
+
+
 if __name__ == "__main__":
-    print(f"🚀 Starting Unified AI & CV Backend...")
+    print(f"🚀 Starting Unified AI & CV Backend with Fluidum Management...")
     app.run(host="0.0.0.0", port=5000, debug=True)
+

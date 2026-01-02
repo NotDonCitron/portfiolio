@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passwort-Sicherheits-Checker | Security Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="shield-icon">🛡️</span>
+                <h1>Passwort-Sicherheits-Checker</h1>
+            </div>
+            <p class="subtitle">Testen Sie, wie sicher Ihr Passwort wirklich ist</p>
+        </header>
+
+        <main>
+            <div class="password-input-section">
+                <div class="input-wrapper">
+                    <input 
+                        type="password" 
+                        id="passwordInput" 
+                        placeholder="Geben Sie ein Passwort ein..."
+                        autocomplete="off"
+                    >
+                    <button id="toggleVisibility" class="toggle-btn" aria-label="Passwort anzeigen">
+                        <span class="eye-icon">👁️</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="strength-meter">
+                <div class="meter-bar">
+                    <div class="meter-fill" id="meterFill"></div>
+                </div>
+                <div class="strength-label" id="strengthLabel">Bitte Passwort eingeben</div>
+            </div>
+
+            <div class="criteria-section">
+                <h2>Sicherheitskriterien</h2>
+                <ul class="criteria-list">
+                    <li id="criteria-length" class="criteria-item">
+                        <span class="check-icon">○</span>
+                        <span>Mindestens 8 Zeichen</span>
+                    </li>
+                    <li id="criteria-uppercase" class="criteria-item">
+                        <span class="check-icon">○</span>
+                        <span>Großbuchstaben (A-Z)</span>
+                    </li>
+                    <li id="criteria-lowercase" class="criteria-item">
+                        <span class="check-icon">○</span>
+                        <span>Kleinbuchstaben (a-z)</span>
+                    </li>
+                    <li id="criteria-numbers" class="criteria-item">
+                        <span class="check-icon">○</span>
+                        <span>Zahlen (0-9)</span>
+                    </li>
+                    <li id="criteria-special" class="criteria-item">
+                        <span class="check-icon">○</span>
+                        <span>Sonderzeichen (!@#$%^&*)</span>
+                    </li>
+                    <li id="criteria-norepeat" class="criteria-item">
+                        <span class="check-icon">○</span>
+                        <span>Keine 3 gleichen Zeichen hintereinander</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="entropyValue">0</span>
+                        <span class="stat-label">Bit Entropie</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="crackTime">-</span>
+                        <span class="stat-label">Knack-Zeit</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔢</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="combinations">0</span>
+                        <span class="stat-label">Kombinationen</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tips-section">
+                <h2>💡 Tipps für sichere Passwörter</h2>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <span class="tip-icon">📏</span>
+                        <p>Nutzen Sie mindestens 12 Zeichen</p>
+                    </div>
+                    <div class="tip-card">
+                        <span class="tip-icon">🎲</span>
+                        <p>Vermeiden Sie persönliche Daten</p>
+                    </div>
+                    <div class="tip-card">
+                        <span class="tip-icon">🔄</span>
+                        <p>Nutzen Sie für jeden Dienst ein eigenes Passwort</p>
+                    </div>
+                    <div class="tip-card">
+                        <span class="tip-icon">🗝️</span>
+                        <p>Erwägen Sie einen Passwort-Manager</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🔒 Ihre Eingaben werden nicht gespeichert oder übertragen</p>
+            <p class="credit">Entwickelt von <a href="../../">Pascal Hintermaier</a> | Security Tools</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
