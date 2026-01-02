@@ -1,156 +1,117 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaRobot, FaChevronDown } from 'react-icons/fa';
-import type { Problem } from './types';
 import { problems, stats, sources } from './data';
+import type { Problem } from './types';
 import './AmtGPT.css';
 
-const AmtGPTSimulator = () => {
+const AmtGPTSimulator: React.FC = () => {
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'CRITICAL': return 'bg-red-500 text-white';
+      case 'HIGH': return 'bg-orange-500 text-white';
+      case 'MEDIUM': return 'bg-blue-500 text-white';
+      default: return 'bg-zinc-500 text-white';
+    }
+  };
 
   return (
-    <div className="amt-gpt-container">
-      <div className="amt-gpt-simulator">
-        {/* Header */}
-        <div className="amt-gpt-header">
-          <h2>
-            <FaRobot />
-            Amt-GPT Simulator
-          </h2>
-          <p>Erleben Sie die "digitale Transformation" der Bundesagentur für Arbeit</p>
+    <div className="amt-gpt-simulator p-4 md:p-6 bg-zinc-950 rounded-2xl border border-zinc-800">
+      {/* Satire Warning Banner */}
+      <div className="mb-6 p-3 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3">
+        <span className="text-2xl">⚠️</span>
+        <div className="text-xs text-red-200 uppercase tracking-widest font-bold">
+          Satirische Simulation: Basiert auf echten technischen Fehlern & akademischer Forschung (Administrative Burden)
         </div>
+      </div>
 
-        {/* Warning Banner */}
-        <div className="amt-gpt-warning">
-          <p>
-            ⚠️ <strong>Satirische Darstellung:</strong> Diese Antworten basieren auf echten technischen Problemen, 
-            dokumentiert durch Bundesrechnungshof, akademische Forschung und Nutzerbeschwerden.
-          </p>
-        </div>
-
-        {/* Simulation Area - Two Column Grid */}
-        <div className="simulation-area">
-          {/* Left: Problems List */}
-          <div className="problems-list">
-            {problems.map((problem) => (
-              <motion.button
-                key={problem.id}
-                className={`problem-button ${selectedProblem?.id === problem.id ? 'active' : ''}`}
-                onClick={() => setSelectedProblem(problem)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Problems Selection */}
+        <div className="space-y-3">
+          <h3 className="text-zinc-400 text-xs font-mono uppercase tracking-widest mb-4">Problem wählen</h3>
+          <div className="grid grid-cols-1 gap-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            {problems.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setSelectedProblem(p)}
+                className={`text-left p-4 rounded-xl border transition-all duration-200 ${selectedProblem?.id === p.id
+                    ? 'bg-zinc-800 border-zinc-600 shadow-lg translate-x-1'
+                    : 'bg-zinc-900/50 border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700'
+                  }`}
               >
-                <span className="title">{problem.title}</span>
-                <span className={`severity-badge ${problem.severity.toLowerCase()}`}>
-                  {problem.severity}
-                </span>
-              </motion.button>
+                <div className="font-bold text-sm mb-1">{p.title}</div>
+                <div className="flex gap-2">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${getSeverityColor(p.severity)}`}>
+                    {p.severity}
+                  </span>
+                  {p.tags.map(tag => (
+                    <span key={tag} className="text-[10px] text-zinc-500 font-mono">#{tag}</span>
+                  ))}
+                </div>
+              </button>
             ))}
           </div>
+        </div>
 
-          {/* Right: Response Area */}
-          <div className="response-area">
+        {/* Response Area */}
+        <div className="flex flex-col h-full">
+          <h3 className="text-zinc-400 text-xs font-mono uppercase tracking-widest mb-4">Amt-GPT Antwort</h3>
+          <div className="flex-grow bg-black rounded-2xl border border-zinc-800 p-6 flex flex-col justify-center min-h-[300px] relative overflow-hidden">
+            {/* Background Robot Decoration */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] opacity-5 pointer-events-none">
+              🤖
+            </div>
+
             <AnimatePresence mode="wait">
               {selectedProblem ? (
                 <motion.div
                   key={selectedProblem.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="response-content"
+                  exit={{ opacity: 0, y: -10 }}
+                  className="relative z-10"
                 >
-                  {/* Bot Response */}
-                  <div className="bot-response">
-                    <div className="label">
-                      <FaRobot /> Amt-GPT sagt:
+                  <div className="text-xl md:text-2xl font-serif italic text-zinc-100 mb-6 leading-relaxed">
+                    "{selectedProblem.response}"
+                  </div>
+                  <div className="mt-8 pt-6 border-t border-zinc-800">
+                    <div className="text-xs font-mono text-zinc-500 uppercase mb-2">Technische Ursache (Reales System)</div>
+                    <div className="text-sm text-zinc-400 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/50">
+                      {selectedProblem.reason}
                     </div>
-                    <p className="text">{selectedProblem.response}</p>
-                  </div>
-
-                  {/* Technical Reason */}
-                  <div className="technical-reason">
-                    <div className="label">🔧 Technische Ursache:</div>
-                    <p className="text">{selectedProblem.reason}</p>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="tags-container">
-                    {selectedProblem.tags.map((tag) => (
-                      <span key={tag} className="tag">
-                        {tag}
-                      </span>
-                    ))}
                   </div>
                 </motion.div>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="response-placeholder"
-                >
-                  <span className="icon">👈</span>
-                  <p>Wählen Sie ein Problem aus der Liste</p>
-                </motion.div>
+                <div className="text-center text-zinc-500 italic">
+                  Bitte wählen Sie links ein Szenario aus,<br />um die Reaktion des Systems zu simulieren.
+                </div>
               )}
             </AnimatePresence>
           </div>
         </div>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="stats-grid">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              className="stat-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className="value">{stat.value}</div>
-              <div className="label">{stat.label}</div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Sources Section */}
-        <div className="sources-section">
-          <div 
-            className="sources-header"
-            onClick={() => setSourcesOpen(!sourcesOpen)}
-          >
-            <h4>📚 Quellen & Dokumentation</h4>
-            <FaChevronDown className={`toggle-icon ${sourcesOpen ? 'open' : ''}`} />
+      {/* Stats Grid */}
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 text-center">
+            <div className="text-2xl font-bold text-zinc-100">{stat.value}</div>
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider">{stat.label}</div>
           </div>
-          
-          <AnimatePresence>
-            {sourcesOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                style={{ overflow: 'hidden' }}
-              >
-                <div className="sources-list">
-                  {sources.map((source, index) => (
-                    <motion.div
-                      key={index}
-                      className="source-card"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <span className="source-badge">{source.badge}</span>
-                      <div className="title">{source.title}</div>
-                      <div className="description">{source.description}</div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        ))}
+      </div>
+
+      {/* Sources */}
+      <div className="mt-8 pt-6 border-t border-zinc-800">
+        <h3 className="text-zinc-400 text-xs font-mono uppercase tracking-widest mb-4">Referenzen & Quellen</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {sources.map((source, i) => (
+            <div key={i} className="text-[11px] text-zinc-500 bg-zinc-900/20 p-2 rounded-lg border border-zinc-900">
+              <span className="font-bold text-zinc-400 mr-2">[{source.badge}]</span>
+              <span className="text-zinc-300">{source.title}:</span> {source.description}
+            </div>
+          ))}
         </div>
       </div>
     </div>

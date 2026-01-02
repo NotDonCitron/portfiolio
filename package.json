@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@genkit-ai/mcp": "^1.27.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.26",
@@ -24,7 +25,8 @@
     "react-router-dom": "^7.11.0",
     "recharts": "^3.6.0",
     "tailwind-merge": "^3.4.0",
-    "transformers": "^3.1.0"
+    "transformers": "^1.8.3",
+    "vibe-kanban-web-companion": "^0.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

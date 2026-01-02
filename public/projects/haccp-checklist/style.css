@@ -1,5 +1,16 @@
-/* HACCP Checkliste - Praktisches, einfaches Design */
-/* Bewusst simpel gehalten - wie ein echtes Arbeits-Tool */
+/* Bar-OS: Neural HACCP Protocol - Dark Aesthetic */
+:root {
+    --bg-dark: #0a0a0c;
+    --panel-bg: rgba(20, 20, 25, 0.85);
+    --neon-cyan: #00f2ff;
+    --neon-green: #00ff9d;
+    --neon-red: #ff3e3e;
+    --neon-yellow: #ffcc00;
+    --text-primary: #e0e0e0;
+    --text-secondary: #888;
+    --border-color: #2a2a35;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
 
 * {
     margin: 0;
@@ -8,376 +19,474 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    color: #333;
-    line-height: 1.4;
+    font-family: var(--font-mono);
+    background: var(--bg-dark);
+    background-image:
+        radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.05) 0%, transparent 50%),
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 100%, 100% 4px, 100% 100%;
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 15px;
-    background: #fff;
-    min-height: 100vh;
+    padding: 30px 20px;
+    position: relative;
+    z-index: 1;
 }
 
-/* Header - simpel */
+/* Neural Background Effects */
+.neural-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.1;
+    background:
+        linear-gradient(90deg, var(--border-color) 1px, transparent 1px) 0 0 / 50px 50px,
+        linear-gradient(var(--border-color) 1px, transparent 1px) 0 0 / 50px 50px;
+}
+
+/* Header */
 header {
-    text-align: center;
-    padding: 15px 0;
-    border-bottom: 2px solid #333;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
+    padding: 20px;
+    border-left: 4px solid var(--neon-cyan);
+    background: var(--panel-bg);
+    position: relative;
+    overflow: hidden;
+}
+
+.os-version {
+    font-size: 0.7rem;
+    color: var(--neon-cyan);
+    margin-bottom: 5px;
+    letter-spacing: 2px;
 }
 
 header h1 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 5px;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
 }
 
 .subtitle {
-    color: #666;
-    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    letter-spacing: 5px;
 }
 
-/* Datum & Schicht Zeile */
-.date-section {
-    background: #eee;
-    padding: 10px;
-    margin-bottom: 20px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.date-section label,
-.shift-label {
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-
-.date-section input,
-.date-section select {
-    padding: 5px 8px;
-    border: 1px solid #999;
-    font-size: 0.9rem;
-}
-
-/* Sektionen */
-.checklist-section {
-    margin-bottom: 25px;
-    border: 1px solid #ccc;
-    padding: 15px;
-}
-
-.checklist-section h2 {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #ddd;
-}
-
-/* Tabellen - klassisch */
-.check-table {
+.header-scanner {
+    position: absolute;
+    top: 0;
+    left: -100%;
     width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    animation: scan 4s linear infinite;
 }
 
-.check-table th,
-.check-table td {
-    border: 1px solid #999;
-    padding: 8px;
-    text-align: left;
+@keyframes scan {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
 }
 
-.check-table th {
-    background: #ddd;
-    font-weight: bold;
+/* Sessions Section */
+.date-section {
+    background: var(--panel-bg);
+    padding: 20px;
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    border: 1px solid var(--border-color);
+    border-top: 2px solid var(--neon-cyan);
 }
 
-.check-table tr:nth-child(even) {
-    background: #f9f9f9;
-}
-
-.temp-input {
-    width: 60px;
-    padding: 3px;
-    border: 1px solid #999;
-    text-align: center;
-}
-
-.status-cell {
-    text-align: center;
-    font-weight: bold;
-}
-
-.status-ok {
-    color: green;
-}
-
-.status-warn {
-    color: #c60;
-    background: #fff3cd;
-}
-
-.status-bad {
-    color: red;
-    background: #ffdddd;
-}
-
-/* Checkbox Liste */
-.check-list {
+.input-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.check-item {
+.input-group label,
+.ticker-label {
+    font-size: 0.7rem;
+    color: var(--neon-cyan);
+    font-weight: bold;
+}
+
+.date-section input,
+.date-section select {
+    background: #000;
+    border: 1px solid var(--border-color);
+    color: var(--neon-cyan);
+    padding: 8px;
+    font-family: inherit;
+    outline: none;
+}
+
+.status-ticker {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.ticker-value {
+    font-size: 0.8rem;
+    color: var(--neon-green);
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Checklist Sections */
+.checklist-section {
+    background: var(--panel-bg);
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.checklist-section h2 {
+    font-size: 0.9rem;
+    color: var(--neon-cyan);
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 10px;
+    text-transform: uppercase;
+}
+
+.pulse-icon {
+    width: 8px;
+    height: 8px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon-cyan);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    70% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* Tables */
+.check-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 5px;
+}
+
+.check-table th {
+    text-align: left;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    padding: 10px;
+    text-transform: uppercase;
+}
+
+.check-table td {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px 10px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.check-table tr td:first-child {
+    border-left: 1px solid var(--border-color);
+}
+
+.check-table tr td:last-child {
+    border-right: 1px solid var(--border-color);
+}
+
+.temp-input {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--neon-cyan);
+    width: 80px;
     padding: 5px;
+    text-align: center;
+}
+
+.status-cell {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-ok {
+    color: var(--neon-green);
+}
+
+.status-warn {
+    color: var(--neon-yellow);
+    text-shadow: 0 0 5px var(--neon-yellow);
+}
+
+.status-bad {
+    color: var(--neon-red);
+    text-shadow: 0 0 10px var(--neon-red);
+}
+
+/* Checklist Boxes */
+.check-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 10px;
+}
+
+.check-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
     cursor: pointer;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
 }
 
 .check-item:hover {
-    background: #f0f0f0;
+    border-color: var(--neon-cyan);
+    background: rgba(0, 242, 255, 0.05);
 }
 
 .check-item input[type="checkbox"] {
+    appearance: none;
     width: 18px;
     height: 18px;
+    border: 1px solid var(--neon-cyan);
+    position: relative;
     cursor: pointer;
 }
 
-.check-item input:checked + span {
-    text-decoration: line-through;
-    color: #666;
+.check-item input[type="checkbox"]:checked {
+    background: var(--neon-cyan);
 }
 
-/* Wareneingang */
+.check-item input[type="checkbox"]:checked::after {
+    content: "LOCKED";
+    position: absolute;
+    left: 25px;
+    top: -2px;
+    font-size: 0.6rem;
+    color: var(--neon-cyan);
+}
+
+/* Inbound Logistics */
 .waren-input {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .waren-input input,
 .waren-input select {
-    padding: 6px;
-    border: 1px solid #999;
-    font-size: 0.9rem;
+    background: #000;
+    border: 1px solid var(--border-color);
+    color: var(--neon-cyan);
+    padding: 10px;
 }
 
 .waren-input input[type="text"] {
-    flex: 1;
-    min-width: 150px;
+    flex: 2;
 }
 
-.waren-input input[type="number"] {
-    width: 80px;
-}
-
-.waren-input button {
-    padding: 6px 12px;
-    background: #4a7c4e;
-    color: white;
-    border: none;
+#add-waren {
+    background: transparent;
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
+    padding: 0 20px;
     cursor: pointer;
-    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
 }
 
-.waren-input button:hover {
-    background: #3d6640;
+#add-waren:hover {
+    background: var(--neon-green);
+    color: #000;
 }
 
-/* Textarea */
-textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #999;
-    font-family: inherit;
-    font-size: 0.9rem;
-    resize: vertical;
-}
-
-/* Signatur Bereich */
+/* Signature & Operator */
 .signature-section {
+    background: var(--panel-bg);
+    padding: 25px;
+    border-left: 4px solid var(--neon-cyan);
     display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f9f9f9;
-    border: 1px solid #ccc;
-    flex-wrap: wrap;
+    gap: 40px;
+    margin-bottom: 40px;
 }
 
 .sig-field {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.sig-field label {
-    font-weight: bold;
-    font-size: 0.9rem;
-    white-space: nowrap;
+    position: relative;
+    flex: 1;
 }
 
 .sig-field input {
-    padding: 5px 8px;
-    border: 1px solid #999;
-    font-size: 0.9rem;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--neon-cyan);
+    padding: 10px 0;
+    font-size: 1.1rem;
+    outline: none;
 }
 
-/* Action Buttons */
+.biometric-scan-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+    transition: width 0.5s ease;
+}
+
+.sig-field input:focus~.biometric-scan-line {
+    width: 100%;
+}
+
+/* Actions */
 .actions {
     display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.actions button {
-    padding: 10px 20px;
-    font-size: 0.95rem;
+.cyber-btn {
+    flex: 1;
+    padding: 15px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.8rem;
     cursor: pointer;
-    border: 1px solid #666;
+    transition: all 0.3s;
 }
 
-#save-btn {
-    background: #2563eb;
-    color: white;
-    border-color: #1d4ed8;
+.cyber-btn.primary {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
 }
 
-#save-btn:hover {
-    background: #1d4ed8;
+.cyber-btn.success {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
 }
 
-#print-btn {
-    background: #eee;
-    color: #333;
+.cyber-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-#print-btn:hover {
-    background: #ddd;
-}
-
-#export-btn {
-    background: #059669;
-    color: white;
-    border-color: #047857;
-}
-
-#export-btn:hover {
-    background: #047857;
+.cyber-btn.primary:hover {
+    background: var(--neon-cyan);
+    color: #000;
 }
 
 /* History */
-.history-section {
-    border-top: 2px solid #333;
-    padding-top: 15px;
-}
-
 .history-section h2 {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 15px;
 }
 
 .history-item {
-    padding: 10px;
-    border: 1px solid #ddd;
-    margin-bottom: 8px;
-    background: #fafafa;
-    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    margin-bottom: 10px;
 }
 
 .history-item .date {
+    color: var(--neon-cyan);
     font-weight: bold;
 }
 
 .history-item .summary {
-    color: #666;
-    margin-top: 3px;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
 }
 
 /* Toast */
 .toast {
     position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 4px;
-    display: none;
-    z-index: 100;
+    top: 20px;
+    right: 20px;
+    background: var(--panel-bg);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    padding: 15px 30px;
+    font-size: 0.8rem;
+    transform: translateX(200%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
 }
 
 .toast.show {
-    display: block;
-}
-
-.toast.success {
-    background: #059669;
+    transform: translateX(0);
 }
 
 .toast.error {
-    background: #dc2626;
+    border-color: var(--neon-red);
+    color: var(--neon-red);
 }
 
-/* Print Styles */
-@media print {
-    body {
-        background: white;
-    }
-    
-    .container {
-        padding: 0;
-    }
-    
-    .actions,
-    .history-section,
-    .toast {
-        display: none !important;
-    }
-    
-    .checklist-section {
-        page-break-inside: avoid;
-    }
-}
-
-/* Mobile */
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-    }
-    
-    header h1 {
-        font-size: 1.2rem;
-    }
-    
-    .date-section {
+@media (max-width: 768px) {
+    .waren-input {
         flex-direction: column;
-        align-items: flex-start;
     }
-    
+
     .signature-section {
         flex-direction: column;
     }
-    
+
     .actions {
         flex-direction: column;
-    }
-    
-    .actions button {
-        width: 100%;
     }
 }

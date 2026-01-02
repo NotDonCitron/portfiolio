@@ -91,34 +91,24 @@ export const stats: Stat[] = [
 ];
 
 export const sources: Source[] = [
-  { 
-    badge: "Behörde", 
-    title: "Bundesrechnungshof (2025)", 
-    description: "Verwaltungsdigitalisierung: Empfehlungen für die 21. Legislaturperiode – Kritik an fehlender IT-Redundanz, Session-Timeout-Problemen, Datenverwaltung" 
+  {
+    badge: "Behörde",
+    title: "Bundesrechnungshof (2025)",
+    description: "Verwaltungsdigitalisierung: Empfehlungen für die 21. Legislaturperiode – Kritik an IT-Redundanz & Session-Management"
   },
-  { 
-    badge: "Akademie", 
-    title: "Herd & Moynihan (2022)", 
-    description: "Administrative Burden Framework – Learning, Compliance, Psychological Costs" 
+  {
+    badge: "Akademie",
+    title: "Herd & Moynihan (2022)",
+    description: "Administrative Burden Framework – Learning, Compliance, Psychological Costs"
   },
-  { 
-    badge: "Forschung", 
-    title: "Sievert & Bruder (2024)", 
-    description: "Administrative Burden and Policy Perceptions – Deutsches Fallstudie zu Arbeitslosengeld" 
+  {
+    badge: "Forschung",
+    title: "Sievert & Bruder (2024)",
+    description: "Administrative Burden and Policy Perceptions – Deutsche Fallstudie"
   },
-  { 
-    badge: "Institut", 
-    title: "WSI / Kaps (2023)", 
-    description: "Digitalisierung in der Bundesagentur für Arbeit – VerBIS, Batch-Processing-Architektur" 
-  },
-  { 
-    badge: "Technik", 
-    title: "AusweisApp FAQ & BundID Support", 
-    description: "127.0.0.1:24727 Fehler, Browser-Inkompatibilität, lokale Authentifizierungsprobleme" 
-  },
-  { 
-    badge: "Nutzer", 
-    title: "Reddit, Trustpilot, Foren", 
-    description: "Session-Timeout-Beschwerden, Upload-Limit-Frustration, Phone-Anxiety-Berichte" 
+  {
+    badge: "Institut",
+    title: "WSI / Kaps (2023)",
+    description: "Digitalisierung in der BA – VerBIS, Batch-Processing-Architektur"
   }
 ];

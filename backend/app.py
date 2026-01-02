@@ -261,7 +261,7 @@ def health():
 # Fluidum Management API
 # ========================================
 
-from models import db, Staff, Shift, Task, InventoryItem, TrainingModule, SystemTelemetry
+from models import db, Staff, Shift, Task, InventoryItem, TrainingModule
 from datetime import datetime
 
 # Initialize DB
@@ -280,16 +280,9 @@ with app.app_context():
         for i in range(5):
              db.session.add(Staff(name=f'Employee {i+1}', role='Employee', status='Active'))
         
-        # Dummy Inventory with Tech Enrichment
-        db.session.add(InventoryItem(name='Vodka Absolut', category='Spirits', quantity=24, unit='Bottles', min_threshold=6, sensor_id='RFID-V-001', storage_zone='Main-Rear', consumption_rate=1.2))
-        db.session.add(InventoryItem(name='Lime Juice', category='Mixers', quantity=2, unit='L', min_threshold=10, sensor_id='SCALE-L-4', storage_zone='Cold-Storage-1', consumption_rate=4.5))
-        db.session.add(InventoryItem(name='CO2 Cylinder', category='Consumables', quantity=85, unit='%', min_threshold=15, sensor_id='PRES-CO2', storage_zone='Cellar', consumption_rate=0.5))
-        
-        # Dummy Telemetry
-        db.session.add(SystemTelemetry(metric_type='Temperature', value=4.2, unit='°C', status='Normal'))
-        db.session.add(SystemTelemetry(metric_type='Pressure', value=2.8, unit='bar', status='Normal'))
-        db.session.add(SystemTelemetry(metric_type='CO2', value=850, unit='ppm', status='Warning'))
-        db.session.add(SystemTelemetry(metric_type='Coolant Flow', value=12.5, unit='L/min', status='Normal'))
+        # Dummy Inventory
+        db.session.add(InventoryItem(name='Vodka Absolut', category='Spirits', quantity=10, unit='Bottles'))
+        db.session.add(InventoryItem(name='Lime Juice', category='Mixers', quantity=2, unit='L', min_threshold=5))
         
         db.session.commit()
 
@@ -332,11 +325,6 @@ def manage_shifts():
 def get_inventory():
     items = InventoryItem.query.all()
     return jsonify([i.to_dict() for i in items])
-
-@app.route("/api/fluidum/telemetry", methods=["GET"])
-def get_telemetry():
-    metrics = SystemTelemetry.query.all()
-    return jsonify([m.to_dict() for m in metrics])
 
 @app.route("/api/fluidum/tasks", methods=["GET", "POST"])
 def manage_tasks():

@@ -71,11 +71,6 @@ class InventoryItem(db.Model):
     unit = db.Column(db.String(20)) # 'L', 'Bottles', 'Kg'
     min_threshold = db.Column(db.Float)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Tech Enrichment
-    sensor_id = db.Column(db.String(50)) # e.g., 'BLE-001'
-    storage_zone = db.Column(db.String(20)) # e.g., 'Zone A-4'
-    consumption_rate = db.Column(db.Float) # Units per day
 
     def to_dict(self):
         return {
@@ -84,29 +79,7 @@ class InventoryItem(db.Model):
             'category': self.category,
             'quantity': self.quantity,
             'unit': self.unit,
-            'status': 'Low Stock' if self.min_threshold and self.quantity < self.min_threshold else 'OK',
-            'sensor_id': self.sensor_id,
-            'storage_zone': self.storage_zone,
-            'consumption_rate': self.consumption_rate,
-            'reorder_prediction': (self.quantity / self.consumption_rate) if self.consumption_rate and self.consumption_rate > 0 else None
-        }
-
-class SystemTelemetry(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    metric_type = db.Column(db.String(50)) # 'Temperature', 'Pressure', 'CO2'
-    value = db.Column(db.Float)
-    unit = db.Column(db.String(10))
-    status = db.Column(db.String(20)) # 'Normal', 'Warning', 'Critical'
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'timestamp': self.timestamp.isoformat(),
-            'type': self.metric_type,
-            'value': self.value,
-            'unit': self.unit,
-            'status': self.status
+            'status': 'Low Stock' if self.min_threshold and self.quantity < self.min_threshold else 'OK'
         }
 
 class TrainingModule(db.Model):

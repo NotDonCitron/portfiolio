@@ -1,68 +1,61 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
-import AmtGPTWorkbench from './AmtGPTWorkbench';
+import AmtGPTSimulator from './AmtGPTSimulator';
 
 interface AmtGPTModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AmtGPTModal = ({ isOpen, onClose }: AmtGPTModalProps) => {
-  // Handle ESC key to close
+const AmtGPTModal: React.FC<AmtGPTModalProps> = ({ isOpen, onClose }) => {
+  // Close on ESC
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
     };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      // Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, onClose]);
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          className="amt-gpt-modal-backdrop"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={onClose}
-        >
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Backdrop */}
           <motion.div
-            className="amt-gpt-modal workbench-modal"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.3, type: 'spring', damping: 25 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Button */}
-            <button
-              className="amt-gpt-close-button"
-              onClick={onClose}
-              aria-label="Modal schließen"
-            >
-              <FaTimes />
-            </button>
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+          />
 
-            {/* Modal Content - Now using Workbench */}
-            <div className="amt-gpt-modal-content workbench-content">
-              <AmtGPTWorkbench />
+          {/* Modal Content */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-5xl bg-zinc-950 rounded-3xl border border-zinc-800 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+          >
+            <div className="sticky top-0 right-0 p-6 flex justify-between items-center bg-zinc-950/80 backdrop-blur-md z-20 border-b border-zinc-900">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🤖</span>
+                <h2 className="text-xl font-bold">Amt-GPT Workbench</h2>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors text-zinc-400 hover:text-white"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="p-4 md:p-8">
+              <AmtGPTSimulator />
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

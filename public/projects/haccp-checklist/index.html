@@ -1,30 +1,43 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HACCP Checkliste - Tägliche Kontrolle</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
+        <div class="neural-overlay"></div>
         <header>
-            <h1>🧊 HACCP Tägliche Kontrolle</h1>
-            <p class="subtitle">Hygiene-Dokumentation für Gastronomie</p>
+            <div class="os-version">v4.0.2 [STABLE]</div>
+            <h1>SYSTEM / Bar-OS: Neural HACCP Protocol</h1>
+            <p class="subtitle">AUTOMATED BIOSAFETY & THERMAL SURVEILLANCE</p>
+            <div class="header-scanner"></div>
         </header>
 
         <div class="date-section">
-            <label for="check-date">Datum:</label>
-            <input type="date" id="check-date">
-            <span class="shift-label">Schicht:</span>
-            <select id="shift">
-                <option value="frueh">Frühschicht</option>
-                <option value="spaet">Spätschicht</option>
-            </select>
+            <div class="input-group">
+                <label for="check-date">SESSION_DATE:</label>
+                <input type="date" id="check-date">
+            </div>
+            <div class="input-group">
+                <span class="shift-label">OPS_SHIFT:</span>
+                <select id="shift">
+                    <option value="frueh">ALPHA_PHASE (Day)</option>
+                    <option value="spaet">OMEGA_PHASE (Night)</option>
+                </select>
+            </div>
+            <div class="status-ticker">
+                <span class="ticker-label">LINK_STATUS:</span>
+                <span class="ticker-value">CONNECTED_TO_KITCHEN_CORE</span>
+            </div>
         </div>
 
         <div class="checklist-section">
-            <h2>Temperaturkontrolle</h2>
+            <h2><span class="pulse-icon"></span> THERMAL_SURVEILLANCE / SENSORS</h2>
             <table class="check-table">
                 <thead>
                     <tr>
@@ -64,7 +77,7 @@
         </div>
 
         <div class="checklist-section">
-            <h2>Hygiene-Checkliste</h2>
+            <h2><span class="pulse-icon"></span> PROTOCOL_COMPLIANCE / BIOSAFETY</h2>
             <div class="check-list" id="hygiene-checks">
                 <label class="check-item">
                     <input type="checkbox" data-task="Hände gewaschen">
@@ -102,7 +115,7 @@
         </div>
 
         <div class="checklist-section">
-            <h2>Wareneingang</h2>
+            <h2><span class="pulse-icon"></span> INBOUND_LOGISTICS / SCANNER</h2>
             <div class="waren-input">
                 <input type="text" id="waren-name" placeholder="Produkt">
                 <input type="number" id="waren-temp" placeholder="Temp °C" step="0.1">
@@ -132,19 +145,20 @@
 
         <div class="signature-section">
             <div class="sig-field">
-                <label>Kontrolliert von:</label>
-                <input type="text" id="controller-name" placeholder="Name">
+                <label>OPERATOR_ID:</label>
+                <input type="text" id="controller-name" placeholder="BIOMETRIC_ID">
+                <div class="biometric-scan-line"></div>
             </div>
             <div class="sig-field">
-                <label>Uhrzeit:</label>
+                <label>SYNC_TIME:</label>
                 <input type="time" id="control-time">
             </div>
         </div>
 
         <div class="actions">
-            <button id="save-btn" type="button">💾 Speichern</button>
-            <button id="print-btn" type="button">🖨️ Drucken</button>
-            <button id="export-btn" type="button">📄 PDF Export</button>
+            <button id="save-btn" type="button" class="cyber-btn primary">COMMIT_LOGS [SAVE]</button>
+            <button id="print-btn" type="button" class="cyber-btn">PHYSICAL_COPY [PRINT]</button>
+            <button id="export-btn" type="button" class="cyber-btn success">DATA_EXTRACT [PDF]</button>
         </div>
 
         <div class="history-section">
@@ -157,4 +171,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

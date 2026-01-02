@@ -3,6 +3,7 @@ import type { ErrorInfo, ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { VibeKanbanWebCompanion } from 'vibe-kanban-web-companion'
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -55,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <BrowserRouter>
         <App />
+        {import.meta.env.DEV && <VibeKanbanWebCompanion />}
       </BrowserRouter>
     </ErrorBoundary>
   </StrictMode>,

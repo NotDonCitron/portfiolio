@@ -2,20 +2,20 @@ export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM';
 
 export interface Problem {
   id: string;
-  title: string;
-  response: string;
-  reason: string;
+  title: string;           
+  response: string;        
+  reason: string;          
   severity: Severity;
-  tags: string[];
+  tags: string[];          
 }
 
 export interface Stat {
-  value: string;
-  label: string;
+  value: string;           
+  label: string;           
 }
 
 export interface Source {
-  badge: string;
-  title: string;
-  description: string;
+  badge: string;           
+  title: string;           
+  description: string;     
 }

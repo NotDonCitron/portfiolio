@@ -19,16 +19,26 @@ export default defineConfig({
     },
   },
   build: {
+    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'framer-motion'],
+          'react-vendor': ['react', 'react-dom'],
+          'framer-motion': ['framer-motion'],
           'icons': ['react-icons/fa', 'react-icons/si'],
+          'qr-scanner': ['html5-qrcode'],
         },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 500,
     cssCodeSplit: true,
+    reportCompressedSize: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'framer-motion', 'react-icons/fa', 'react-icons/si'],

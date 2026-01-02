@@ -1,4 +1,4 @@
-Strategisches Portfolio-Engineering für KI- und Python-Entwickler: Eine umfassende Analyse von Best Practices, Architekturmustern und automatisierter Generierung via Google AI Studio
+Strategisches Portfolio-Engineering" für KI- und Python-Entwickler: Eine umfassende Analyse von Best Practices, Architekturmustern und automatisier"ter Generierung via Google AI Studio
 Executive Summary
 Die Rekrutierungslandschaft für Softwareingenieure, insbesondere in den hochspezialisierten Domänen der Künstlichen Intelligenz (KI) und Python-Entwicklung, durchläuft derzeit einen fundamentalen Paradigmenwechsel. Der traditionelle tabellarische Lebenslauf (CV) verliert zunehmend an Relevanz zugunsten des technischen Portfolios – eines dynamischen, interaktiven Kompetenznachweises, der das Prinzip "Showing over Telling" operationalisiert. Für KI-Ingenieure stellt dies eine besondere Herausforderung dar: Im Gegensatz zu Frontend-Entwicklern, die visuelle Benutzeroberflächen präsentieren können, arbeiten KI-Spezialisten oft mit abstrakten Modellen, Backend-Logik und Datenpipelines, die sich einer einfachen Visualisierung entziehen. Das sogenannte "Notebook-Problem" – die Tendenz, dass Data-Science-Projekte in statischen Jupyter Notebooks verbleiben – erfordert neue Lösungsansätze durch interaktive Web-Frameworks und Storytelling-Techniken.
 Dieser Bericht liefert eine erschöpfende Analyse des Status quo von KI-Portfolios im Jahr 2025. Basierend auf einer Auswertung von über 1.400 Developer-Portfolios, Expertenmeinungen aus Kaggle- und Reddit-Diskussionen sowie aktuellen Industry-Benchmarks werden erfolgreiche Archetypen identifiziert – vom "akademischen Forscher" bis zum "Full-Stack AI Engineer". Die Analyse zeigt, dass Personalverantwortliche durchschnittlich weniger als 30 Sekunden auf einer Portfolio-Seite verbringen, was die Notwendigkeit für sofort erfassbare Wertversprechen und eine klare Informationshierarchie unterstreicht.1
@@ -170,7 +170,7 @@ UX: Smooth Scrolling, klare Call-to-Actions (CTA).
 Inhaltssprache: Deutsch (German).
 REGELN (CONSTRAINTS):
 Der Code muss vollständig und lauffähig sein (keine " // rest of code..." Kommentare).
-Nutze Platzhalter-Bilder von 'https://placehold.co/600x400' für Projekte.
+Nutze Platzhalter-Bilder von '<https://placehold.co/600x400>' für Projekte.
 Die Seite muss vollständig responsive sein (Mobile-First Ansatz).
 Erfinde keine Bibliotheken. Nutze stabile Standards.
 Schritt 2: Der User Prompt (Copy & Paste in den Chat)
@@ -220,7 +220,6 @@ npm install
 npm install tailwindcss postcss autoprefixer lucide-react framer-motion
 npx tailwindcss init -p
 
-
 Fügen Sie den Code in src/App.jsx ein. Passen Sie die tailwind.config.js an, um die Pfade zu Ihren Dateien einzuschließen.
 Asset-Personalisierung:
 Bilder: Ersetzen Sie die placehold.co-Links durch echte Screenshots Ihrer Projekte. Pro-Tipp: Nutzen Sie Tools wie "Screely" oder "Mockuuups Studio", um Ihre Screenshots in hübsche Browser-Rahmen zu fassen. Das wirkt sofort hochwertiger.
@@ -264,31 +263,31 @@ Tabelle 3: Prompt-Struktur Übersicht (Implizit im Text)
 Quellenhinweise:
 Alle Aussagen basieren auf der Analyse aktueller Marktdaten und Expertenmeinungen aus den bereitgestellten Research-Snippets.27 Spezifische Referenzen wurden im Text an den entsprechenden Stellen vermerkt.
 Referenzen
-How to Build an Artificial Intelligence portfolio that gets you hired?, Zugriff am Januar 1, 2026, https://www.projectpro.io/article/artificial-intelligence-portfolio/1140
-9 Data Analytics Portfolio Examples [2025 Edition] - CareerFoundry, Zugriff am Januar 1, 2026, https://careerfoundry.com/en/blog/data-analytics/data-analytics-portfolio-examples/
-react-portfolio-template · GitHub Topics, Zugriff am Januar 1, 2026, https://github.com/topics/react-portfolio-template
-nextjs-portfolio · GitHub Topics, Zugriff am Januar 1, 2026, https://github.com/topics/nextjs-portfolio
-tailwindcss-portfolio · GitHub Topics, Zugriff am Januar 1, 2026, https://github.com/topics/tailwindcss-portfolio
-How I Turned My ML Model into an Interactive Web App Using Streamlit — A Complete Journey | by Thiru | Medium, Zugriff am Januar 1, 2026, https://medium.com/@mthirumalai2905/how-i-turned-my-ml-model-into-an-interactive-web-app-using-streamlit-a-complete-journey-67ecc09b9eb7
-App Gallery - Streamlit, Zugriff am Januar 1, 2026, https://streamlit.io/gallery
-Showcasing Your Work on HuggingFace Spaces - Towards Data Science, Zugriff am Januar 1, 2026, https://towardsdatascience.com/showcasing-your-work-on-huggingface-spaces/
-alshedivat/al-folio: A beautiful, simple, clean, and responsive Jekyll theme for academics - GitHub, Zugriff am Januar 1, 2026, https://github.com/alshedivat/al-folio
-Create a Minimalism GitHub Page for Your Data Science Portfolio in 30 Minutes - Chris Tran, Zugriff am Januar 1, 2026, https://chriskhanhtran.github.io/_posts/2020-01-13-portfolio-tutorial/
-Improve Your Machine Learning or Data Science Portfolio with App Development and Deployment Made Easy with Streamlit - Python in Plain English, Zugriff am Januar 1, 2026, https://python.plainenglish.io/improve-your-machine-learning-or-data-science-portfolio-with-app-development-and-deployment-made-4599323a5901
-tonykipkemboi/portfolio: Streamlit portfolio demo application - GitHub, Zugriff am Januar 1, 2026, https://github.com/tonykipkemboi/portfolio
-jalfr3d/streamlit-portfolio - GitHub, Zugriff am Januar 1, 2026, https://github.com/jalfr3d/streamlit-portfolio
-Build Your Machine Learning Portfolio Using Hugging Face Spaces - Towards AI, Zugriff am Januar 1, 2026, https://towardsai.net/p/l/build-your-machine-learning-portfolio-using-hugging-face-spaces
-Vibe Coding a New Portfolio with Google AI Studio! - DEV Community, Zugriff am Januar 1, 2026, https://dev.to/mccordinator/vibe-coding-a-new-portfolio-with-google-ai-studio-310j
-Google AI Studio: Build, Test & Deploy a Real AI App (Full Guide) - YouTube, Zugriff am Januar 1, 2026, https://www.youtube.com/watch?v=Lnkv0-GLU3w
-Build an AI App for FREE with the New Google AI Studio, Zugriff am Januar 1, 2026, https://medium.com/@proflead/build-an-ai-app-for-free-with-the-new-google-ai-studio-cbb2ae9583de
-Build mode in Google AI Studio | Gemini API, Zugriff am Januar 1, 2026, https://ai.google.dev/gemini-api/docs/aistudio-build-mode
-Google AI Studio quickstart | Gemini API, Zugriff am Januar 1, 2026, https://ai.google.dev/gemini-api/docs/ai-studio-quickstart
-Gemini 2.0 Flash | Generative AI on Vertex AI - Google Cloud Documentation, Zugriff am Januar 1, 2026, https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash
-Gemini 2.0 Flash: Step-by-Step Tutorial With Demo Project - DataCamp, Zugriff am Januar 1, 2026, https://www.datacamp.com/tutorial/gemini-2-0-flash
-AI Studio Build Mode Limitations What You Need to Know - Google AI Developers Forum, Zugriff am Januar 1, 2026, https://discuss.ai.google.dev/t/ai-studio-build-mode-limitations-what-you-need-to-know/112517
-Building Apps in AI Studio - Limitations : r/GeminiAI - Reddit, Zugriff am Januar 1, 2026, https://www.reddit.com/r/GeminiAI/comments/1p493m6/building_apps_in_ai_studio_limitations/
-Prompt Engineering for Generative AI | Machine Learning - Google for Developers, Zugriff am Januar 1, 2026, https://developers.google.com/machine-learning/resources/prompt-eng
-Prompt Engineering for AI Guide | Google Cloud, Zugriff am Januar 1, 2026, https://cloud.google.com/discover/what-is-prompt-engineering
-Portfolio Website Templates - Vercel, Zugriff am Januar 1, 2026, https://vercel.com/templates/portfolio
-10 Machine Learning Projects That Will Boost Your Portfolio - Udacity, Zugriff am Januar 1, 2026, https://www.udacity.com/blog/2025/06/10-machine-learning-projects-that-will-boost-your-portfolio.html
-Google AI Studio's "Build apps with Gemini" leaked its system prompt to me! - Reddit, Zugriff am Januar 1, 2026, https://www.reddit.com/r/GoogleGeminiAI/comments/1l92yqd/google_ai_studios_build_apps_with_gemini_leaked/
+How to Build an Artificial Intelligence portfolio that gets you hired?, Zugriff am Januar 1, 2026, <https://www.projectpro.io/article/artificial-intelligence-portfolio/1140>
+9 Data Analytics Portfolio Examples [2025 Edition] - CareerFoundry, Zugriff am Januar 1, 2026, <https://careerfoundry.com/en/blog/data-analytics/data-analytics-portfolio-examples/>
+react-portfolio-template · GitHub Topics, Zugriff am Januar 1, 2026, <https://github.com/topics/react-portfolio-template>
+nextjs-portfolio · GitHub Topics, Zugriff am Januar 1, 2026, <https://github.com/topics/nextjs-portfolio>
+tailwindcss-portfolio · GitHub Topics, Zugriff am Januar 1, 2026, <https://github.com/topics/tailwindcss-portfolio>
+How I Turned My ML Model into an Interactive Web App Using Streamlit — A Complete Journey | by Thiru | Medium, Zugriff am Januar 1, 2026, <https://medium.com/@mthirumalai2905/how-i-turned-my-ml-model-into-an-interactive-web-app-using-streamlit-a-complete-journey-67ecc09b9eb7>
+App Gallery - Streamlit, Zugriff am Januar 1, 2026, <https://streamlit.io/gallery>
+Showcasing Your Work on HuggingFace Spaces - Towards Data Science, Zugriff am Januar 1, 2026, <https://towardsdatascience.com/showcasing-your-work-on-huggingface-spaces/>
+alshedivat/al-folio: A beautiful, simple, clean, and responsive Jekyll theme for academics - GitHub, Zugriff am Januar 1, 2026, <https://github.com/alshedivat/al-folio>
+Create a Minimalism GitHub Page for Your Data Science Portfolio in 30 Minutes - Chris Tran, Zugriff am Januar 1, 2026, <https://chriskhanhtran.github.io/_posts/2020-01-13-portfolio-tutorial/>
+Improve Your Machine Learning or Data Science Portfolio with App Development and Deployment Made Easy with Streamlit - Python in Plain English, Zugriff am Januar 1, 2026, <https://python.plainenglish.io/improve-your-machine-learning-or-data-science-portfolio-with-app-development-and-deployment-made-4599323a5901>
+tonykipkemboi/portfolio: Streamlit portfolio demo application - GitHub, Zugriff am Januar 1, 2026, <https://github.com/tonykipkemboi/portfolio>
+jalfr3d/streamlit-portfolio - GitHub, Zugriff am Januar 1, 2026, <https://github.com/jalfr3d/streamlit-portfolio>
+Build Your Machine Learning Portfolio Using Hugging Face Spaces - Towards AI, Zugriff am Januar 1, 2026, <https://towardsai.net/p/l/build-your-machine-learning-portfolio-using-hugging-face-spaces>
+Vibe Coding a New Portfolio with Google AI Studio! - DEV Community, Zugriff am Januar 1, 2026, <https://dev.to/mccordinator/vibe-coding-a-new-portfolio-with-google-ai-studio-310j>
+Google AI Studio: Build, Test & Deploy a Real AI App (Full Guide) - YouTube, Zugriff am Januar 1, 2026, <https://www.youtube.com/watch?v=Lnkv0-GLU3w>
+Build an AI App for FREE with the New Google AI Studio, Zugriff am Januar 1, 2026, <https://medium.com/@proflead/build-an-ai-app-for-free-with-the-new-google-ai-studio-cbb2ae9583de>
+Build mode in Google AI Studio | Gemini API, Zugriff am Januar 1, 2026, <https://ai.google.dev/gemini-api/docs/aistudio-build-mode>
+Google AI Studio quickstart | Gemini API, Zugriff am Januar 1, 2026, <https://ai.google.dev/gemini-api/docs/ai-studio-quickstart>
+Gemini 2.0 Flash | Generative AI on Vertex AI - Google Cloud Documentation, Zugriff am Januar 1, 2026, <https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash>
+Gemini 2.0 Flash: Step-by-Step Tutorial With Demo Project - DataCamp, Zugriff am Januar 1, 2026, <https://www.datacamp.com/tutorial/gemini-2-0-flash>
+AI Studio Build Mode Limitations What You Need to Know - Google AI Developers Forum, Zugriff am Januar 1, 2026, <https://discuss.ai.google.dev/t/ai-studio-build-mode-limitations-what-you-need-to-know/112517>
+Building Apps in AI Studio - Limitations : r/GeminiAI - Reddit, Zugriff am Januar 1, 2026, <https://www.reddit.com/r/GeminiAI/comments/1p493m6/building_apps_in_ai_studio_limitations/>
+Prompt Engineering for Generative AI | Machine Learning - Google for Developers, Zugriff am Januar 1, 2026, <https://developers.google.com/machine-learning/resources/prompt-eng>
+Prompt Engineering for AI Guide | Google Cloud, Zugriff am Januar 1, 2026, <https://cloud.google.com/discover/what-is-prompt-engineering>
+Portfolio Website Templates - Vercel, Zugriff am Januar 1, 2026, <https://vercel.com/templates/portfolio>
+10 Machine Learning Projects That Will Boost Your Portfolio - Udacity, Zugriff am Januar 1, 2026, <https://www.udacity.com/blog/2025/06/10-machine-learning-projects-that-will-boost-your-portfolio.html>
+Google AI Studio's "Build apps with Gemini" leaked its system prompt to me! - Reddit, Zugriff am Januar 1, 2026, <https://www.reddit.com/r/GoogleGeminiAI/comments/1l92yqd/google_ai_studios_build_apps_with_gemini_leaked/>

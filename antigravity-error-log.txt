@@ -1,0 +1,8 @@
+[Info  - 12:34:18 PM] Connection to server got closed. Server will restart.
+true
+[Error - 12:34:18 PM] antigravity client: couldn't create connection to server.
+Error: connect ECONNREFUSED 127.0.0.1:46341
+	at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[Error - 12:34:18 PM] Restarting server failed
+Error: connect ECONNREFUSED 127.0.0.1:46341
+	at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)

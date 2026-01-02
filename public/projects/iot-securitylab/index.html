@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar-OS: IoT-Sentinel v1.0.9</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="neural-overlay"></div>
+    <div class="container">
+        <header>
+            <div class="os-header-meta">SYSTEM_ID: SENTINEL-CORE-PROB // STATUS: ACTIVE</div>
+            <h1>SYSTEM / Bar-OS: IoT-Sentinel</h1>
+            <p class="subtitle">NEURAL NETWORK SURVEILLANCE & VULNERABILITY_ASSESSMENT</p>
+            <div class="header-scanner"></div>
+        </header>
+
+        <nav class="cyber-nav">
+            <div class="nav-button active" data-section="dashboard">DASHBOARD_CORE</div>
+            <div class="nav-button" data-section="vulnerabilities">PROBE_RESULT</div>
+            <div class="nav-button" data-section="simulation">ATTACK_VECTOR</div>
+            <div class="nav-button" data-section="terminal">LIVE_FEED</div>
+        </nav>
+
+        <main>
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="dashboard-grid">
+                    <div class="card status-card">
+                        <h3>NET_ASSETS</h3>
+                        <div class="stat" id="total-devices">0</div>
+                        <p class="status secure">SECURE_LINK: <span id="secure-count">0</span></p>
+                        <p class="status vulnerable">BREACH_RISK: <span id="vulnerable-count">0</span></p>
+                    </div>
+                    <div class="card dial-card">
+                        <h3>THREAT_INDEX</h3>
+                        <div class="stat" id="security-score">100%</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="card scan-card">
+                        <h3>NETWORK_HUB</h3>
+                        <div class="input-group">
+                            <label>LOCAL_PREFIX:</label>
+                            <input type="text" id="subnet-input" placeholder="192.168.1">
+                        </div>
+                        <button id="scan-btn" class="cyber-btn primary">INITIATE_SWEEP</button>
+                    </div>
+                    <div class="card live-logs">
+                        <h3>COMM_TRAFFIC</h3>
+                        <div id="simple-log" class="terminal-box">READY_FOR_INPUT...</div>
+                    </div>
+                </div>
+
+                <div class="asset-grid-container">
+                    <h3>DISCOVERED_NODES</h3>
+                    <div id="device-grid" class="node-grid">
+                        <!-- Nodes will be injected here -->
+                        <div class="empty-notice">[SCAN_REQUIRED_FOR_DATA_POPULATION]</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vulnerabilities Section -->
+            <section id="vulnerabilities" class="section">
+                <h2>VULNERABILITY_MATIX</h2>
+                <div id="vulnerability-list" class="vulnerability-grid">
+                    <div class="empty-notice">[NO_ACTIVE_PROBES_DETECTED]</div>
+                </div>
+            </section>
+
+            <!-- Simulation Section -->
+            <section id="simulation" class="section">
+                <h2>THREAT_SIMULATION_CABIN</h2>
+                <div class="simulation-container">
+                    <div class="attack-console">
+                        <select id="attack-type">
+                            <option value="brute-force">BRUTE_FORCE_EXPLOIT</option>
+                            <option value="mitm">PACKET_INTERCEPTION (MITM)</option>
+                            <option value="api-probe">API_UNAUTHORIZED_PROBE</option>
+                        </select>
+                        <button id="execute-attack-btn" class="cyber-btn danger">EXEC_ATTACK</button>
+                    </div>
+                    <div id="attack-log" class="terminal-box">AWAITING_VECTOR_SELECTION...</div>
+                </div>
+            </section>
+
+            <!-- Terminal Section -->
+            <section id="terminal" class="section">
+                <h2>SENTINEL_LIVE_CONSOLE</h2>
+                <div class="full-terminal">
+                    <div id="console-output" class="terminal-box"></div>
+                    <div class="terminal-line">
+                        <span class="prompt">root@sentinel:~#</span>
+                        <input type="text" id="terminal-input" placeholder="COMMAND_INPUT...">
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-status">BAR-OS // LOGISTICS_CORE // KERNEL: 4.0.2</div>
+            <p>LOCAL_NETWORK_INTEGRITY_PROBE / EDUCATIONAL_USE_ONLY</p>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

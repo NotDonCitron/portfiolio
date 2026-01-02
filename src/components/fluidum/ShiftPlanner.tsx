@@ -26,7 +26,7 @@ export default function ShiftPlanner() {
                         className="flex items-center justify-between p-4 bg-zinc-900/30 rounded-lg border border-zinc-800 hover:bg-zinc-900/50 transition-colors"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-zinc-500">
+                            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-zinc-400">
                                 {shift.staff.charAt(0)}
                             </div>
                             <div>
